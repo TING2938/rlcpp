@@ -1,9 +1,7 @@
+from envirenment import ECN_Envirenment
 
-import gym
 import numpy as np
 import tensorflow as tf
-from gym.core import Env
-from tensorflow.keras import losses, optimizers
 
 from agent import MyAgent
 
@@ -16,7 +14,7 @@ GAMMA = 0.99  # reward 的衰减因子，一般取0.9-0.99之间
 # 训练一个episode
 
 
-def run_episode(env: Env, agent: MyAgent):
+def run_episode(env: ECN_Envirenment, agent: MyAgent):
     # print("run episode")
     obs_list, action_list, reward_list = [], [], []
     obs = env.reset()
@@ -25,7 +23,7 @@ def run_episode(env: Env, agent: MyAgent):
         action = agent.sample(obs)
         action_list.append(action)
 
-        next_obs, reward, done, _ = env.step(action)
+        next_obs, reward, done = env.step(action)
         reward_list.append(reward)
         obs = next_obs
         if done:
@@ -33,14 +31,14 @@ def run_episode(env: Env, agent: MyAgent):
     return obs_list, action_list, reward_list
 
 # 评估agent，跑5个episode
-def evaluate(env: Env, agent: MyAgent, render=False):
+def evaluate(env: ECN_Envirenment, agent: MyAgent, render=False):
     eval_reward = []
     for i in range(5):
         obs = env.reset()
         episode_reward = 0
         while True:
             action = agent.predict(obs)
-            next_obs, reward, done, _ = env.step(action)
+            next_obs, reward, done = env.step(action)
             obs = next_obs
             episode_reward += reward
             if render:
@@ -57,11 +55,10 @@ def calc_reward_to_go(reward_list, gamma=1.0):
     return np.array(reward_list)
 
 def main():
-    # CartPole-v0: expected reward > 180
-    # MountainCar-v0 : expected reward > -120
-    env = gym.make('CartPole-v0')
-    action_dim = env.action_space.n  # CartPole-v0: 2
-    obs_dim = env.observation_space.shape[0]  # CartPole-v0: (4,)
+    envModel = 0
+    env = ECN_Envirenment(envModel)
+    action_dim = env.action_space.n  
+    obs_dim = env.state_space.n  
 
     agent = MyAgent(obs_n=obs_dim,
                     act_n=action_dim,
@@ -79,7 +76,7 @@ def main():
         agent.learn(obs_list, action_list, reward_list)
 
         if (episode + 1) % 100 == 0:
-            total_reward = evaluate(env, agent, render=True)
+            total_reward = evaluate(env, agent, render=False)
             print(f"Test reward: {total_reward}") 
     env.close()
 
