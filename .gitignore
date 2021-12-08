@@ -4,6 +4,8 @@ __pycache__/
 
 *.csv
 
+.vscode/
+build/
 draft/
 *.a
 *.out

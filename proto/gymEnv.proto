@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package gymEnv;
+
+message Space {
+    int32 n = 1; // num. of action if type is `Discrete` 
+    repeated int32 shape = 2; // shape of Box if type is `Box`  
+    repeated double high = 3; // high boundary if type is `Box` 
+    repeated double low = 4;  // low boundary if type is `Box`
+    bool bDiscrete = 5; // type is discrete if true else Box 
+}
+
+message EnvSpace {
+    Space action_space = 1;
+    Space obs_space = 2;
+}
+
+message Observation {
+    repeated double obs = 1;
+}
+
+message Action {
+    int32 action = 1;
+}
+
+message StepResult {
+    Observation next_obs = 1;
+    double reward = 2;
+    bool done = 3;
+}
+
+message Msg {
+    string msg = 1;
+}
+
+service GymService {
+    rpc make (Msg) returns (EnvSpace) {}
+    rpc reset (Msg) returns (Observation) {}
+    rpc step(Action) returns (StepResult) {}
+    rpc render(Msg) returns (Msg) {}
+    rpc close(Msg) returns (Msg) {}
+}
