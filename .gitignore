@@ -1,0 +1,9 @@
+.venv/
+model/
+__pycache__/
+
+*.csv
+
+draft/
+*.a
+*.out
