@@ -51,7 +51,7 @@ class EnvServer(GymServiceServicer):
 
 def serve(addr):
     # use thread pool to deal with the tasks of server
-    server = grpc.server(thread_pool=futures.ThreadPoolExecutor(max_workers=8))
+    server = grpc.server(thread_pool=futures.ThreadPoolExecutor(max_workers=1))
 
     # add tasks function to rpc server
     add_GymServiceServicer_to_server(servicer=EnvServer(), server=server)

@@ -6,7 +6,9 @@ int main()
     Int print_interval = 20;
 
     Gym_Env env("10.227.6.189:50053");
-    env.make("CartPole-v0");
+    // MountainCar-v0
+    // CartPole-v0
+    env.make("MountainCar-v0");
     auto action_space = env.action_space();
     auto obs_space = env.obs_space();
     

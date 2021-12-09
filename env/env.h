@@ -19,6 +19,10 @@ struct Env
     void virtual close() = 0;
 
     void virtual render() = 0;
+
+    bool virtual bDiscrete_obs_space() = 0;
+
+    bool virtual bDiscrete_action_space() = 0;
 };
 
 #endif

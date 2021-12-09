@@ -79,6 +79,16 @@ public:
         this->stub_->render(&ctx, this->emptyMsg, &this->emptyMsg);
     }
 
+    bool bDiscrete_action_space() override
+    {
+        return this->envSpace.action_space().bdiscrete();
+    }
+
+    bool bDiscrete_obs_space() override
+    {
+        return this->envSpace.obs_space().bdiscrete();
+    }
+
 private:
     std::unique_ptr<gymEnv::GymService::Stub> stub_;
     gymEnv::EnvSpace envSpace;
