@@ -1,11 +1,11 @@
-#include "environment/gym_env/gym_env.h"
-#include "agent/basic_agent.h"
+#include "../env/gym_env/gym_env.h"
+#include "../agent/basic_agent/basic_agent.h"
 
 int main()
 {
     Int print_interval = 20;
 
-    Gym_Env env("localhost:50053");
+    Gym_Env env("10.227.6.189:50053");
     env.make("CartPole-v0");
     auto action_space = env.action_space();
     auto obs_space = env.obs_space();

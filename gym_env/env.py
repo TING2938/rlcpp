@@ -6,7 +6,7 @@ import gym
 import argparse
 
 from gymEnv_pb2_grpc import GymServiceServicer, add_GymServiceServicer_to_server
-from gymEnv_pb2 import Action, Observation, StepResult, Msg, EnvSpace, Space
+from gymEnv_pb2 import Observation, StepResult, Msg, EnvSpace, Space
 
 class EnvServer(GymServiceServicer):
     def make(self, request, context):
@@ -39,15 +39,15 @@ class EnvServer(GymServiceServicer):
         next_obs, reward, done, _ = self.env.step(request.action)
         if self.bDiscrete_obs:
             next_obs = [next_obs]
-        return StepResult(next_obs=next_obs, reward=reward, done=done)
+        return StepResult(next_obs=Observation(obs=next_obs), reward=reward, done=done)
 
     def render(self, request, context):
         self.env.render()
-        return Msg("")
+        return Msg(msg="")
 
     def close(self, reuest, context):
         self.env.close()
-        return Msg("")
+        return Msg(msg="")
 
 def serve(addr):
     # use thread pool to deal with the tasks of server

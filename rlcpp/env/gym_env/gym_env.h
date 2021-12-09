@@ -8,7 +8,7 @@
 #include <grpcpp/grpcpp.h>
 #include "proto_out/gymEnv.grpc.pb.h"
 
-#include "../../env.h"
+#include "../env.h"
 
 class Gym_Env : public Env
 {
@@ -23,7 +23,8 @@ public:
     {
         gymEnv::Msg name;
         name.set_msg(gameName);
-        this->stub_->make(&this->ctx, name, &this->envSpace);
+        grpc::ClientContext ctx;
+        this->stub_->make(&ctx, name, &this->envSpace);
     }
 
     Int action_space() const override
@@ -48,9 +49,10 @@ public:
 
     void step(const Action& action, State* next_obs, double* reward, bool* done) override
     {
+        grpc::ClientContext ctx;
         gymEnv::Action act;
         act.set_action(action);
-        this->stub_->step(&this->ctx, act, &this->stepResult);
+        this->stub_->step(&ctx, act, &this->stepResult);
         this->stepResult.next_obs().obs();
         std::copy(this->stepResult.next_obs().obs().begin(), this->stepResult.next_obs().obs().end(), next_obs->begin());
         *reward = this->stepResult.reward();
@@ -59,24 +61,26 @@ public:
 
     void reset(State* obs) override
     {
+        grpc::ClientContext ctx;
         gymEnv::Observation tmp;
-        this->stub_->reset(&this->ctx, this->emptyMsg, &tmp);
+        this->stub_->reset(&ctx, this->emptyMsg, &tmp);
         std::copy(tmp.obs().begin(), tmp.obs().end(), obs->begin());
     }
 
     void close() override
     {
-        this->stub_->close(&this->ctx, this->emptyMsg, &this->emptyMsg);
+        grpc::ClientContext ctx;
+        this->stub_->close(&ctx, this->emptyMsg, &this->emptyMsg);
     }
 
     void render() override
     {
-        this->stub_->render(&this->ctx, this->emptyMsg, &this->emptyMsg);
+        grpc::ClientContext ctx;
+        this->stub_->render(&ctx, this->emptyMsg, &this->emptyMsg);
     }
 
 private:
     std::unique_ptr<gymEnv::GymService::Stub> stub_;
-    grpc::ClientContext ctx;
     gymEnv::EnvSpace envSpace;
     gymEnv::Msg emptyMsg;
     gymEnv::StepResult stepResult;

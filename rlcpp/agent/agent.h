@@ -1,8 +1,8 @@
 #ifndef __RL_AGENT_H__
 #define __RL_AGENT_H__
 
-#include "rl_config.h"
-#include "state_action.h"
+#include "../common/rl_config.h"
+#include "../common/state_action.h"
 
 struct Agent
 {

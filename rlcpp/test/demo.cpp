@@ -1,4 +1,4 @@
-#include "../rl_config.h"
+#include "../common/rl_config.h"
 #include <iostream>
 
 int main()
