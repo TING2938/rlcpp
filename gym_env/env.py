@@ -1,4 +1,5 @@
 from concurrent import futures
+import os
 import grpc
 import logging
 import gym 
@@ -10,19 +11,34 @@ from gymEnv_pb2 import Action, Observation, StepResult, Msg, EnvSpace, Space
 class EnvServer(GymServiceServicer):
     def make(self, request, context):
         self.env = gym.make(request.msg)
-        self.bbox = self.env.observation_space 
-        obs_space = Space()
-        action_space = Space(bDiscrete=True)
-        
+        obs_space_t = self.env.observation_space 
+        act_space_t = self.env.action_space
+        if len(obs_space_t.shape) == 0:
+            self.bDiscrete_obs = True
+            obs_space = Space(bDiscrete=True, n=obs_space_t.n)
+        else:
+            self.bDiscrete_obs = False
+            obs_space = Space(bDiscrete=False, shape=obs_space_t.shape, low=obs_space_t.low, high=obs_space_t.high)
+        if len(act_space_t.shape) == 0:
+            self.bDiscrete_act = True
+            action_space = Space(bDiscrete=True, n=act_space_t.n)
+        else:
+            print("Continuous action space is not supported yet!")
+            os.exit()
+            # self.bDiscrete_act = False
+            # action_space = Space(bDiscrete=False, shape=act_space_t.shape, low=act_space_t.low, high=act_space_t.high)
         return EnvSpace(obs_space=obs_space, action_space=action_space)
-
 
     def reset(self, request, context):
         obs = self.env.reset()
+        if self.bDiscrete_obs:
+            obs = [obs]
         return Observation(obs=obs)
-
+        
     def step(self, request, context):
         next_obs, reward, done, _ = self.env.step(request.action)
+        if self.bDiscrete_obs:
+            next_obs = [next_obs]
         return StepResult(next_obs=next_obs, reward=reward, done=done)
 
     def render(self, request, context):
