@@ -1,8 +1,8 @@
 #ifndef __RL_ENV_H__
 #define __RL_ENV_H__
 
-#include "../common/rl_config.h"
-#include "../common/state_action.h"
+#include "common/rl_config.h"
+#include "common/state_action.h"
 
 namespace rlcpp
 {

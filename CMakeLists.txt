@@ -1,11 +1,12 @@
 project(rlcpp)
 cmake_minimum_required(VERSION 3.0)
 
-set(CMAKE_CXX_FLAGS "-g -std=c++11 -fPIC ${CMAKE_CXX_FLAGS}")
-set(TargetName "ipcm")
+set(CMAKE_CXX_STANDARD 11)
 
 find_package(Protobuf REQUIRED)
 find_package(gRPC REQUIRED)
+
+include_directories(${PROJECT_SOURCE_DIR})
 
 ####### change this dir to proto src dir #######
 set(PROTO_SRC_DIR ${PROJECT_SOURCE_DIR}/env/gym_env/proto_out)

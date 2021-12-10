@@ -8,7 +8,7 @@
 #include <grpcpp/grpcpp.h>
 #include "proto_out/gymEnv.grpc.pb.h"
 
-#include "../env.h"
+#include "env/env.h"
 using std::string;
 
 namespace rlcpp

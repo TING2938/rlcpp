@@ -1,7 +1,7 @@
 #ifndef __RL_STATE_ACTION_H__
 #define __RL_STATE_ACTION_H__
 
-#include "rl_config.h"
+#include "common/rl_config.h"
 
 namespace rlcpp
 {

@@ -1,5 +1,5 @@
-#include "../env/gym_env/gym_env.h"
-#include "../agent/qlearning/qlearning_agent.h"
+#include "env/gym_env/gym_env.h"
+#include "agent/qlearning/qlearning_agent.h"
 #include <tuple>
 
 using namespace rlcpp;
