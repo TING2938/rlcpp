@@ -2,7 +2,9 @@
 #include "../agent/qlearning/qlearning_agent.h"
 #include <tuple>
 
-std::tuple<double, Int> run_episode(Gym_Env& env, Qlearning_agent& agent, State& obs, State& next_obs, Action &action, double &reward, bool &done, bool bRender = false)
+using namespace rlcpp;
+
+std::tuple<double, Int> run_episode(Env& env, Qlearning_agent& agent, State& obs, State& next_obs, Action &action, double &reward, bool &done, bool bRender = false)
 {
     Int total_steps = 0;
     double total_reward = 0.0;
@@ -28,7 +30,7 @@ std::tuple<double, Int> run_episode(Gym_Env& env, Qlearning_agent& agent, State&
     return {total_reward, total_steps};
 }
 
-void test_episode(Gym_Env& env, Qlearning_agent& agent, State& obs, State& next_obs, Action &action, double &reward, bool &done) 
+void test_episode(Env& env, Qlearning_agent& agent, State& obs, State& next_obs, Action &action, double &reward, bool &done) 
 {
     double total_reward = 0.0;
     env.reset(&obs);
@@ -62,18 +64,18 @@ int main()
     env.make("CliffWalking-v0");  // 0 up, 1 right, 2 down, 3 left
     auto action_space = env.action_space();
     auto obs_space = env.obs_space();
-    printf("action space: %d, obs_space: %d\n", action_space, obs_space.back());
+    assert(action_space.bDiscrete);
+    assert(obs_space.bDiscrete);
+    printf("action space: %d, obs_space: %d\n", action_space.n, obs_space.n);
 
     Qlearning_agent agent;
-    agent.init(obs_space.back(), action_space, learning_rate, gamma, e_greed);
+    agent.init(obs_space.n, action_space.n, learning_rate, gamma, e_greed);
 
-    State obs, next_obs;
-    Action action;
+    auto obs = obs_space.getEmptyObs();
+    auto next_obs = obs_space.getEmptyObs();
+    auto action = action_space.getEmptyAction();
     double reward;
     bool done;
-
-    obs.resize(1);
-    next_obs.resize(1);
 
     bool bRender = false;
     for (int episode = 0; episode < 500; episode++)
