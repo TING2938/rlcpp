@@ -1,20 +1,23 @@
 #include "env/gym_env/gym_env.h"
-#include "agent/qlearning/qlearning_agent.h"
+#include "agent/sarsa/sarsa_agent.h"
 #include <tuple>
 
 using namespace rlcpp;
 
-std::tuple<double, Int> run_episode(Env& env, Qlearning_agent& agent, State& obs, State& next_obs, Action &action, double &reward, bool &done, bool bRender = false)
+std::tuple<double, Int> run_episode(Env& env, Sarsa_agent& agent, State& obs, State& next_obs, Action &action, Action& next_action, double &reward, bool &done, bool bRender = false)
 {
     Int total_steps = 0;
     double total_reward = 0.0;
     env.reset(&obs);
+    agent.sample(obs, &action);
+
     while (true)
     {
-        agent.sample(obs, &action); // greedy sample
         env.step(action, &next_obs, &reward, &done);
-        agent.learn(obs, action, reward, next_obs, done);
+        agent.sample(next_obs, &next_action);
+        agent.learn(obs, action, reward, next_obs, next_action, done);
 
+        action = next_action;
         obs = next_obs;
         total_reward += reward;
         total_steps += 1;
@@ -30,7 +33,7 @@ std::tuple<double, Int> run_episode(Env& env, Qlearning_agent& agent, State& obs
     return {total_reward, total_steps};
 }
 
-void test_episode(Env& env, Qlearning_agent& agent, State& obs, State& next_obs, Action &action, double &reward, bool &done) 
+void test_episode(Env& env, Sarsa_agent& agent, State& obs, State& next_obs, Action &action, double &reward, bool &done) 
 {
     double total_reward = 0.0;
     env.reset(&obs);
@@ -68,19 +71,20 @@ int main()
     assert(obs_space.bDiscrete);
     printf("action space: %d, obs_space: %d\n", action_space.n, obs_space.n);
 
-    Qlearning_agent agent;
+    Sarsa_agent agent;
     agent.init(obs_space.n, action_space.n, learning_rate, gamma, e_greed);
 
     auto obs = obs_space.getEmptyObs();
     auto next_obs = obs_space.getEmptyObs();
     auto action = action_space.getEmptyAction();
+    auto next_action = action_space.getEmptyAction();
     double reward;
     bool done;
 
     bool bRender = false;
     for (int episode = 0; episode < 500; episode++)
     {
-        auto ret = run_episode(env, agent, obs, next_obs, action, reward, done, bRender);
+        auto ret = run_episode(env, agent, obs, next_obs, action, next_action, reward, done, bRender);
         printf("Episode %d: steps = %d, reward = %.1f\n", episode, std::get<1>(ret), std::get<0>(ret));
 
         if (episode % 20 == 0) {

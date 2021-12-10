@@ -1,7 +1,7 @@
 project(rlcpp)
 cmake_minimum_required(VERSION 3.0)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 
 find_package(Protobuf REQUIRED)
 find_package(gRPC REQUIRED)
@@ -28,3 +28,12 @@ foreach(SRC_PATH ${TRAIN_SRC_FILES})
     target_link_libraries(${_target} gRPC::grpc++_reflection protobuf::libprotobuf)
 endforeach()
 
+## test for tiny_dnn library
+include_directories(/home/yeting/work/learn/ML/tiny-dnn)
+add_executable(mnist_train ${PROJECT_SOURCE_DIR}/test/mnist/train.cpp)
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+target_link_libraries(mnist_train PUBLIC Threads::Threads)
+
+add_executable(mnist_mytrain ${PROJECT_SOURCE_DIR}/test/mnist/mytrain.cpp)
+target_link_libraries(mnist_mytrain PUBLIC Threads::Threads)

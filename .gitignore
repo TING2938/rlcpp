@@ -9,4 +9,4 @@ build/
 draft/
 *.a
 *.out
-rlcpp/train/train_qlearning_cliffwalking
+test/
