@@ -1,6 +1,8 @@
 #include "../env/gym_env/gym_env.h"
 #include "../agent/basic_agent/basic_agent.h"
 
+using namespace rlcpp;
+
 int main()
 {
     Gym_Env env("10.227.6.189:50053");
@@ -12,15 +14,13 @@ int main()
     auto obs_space = env.obs_space();
     
     Basic_agent agent;
-    agent.init(obs_space.back(), action_space);
+    agent.init(obs_space.shape.front(), action_space.n);
 
-    State obs, next_obs;
-    Action action;
+    auto obs = obs_space.getEmptyObs();
+    auto next_obs = obs_space.getEmptyObs();
+    Action action = action_space.getEmptyAction();
     double reward;
     bool done;
-
-    obs.resize(obs_space.back());
-    next_obs.resize(obs_space.back());
 
     env.reset(&obs);
     for (int episode = 0; episode < 1000; episode++)
