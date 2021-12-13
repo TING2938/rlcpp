@@ -14,7 +14,7 @@ std::tuple<Float, Int> run_episode(Env& env, Qlearning_agent& agent, State& obs,
         agent.sample(obs, &action); // greedy sample
         env.step(action, &next_obs, &reward, &done);
         agent.learn(obs, action, reward, next_obs, done);
-
+         
         obs = next_obs;
         total_reward += reward;
         total_steps += 1;
@@ -51,11 +51,9 @@ void test_episode(Env& env, Qlearning_agent& agent, State& obs, State& next_obs,
 
 int main()
 {
-    /* ====================================== */
     Float learning_rate = 0.1;
     Float gamma = 0.9;
     Float e_greed = 0.1;
-    /* ====================================== */
 
     Gym_Env env("localhost:50053");
     // MountainCar-v0

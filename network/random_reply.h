@@ -62,8 +62,6 @@ namespace rlcpp
             {
                 index[i] = i % len;
             }
-            std::random_device rd;
-            std::default_random_engine engine(rd());
             std::shuffle(index.begin(), index.end(), engine);
             for (size_t i = 0; i < batch_size; i++)
             {

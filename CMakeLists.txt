@@ -28,15 +28,6 @@ foreach(SRC_PATH ${TRAIN_SRC_FILES})
     target_link_libraries(${_target} gRPC::grpc++_reflection protobuf::libprotobuf)
 endforeach()
 
-## test for tiny_dnn library
-include_directories(/home/yeting/work/learn/ML/tiny-dnn)
-add_executable(mnist_train ${PROJECT_SOURCE_DIR}/test/mnist/train.cpp)
-set(THREADS_PREFER_PTHREAD_FLAG ON)
-find_package(Threads REQUIRED)
-target_link_libraries(mnist_train PUBLIC Threads::Threads)
-
-add_executable(mnist_mytrain ${PROJECT_SOURCE_DIR}/test/mnist/mytrain.cpp)
-target_link_libraries(mnist_mytrain PUBLIC Threads::Threads)
 ## Build dynet test
 include_directories(/home/yeting/study/ML/dynet/examples/cpp-utils)
 foreach(dynet_src train_xor train_linefit train_mnist)
@@ -44,3 +35,5 @@ foreach(dynet_src train_xor train_linefit train_mnist)
     target_link_libraries(${dynet_src} dynet)
 endforeach()
 
+## Build test
+add_executable(demo ${PROJECT_SOURCE_DIR}/test/demo.cpp)

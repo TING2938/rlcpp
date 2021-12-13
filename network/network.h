@@ -9,9 +9,11 @@ namespace rlcpp
     class Network
     {
     public:
-        virtual std::vector<Float> predict(const std::vector<State>& batch_state);
+        virtual void predict_batch(const std::vector<State>& batch_state, std::vector<Vecf>* batch_out);
 
-        virtual void learn(const Vecf& train_x, const Vecf& train_y);
+        virtual void predict_one(const State& state, Vecf* out);
+
+        virtual void learn(const std::vector<State>& batch_state, const std::vector<Vecf>& batch_target_value);
 
         virtual void update_weights(const Network* other);
 

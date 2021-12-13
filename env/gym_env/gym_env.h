@@ -78,7 +78,6 @@ namespace rlcpp
             gymEnv::Action act;
             *act.mutable_action() = {action.begin(), action.end()}; 
             this->stub_->step(&ctx, act, &this->stepResult);
-            this->stepResult.next_obs().obs();
             std::copy(this->stepResult.next_obs().obs().begin(), this->stepResult.next_obs().obs().end(), next_obs->begin());
             *reward = this->stepResult.reward();
             *done = this->stepResult.done();

@@ -5,6 +5,7 @@
 #include "agent/agent.h"
 #include "network/network.h"
 #include "network/random_reply.h"
+#include "tools/rand.h"
 
 namespace rlcpp
 {
@@ -34,26 +35,28 @@ namespace rlcpp
             this->batch_reward.resize(batch_size);
             this->batch_next_state.resize(batch_size);
             this->batch_done.resize(batch_size);
+            this->batch_Q.resize(batch_size, Vecf(act_n, 0.0));
         }
 
         // 根据观测值，采样输出动作，带探索过程
         void sample(const State &obs, Action *action) override
         {
-            if (((Float)rand() / (Float)((unsigned)RAND_MAX + 1)) < (1.0 - this->e_greed))
+            if (randf() < (1.0 - this->e_greed))
             {
                 this->predict(obs, action);
             }
             else
             {
-                action->front() = rand() % (this->act_n);
+                action->front() = randd(0, this->act_n);
             }
         }
 
         // 根据输入观测值，预测下一步动作
         void predict(const State &obs, Action *action) override
         {
-            auto ret = this->network->predict({obs});
-            action->front() = ret.front();
+            Vecf Q(this->act_n);
+            this->network->predict_one(obs, &Q);
+            action->front() = std::max_element(Q.begin(), Q.end()) - Q.begin();
         }
 
         void store(const State &state, const Action &action, Float reward, const State &next_state, bool done)
@@ -69,16 +72,17 @@ namespace rlcpp
             }
             this->global_step++;
 
+            Vecf Q_target(this->batch_state.size());
             for (int eposide = 0; eposide < eposides; eposide++)
             {
                 this->memory.sample(this->batch_state, this->batch_action, this->batch_reward, this->batch_next_state, this->batch_done);
-                // get Q predict
-                auto pred_action_value = this->network->predict(batch_state);
-
                 // get max(Q') from target network
-                auto next_pred_value = this->target_network->predict(batch_next_state);
-                
-
+                this->target_network->predict_batch(batch_next_state, &this->batch_Q);
+                for (int i = 0; i < this->batch_state.size(); i++)
+                {
+                    Float maxQ = *std::max_element(this->batch_Q[i].begin(), this->batch_Q[i].end());
+                    Q_target[i] = this->batch_reward[i] + this->gamma * maxQ * (1 - this->batch_done[i]);
+                }
             }
         }
 
@@ -101,6 +105,7 @@ namespace rlcpp
         Vecf batch_reward;
         std::vector<State> batch_next_state;
         std::vector<bool> batch_done;
+        std::vector<Vecf> batch_Q;
     }; // !class Sarsa_agent
 
 } // !namespace rlcpp

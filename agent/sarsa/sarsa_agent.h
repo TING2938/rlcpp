@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include "agent/agent.h"
+#include "tools/rand.h"
 
 namespace rlcpp
 {
@@ -17,19 +18,18 @@ namespace rlcpp
             this->gamma = gamma;
             this->e_greed = e_greed;
             this->Q.resize(obs_n, Vecf(act_n, 0.0));
-            srand((unsigned)time(NULL));
         }
 
         // 根据观测值，采样输出动作，带探索过程
         void sample(const State &obs, Action *action) override
         {
-            if (((Float)rand() / (Float)((unsigned)RAND_MAX + 1)) < (1.0 - this->e_greed))
+            if (randf() < (1.0 - this->e_greed))
             {
                 this->predict(obs, action);
             }
             else
             {
-                action->front() = rand() % (this->act_n);
+                action->front() = randd(0, this->act_n);
             }
         }
 
@@ -44,7 +44,7 @@ namespace rlcpp
                 if (Q_list[i] == maxQ)
                     action_list.push_back(i);
             }
-            action->front() = action_list[rand() % action_list.size()];
+            action->front() = random_choise(action_list);
         }
 
         void learn(const State &obs, const Action &action, Float reward, const State &next_obs, const Action& next_action, bool done)
