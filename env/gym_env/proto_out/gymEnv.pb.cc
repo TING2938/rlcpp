@@ -173,13 +173,13 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
 
 const char descriptor_table_protodef_gymEnv_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\014gymEnv.proto\022\006gymEnv\"O\n\005Space\022\t\n\001n\030\001 \001"
-  "(\005\022\r\n\005shape\030\002 \003(\005\022\014\n\004high\030\003 \003(\001\022\013\n\003low\030\004"
-  " \003(\001\022\021\n\tbDiscrete\030\005 \001(\010\"Q\n\010EnvSpace\022#\n\014a"
+  "(\005\022\r\n\005shape\030\002 \003(\005\022\014\n\004high\030\003 \003(\002\022\013\n\003low\030\004"
+  " \003(\002\022\021\n\tbDiscrete\030\005 \001(\010\"Q\n\010EnvSpace\022#\n\014a"
   "ction_space\030\001 \001(\0132\r.gymEnv.Space\022 \n\tobs_"
   "space\030\002 \001(\0132\r.gymEnv.Space\"\032\n\013Observatio"
-  "n\022\013\n\003obs\030\001 \003(\001\"\030\n\006Action\022\016\n\006action\030\001 \003(\001"
+  "n\022\013\n\003obs\030\001 \003(\002\"\030\n\006Action\022\016\n\006action\030\001 \003(\002"
   "\"Q\n\nStepResult\022%\n\010next_obs\030\001 \001(\0132\023.gymEn"
-  "v.Observation\022\016\n\006reward\030\002 \001(\001\022\014\n\004done\030\003 "
+  "v.Observation\022\016\n\006reward\030\002 \001(\002\022\014\n\004done\030\003 "
   "\001(\010\"\022\n\003Msg\022\013\n\003msg\030\001 \001(\t2\333\001\n\nGymService\022\'"
   "\n\004make\022\013.gymEnv.Msg\032\020.gymEnv.EnvSpace\"\000\022"
   "+\n\005reset\022\013.gymEnv.Msg\032\023.gymEnv.Observati"
@@ -301,25 +301,25 @@ const char* Space::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inte
         } else
           goto handle_unusual;
         continue;
-      // repeated double high = 3;
+      // repeated float high = 3;
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedDoubleParser(_internal_mutable_high(), ptr, ctx);
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedFloatParser(_internal_mutable_high(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 25) {
-          _internal_add_high(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<double>(ptr));
-          ptr += sizeof(double);
+        } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 29) {
+          _internal_add_high(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr));
+          ptr += sizeof(float);
         } else
           goto handle_unusual;
         continue;
-      // repeated double low = 4;
+      // repeated float low = 4;
       case 4:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedDoubleParser(_internal_mutable_low(), ptr, ctx);
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedFloatParser(_internal_mutable_low(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 33) {
-          _internal_add_low(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<double>(ptr));
-          ptr += sizeof(double);
+        } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 37) {
+          _internal_add_low(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr));
+          ptr += sizeof(float);
         } else
           goto handle_unusual;
         continue;
@@ -375,12 +375,12 @@ failure:
     }
   }
 
-  // repeated double high = 3;
+  // repeated float high = 3;
   if (this->_internal_high_size() > 0) {
     target = stream->WriteFixedPacked(3, _internal_high(), target);
   }
 
-  // repeated double low = 4;
+  // repeated float low = 4;
   if (this->_internal_low_size() > 0) {
     target = stream->WriteFixedPacked(4, _internal_low(), target);
   }
@@ -422,10 +422,10 @@ size_t Space::ByteSizeLong() const {
     total_size += data_size;
   }
 
-  // repeated double high = 3;
+  // repeated float high = 3;
   {
     unsigned int count = static_cast<unsigned int>(this->_internal_high_size());
-    size_t data_size = 8UL * count;
+    size_t data_size = 4UL * count;
     if (data_size > 0) {
       total_size += 1 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
@@ -434,10 +434,10 @@ size_t Space::ByteSizeLong() const {
     total_size += data_size;
   }
 
-  // repeated double low = 4;
+  // repeated float low = 4;
   {
     unsigned int count = static_cast<unsigned int>(this->_internal_low_size());
-    size_t data_size = 8UL * count;
+    size_t data_size = 4UL * count;
     if (data_size > 0) {
       total_size += 1 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
@@ -828,14 +828,14 @@ const char* Observation::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
     ::PROTOBUF_NAMESPACE_ID::uint32 tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // repeated double obs = 1;
+      // repeated float obs = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedDoubleParser(_internal_mutable_obs(), ptr, ctx);
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedFloatParser(_internal_mutable_obs(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 9) {
-          _internal_add_obs(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<double>(ptr));
-          ptr += sizeof(double);
+        } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 13) {
+          _internal_add_obs(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr));
+          ptr += sizeof(float);
         } else
           goto handle_unusual;
         continue;
@@ -868,7 +868,7 @@ failure:
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // repeated double obs = 1;
+  // repeated float obs = 1;
   if (this->_internal_obs_size() > 0) {
     target = stream->WriteFixedPacked(1, _internal_obs(), target);
   }
@@ -889,10 +889,10 @@ size_t Observation::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // repeated double obs = 1;
+  // repeated float obs = 1;
   {
     unsigned int count = static_cast<unsigned int>(this->_internal_obs_size());
-    size_t data_size = 8UL * count;
+    size_t data_size = 4UL * count;
     if (data_size > 0) {
       total_size += 1 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
@@ -1013,14 +1013,14 @@ const char* Action::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::int
     ::PROTOBUF_NAMESPACE_ID::uint32 tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // repeated double action = 1;
+      // repeated float action = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedDoubleParser(_internal_mutable_action(), ptr, ctx);
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedFloatParser(_internal_mutable_action(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 9) {
-          _internal_add_action(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<double>(ptr));
-          ptr += sizeof(double);
+        } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 13) {
+          _internal_add_action(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr));
+          ptr += sizeof(float);
         } else
           goto handle_unusual;
         continue;
@@ -1053,7 +1053,7 @@ failure:
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // repeated double action = 1;
+  // repeated float action = 1;
   if (this->_internal_action_size() > 0) {
     target = stream->WriteFixedPacked(1, _internal_action(), target);
   }
@@ -1074,10 +1074,10 @@ size_t Action::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // repeated double action = 1;
+  // repeated float action = 1;
   {
     unsigned int count = static_cast<unsigned int>(this->_internal_action_size());
-    size_t data_size = 8UL * count;
+    size_t data_size = 4UL * count;
     if (data_size > 0) {
       total_size += 1 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
@@ -1228,11 +1228,11 @@ const char* StepResult::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID:
         } else
           goto handle_unusual;
         continue;
-      // double reward = 2;
+      // float reward = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 17)) {
-          reward_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<double>(ptr);
-          ptr += sizeof(double);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 21)) {
+          reward_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr);
+          ptr += sizeof(float);
         } else
           goto handle_unusual;
         continue;
@@ -1281,10 +1281,10 @@ failure:
         1, _Internal::next_obs(this), target, stream);
   }
 
-  // double reward = 2;
+  // float reward = 2;
   if (!(this->_internal_reward() <= 0 && this->_internal_reward() >= 0)) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteDoubleToArray(2, this->_internal_reward(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteFloatToArray(2, this->_internal_reward(), target);
   }
 
   // bool done = 3;
@@ -1316,9 +1316,9 @@ size_t StepResult::ByteSizeLong() const {
         *next_obs_);
   }
 
-  // double reward = 2;
+  // float reward = 2;
   if (!(this->_internal_reward() <= 0 && this->_internal_reward() >= 0)) {
-    total_size += 1 + 8;
+    total_size += 1 + 4;
   }
 
   // bool done = 3;

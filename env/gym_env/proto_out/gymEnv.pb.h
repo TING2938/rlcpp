@@ -232,48 +232,48 @@ class Space final :
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >*
       mutable_shape();
 
-  // repeated double high = 3;
+  // repeated float high = 3;
   int high_size() const;
   private:
   int _internal_high_size() const;
   public:
   void clear_high();
   private:
-  double _internal_high(int index) const;
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >&
+  float _internal_high(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
       _internal_high() const;
-  void _internal_add_high(double value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
+  void _internal_add_high(float value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
       _internal_mutable_high();
   public:
-  double high(int index) const;
-  void set_high(int index, double value);
-  void add_high(double value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >&
+  float high(int index) const;
+  void set_high(int index, float value);
+  void add_high(float value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
       high() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
       mutable_high();
 
-  // repeated double low = 4;
+  // repeated float low = 4;
   int low_size() const;
   private:
   int _internal_low_size() const;
   public:
   void clear_low();
   private:
-  double _internal_low(int index) const;
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >&
+  float _internal_low(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
       _internal_low() const;
-  void _internal_add_low(double value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
+  void _internal_add_low(float value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
       _internal_mutable_low();
   public:
-  double low(int index) const;
-  void set_low(int index, double value);
-  void add_low(double value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >&
+  float low(int index) const;
+  void set_low(int index, float value);
+  void add_low(float value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
       low() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
       mutable_low();
 
   // int32 n = 1;
@@ -303,8 +303,8 @@ class Space final :
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 > shape_;
   mutable std::atomic<int> _shape_cached_byte_size_;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< double > high_;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< double > low_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > high_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > low_;
   ::PROTOBUF_NAMESPACE_ID::int32 n_;
   bool bdiscrete_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -605,26 +605,26 @@ class Observation final :
   enum : int {
     kObsFieldNumber = 1,
   };
-  // repeated double obs = 1;
+  // repeated float obs = 1;
   int obs_size() const;
   private:
   int _internal_obs_size() const;
   public:
   void clear_obs();
   private:
-  double _internal_obs(int index) const;
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >&
+  float _internal_obs(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
       _internal_obs() const;
-  void _internal_add_obs(double value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
+  void _internal_add_obs(float value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
       _internal_mutable_obs();
   public:
-  double obs(int index) const;
-  void set_obs(int index, double value);
-  void add_obs(double value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >&
+  float obs(int index) const;
+  void set_obs(int index, float value);
+  void add_obs(float value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
       obs() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
       mutable_obs();
 
   // @@protoc_insertion_point(class_scope:gymEnv.Observation)
@@ -634,7 +634,7 @@ class Observation final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< double > obs_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > obs_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_gymEnv_2eproto;
 };
@@ -761,26 +761,26 @@ class Action final :
   enum : int {
     kActionFieldNumber = 1,
   };
-  // repeated double action = 1;
+  // repeated float action = 1;
   int action_size() const;
   private:
   int _internal_action_size() const;
   public:
   void clear_action();
   private:
-  double _internal_action(int index) const;
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >&
+  float _internal_action(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
       _internal_action() const;
-  void _internal_add_action(double value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
+  void _internal_add_action(float value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
       _internal_mutable_action();
   public:
-  double action(int index) const;
-  void set_action(int index, double value);
-  void add_action(double value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >&
+  float action(int index) const;
+  void set_action(int index, float value);
+  void add_action(float value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
       action() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
       mutable_action();
 
   // @@protoc_insertion_point(class_scope:gymEnv.Action)
@@ -790,7 +790,7 @@ class Action final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< double > action_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > action_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_gymEnv_2eproto;
 };
@@ -937,13 +937,13 @@ class StepResult final :
       ::gymEnv::Observation* next_obs);
   ::gymEnv::Observation* unsafe_arena_release_next_obs();
 
-  // double reward = 2;
+  // float reward = 2;
   void clear_reward();
-  double reward() const;
-  void set_reward(double value);
+  float reward() const;
+  void set_reward(float value);
   private:
-  double _internal_reward() const;
-  void _internal_set_reward(double value);
+  float _internal_reward() const;
+  void _internal_set_reward(float value);
   public:
 
   // bool done = 3;
@@ -963,7 +963,7 @@ class StepResult final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   ::gymEnv::Observation* next_obs_;
-  double reward_;
+  float reward_;
   bool done_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_gymEnv_2eproto;
@@ -1194,7 +1194,7 @@ Space::mutable_shape() {
   return _internal_mutable_shape();
 }
 
-// repeated double high = 3;
+// repeated float high = 3;
 inline int Space::_internal_high_size() const {
   return high_.size();
 }
@@ -1204,44 +1204,44 @@ inline int Space::high_size() const {
 inline void Space::clear_high() {
   high_.Clear();
 }
-inline double Space::_internal_high(int index) const {
+inline float Space::_internal_high(int index) const {
   return high_.Get(index);
 }
-inline double Space::high(int index) const {
+inline float Space::high(int index) const {
   // @@protoc_insertion_point(field_get:gymEnv.Space.high)
   return _internal_high(index);
 }
-inline void Space::set_high(int index, double value) {
+inline void Space::set_high(int index, float value) {
   high_.Set(index, value);
   // @@protoc_insertion_point(field_set:gymEnv.Space.high)
 }
-inline void Space::_internal_add_high(double value) {
+inline void Space::_internal_add_high(float value) {
   high_.Add(value);
 }
-inline void Space::add_high(double value) {
+inline void Space::add_high(float value) {
   _internal_add_high(value);
   // @@protoc_insertion_point(field_add:gymEnv.Space.high)
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >&
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
 Space::_internal_high() const {
   return high_;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >&
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
 Space::high() const {
   // @@protoc_insertion_point(field_list:gymEnv.Space.high)
   return _internal_high();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
 Space::_internal_mutable_high() {
   return &high_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
 Space::mutable_high() {
   // @@protoc_insertion_point(field_mutable_list:gymEnv.Space.high)
   return _internal_mutable_high();
 }
 
-// repeated double low = 4;
+// repeated float low = 4;
 inline int Space::_internal_low_size() const {
   return low_.size();
 }
@@ -1251,38 +1251,38 @@ inline int Space::low_size() const {
 inline void Space::clear_low() {
   low_.Clear();
 }
-inline double Space::_internal_low(int index) const {
+inline float Space::_internal_low(int index) const {
   return low_.Get(index);
 }
-inline double Space::low(int index) const {
+inline float Space::low(int index) const {
   // @@protoc_insertion_point(field_get:gymEnv.Space.low)
   return _internal_low(index);
 }
-inline void Space::set_low(int index, double value) {
+inline void Space::set_low(int index, float value) {
   low_.Set(index, value);
   // @@protoc_insertion_point(field_set:gymEnv.Space.low)
 }
-inline void Space::_internal_add_low(double value) {
+inline void Space::_internal_add_low(float value) {
   low_.Add(value);
 }
-inline void Space::add_low(double value) {
+inline void Space::add_low(float value) {
   _internal_add_low(value);
   // @@protoc_insertion_point(field_add:gymEnv.Space.low)
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >&
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
 Space::_internal_low() const {
   return low_;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >&
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
 Space::low() const {
   // @@protoc_insertion_point(field_list:gymEnv.Space.low)
   return _internal_low();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
 Space::_internal_mutable_low() {
   return &low_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
 Space::mutable_low() {
   // @@protoc_insertion_point(field_mutable_list:gymEnv.Space.low)
   return _internal_mutable_low();
@@ -1496,7 +1496,7 @@ inline void EnvSpace::set_allocated_obs_space(::gymEnv::Space* obs_space) {
 
 // Observation
 
-// repeated double obs = 1;
+// repeated float obs = 1;
 inline int Observation::_internal_obs_size() const {
   return obs_.size();
 }
@@ -1506,38 +1506,38 @@ inline int Observation::obs_size() const {
 inline void Observation::clear_obs() {
   obs_.Clear();
 }
-inline double Observation::_internal_obs(int index) const {
+inline float Observation::_internal_obs(int index) const {
   return obs_.Get(index);
 }
-inline double Observation::obs(int index) const {
+inline float Observation::obs(int index) const {
   // @@protoc_insertion_point(field_get:gymEnv.Observation.obs)
   return _internal_obs(index);
 }
-inline void Observation::set_obs(int index, double value) {
+inline void Observation::set_obs(int index, float value) {
   obs_.Set(index, value);
   // @@protoc_insertion_point(field_set:gymEnv.Observation.obs)
 }
-inline void Observation::_internal_add_obs(double value) {
+inline void Observation::_internal_add_obs(float value) {
   obs_.Add(value);
 }
-inline void Observation::add_obs(double value) {
+inline void Observation::add_obs(float value) {
   _internal_add_obs(value);
   // @@protoc_insertion_point(field_add:gymEnv.Observation.obs)
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >&
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
 Observation::_internal_obs() const {
   return obs_;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >&
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
 Observation::obs() const {
   // @@protoc_insertion_point(field_list:gymEnv.Observation.obs)
   return _internal_obs();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
 Observation::_internal_mutable_obs() {
   return &obs_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
 Observation::mutable_obs() {
   // @@protoc_insertion_point(field_mutable_list:gymEnv.Observation.obs)
   return _internal_mutable_obs();
@@ -1547,7 +1547,7 @@ Observation::mutable_obs() {
 
 // Action
 
-// repeated double action = 1;
+// repeated float action = 1;
 inline int Action::_internal_action_size() const {
   return action_.size();
 }
@@ -1557,38 +1557,38 @@ inline int Action::action_size() const {
 inline void Action::clear_action() {
   action_.Clear();
 }
-inline double Action::_internal_action(int index) const {
+inline float Action::_internal_action(int index) const {
   return action_.Get(index);
 }
-inline double Action::action(int index) const {
+inline float Action::action(int index) const {
   // @@protoc_insertion_point(field_get:gymEnv.Action.action)
   return _internal_action(index);
 }
-inline void Action::set_action(int index, double value) {
+inline void Action::set_action(int index, float value) {
   action_.Set(index, value);
   // @@protoc_insertion_point(field_set:gymEnv.Action.action)
 }
-inline void Action::_internal_add_action(double value) {
+inline void Action::_internal_add_action(float value) {
   action_.Add(value);
 }
-inline void Action::add_action(double value) {
+inline void Action::add_action(float value) {
   _internal_add_action(value);
   // @@protoc_insertion_point(field_add:gymEnv.Action.action)
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >&
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
 Action::_internal_action() const {
   return action_;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >&
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
 Action::action() const {
   // @@protoc_insertion_point(field_list:gymEnv.Action.action)
   return _internal_action();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
 Action::_internal_mutable_action() {
   return &action_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
 Action::mutable_action() {
   // @@protoc_insertion_point(field_mutable_list:gymEnv.Action.action)
   return _internal_mutable_action();
@@ -1688,22 +1688,22 @@ inline void StepResult::set_allocated_next_obs(::gymEnv::Observation* next_obs) 
   // @@protoc_insertion_point(field_set_allocated:gymEnv.StepResult.next_obs)
 }
 
-// double reward = 2;
+// float reward = 2;
 inline void StepResult::clear_reward() {
   reward_ = 0;
 }
-inline double StepResult::_internal_reward() const {
+inline float StepResult::_internal_reward() const {
   return reward_;
 }
-inline double StepResult::reward() const {
+inline float StepResult::reward() const {
   // @@protoc_insertion_point(field_get:gymEnv.StepResult.reward)
   return _internal_reward();
 }
-inline void StepResult::_internal_set_reward(double value) {
+inline void StepResult::_internal_set_reward(float value) {
   
   reward_ = value;
 }
-inline void StepResult::set_reward(double value) {
+inline void StepResult::set_reward(float value) {
   _internal_set_reward(value);
   // @@protoc_insertion_point(field_set:gymEnv.StepResult.reward)
 }

@@ -14,7 +14,7 @@ namespace rlcpp
 
         virtual Space obs_space() const = 0;
 
-        virtual void step(const Action &action, State *next_obs, double *reward, bool *done) = 0;
+        virtual void step(const Action &action, State *next_obs, Float *reward, bool *done) = 0;
 
         virtual void reset(State *obs) = 0;
 

@@ -5,8 +5,8 @@ package gymEnv;
 message Space {
     int32 n = 1; // num. of action if type is `Discrete` 
     repeated int32 shape = 2; // shape of Box if type is `Box`  
-    repeated double high = 3; // high boundary if type is `Box` 
-    repeated double low = 4;  // low boundary if type is `Box`
+    repeated float high = 3; // high boundary if type is `Box` 
+    repeated float low = 4;  // low boundary if type is `Box`
     bool bDiscrete = 5; // type is discrete if true else Box 
 }
 
@@ -16,16 +16,16 @@ message EnvSpace {
 }
 
 message Observation {
-    repeated double obs = 1;
+    repeated float obs = 1;
 }
 
 message Action {
-    repeated double action = 1;
+    repeated float action = 1;
 }
 
 message StepResult {
     Observation next_obs = 1;
-    double reward = 2;
+    float reward = 2;
     bool done = 3;
 }
 

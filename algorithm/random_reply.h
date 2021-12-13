@@ -13,7 +13,7 @@ namespace rlcpp
         {
             State state;
             Action action;
-            double reward;
+            Float reward;
             State next_state;
             bool done;
         };
@@ -25,13 +25,13 @@ namespace rlcpp
             this->memory.resize(max_size);
         }
         
-        void store(const State& state, const Action& action, double reward, const State& next_state, bool done)
+        void store(const State& state, const Action& action, Float reward, const State& next_state, bool done)
         {
             this->memory[this->idx % this->size] = {state, action, reward, next_state, done};
             this->idx++;
         }
 
-        void sample(std::vector<State>& batch_state, std::vector<Action>& batch_action, Vecd& batch_reward, std::vector<State>& batch_next_state, std::vector<bool>& batch_done)
+        void sample(std::vector<State>& batch_state, std::vector<Action>& batch_action, Vecf& batch_reward, std::vector<State>& batch_next_state, std::vector<bool>& batch_done)
         {
             size_t batch_size = batch_state.size();
             size_t len = std::min(this->idx, this->size);

@@ -9,10 +9,12 @@
 namespace rlcpp
 {
     using Int = int32_t;
+    using Float = float;
 
     using std::string;
     using Veci = std::vector<Int>;
     using Vecd = std::vector<double>;
+    using Vecf = std::vector<Float>;
 }
 
 #endif // !__RL_CONDIG_H__

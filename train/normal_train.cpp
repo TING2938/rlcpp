@@ -16,7 +16,7 @@ int main()
     auto obs = obs_space.getEmptyObs();
     auto next_obs = obs_space.getEmptyObs();
     Action action = action_space.getEmptyAction();
-    double reward;
+    Float reward;
     bool done;
 
     env.reset(&obs);

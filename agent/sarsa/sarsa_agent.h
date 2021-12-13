@@ -9,21 +9,21 @@ namespace rlcpp
     class Sarsa_agent : Agent
     {
     public:
-        void init(Int obs_n, Int act_n, double learning_rate = 0.01, double gamma = 0.9, double e_greed = 0.1)
+        void init(Int obs_n, Int act_n, Float learning_rate = 0.01, Float gamma = 0.9, Float e_greed = 0.1)
         {
             this->act_n = act_n;
             this->obs_n = obs_n;
             this->learning_rate = learning_rate;
             this->gamma = gamma;
             this->e_greed = e_greed;
-            this->Q.resize(obs_n, Vecd(act_n, 0.0));
+            this->Q.resize(obs_n, Vecf(act_n, 0.0));
             srand((unsigned)time(NULL));
         }
 
         // 根据观测值，采样输出动作，带探索过程
         void sample(const State &obs, Action *action) override
         {
-            if (((double)rand() / (double)((unsigned)RAND_MAX + 1)) < (1.0 - this->e_greed))
+            if (((Float)rand() / (Float)((unsigned)RAND_MAX + 1)) < (1.0 - this->e_greed))
             {
                 this->predict(obs, action);
             }
@@ -47,10 +47,10 @@ namespace rlcpp
             action->front() = action_list[rand() % action_list.size()];
         }
 
-        void learn(const State &obs, const Action &action, double reward, const State &next_obs, const Action& next_action, bool done)
+        void learn(const State &obs, const Action &action, Float reward, const State &next_obs, const Action& next_action, bool done)
         {
             auto predict_Q = this->Q[obs.front()][action.front()];
-            double target_Q = 0.0;
+            Float target_Q = 0.0;
             if (done)
             {
                 target_Q = reward;
@@ -65,10 +65,10 @@ namespace rlcpp
     private:
         Int act_n;
         Int obs_n;
-        double learning_rate;
-        double gamma;
-        double e_greed;
-        std::vector<Vecd> Q;
+        Float learning_rate;
+        Float gamma;
+        Float e_greed;
+        std::vector<Vecf> Q;
     }; // !class Sarsa_agent
 
 } // !namespace rlcpp

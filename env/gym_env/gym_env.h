@@ -72,7 +72,7 @@ namespace rlcpp
             return ret;
         }
 
-        void step(const Action &action, State *next_obs, double *reward, bool *done) override
+        void step(const Action &action, State *next_obs, Float *reward, bool *done) override
         {
             grpc::ClientContext ctx;
             gymEnv::Action act;

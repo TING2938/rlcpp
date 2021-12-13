@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0cgymEnv.proto\x12\x06gymEnv\"O\n\x05Space\x12\t\n\x01n\x18\x01 \x01(\x05\x12\r\n\x05shape\x18\x02 \x03(\x05\x12\x0c\n\x04high\x18\x03 \x03(\x01\x12\x0b\n\x03low\x18\x04 \x03(\x01\x12\x11\n\tbDiscrete\x18\x05 \x01(\x08\"Q\n\x08\x45nvSpace\x12#\n\x0c\x61\x63tion_space\x18\x01 \x01(\x0b\x32\r.gymEnv.Space\x12 \n\tobs_space\x18\x02 \x01(\x0b\x32\r.gymEnv.Space\"\x1a\n\x0bObservation\x12\x0b\n\x03obs\x18\x01 \x03(\x01\"\x18\n\x06\x41\x63tion\x12\x0e\n\x06\x61\x63tion\x18\x01 \x03(\x01\"Q\n\nStepResult\x12%\n\x08next_obs\x18\x01 \x01(\x0b\x32\x13.gymEnv.Observation\x12\x0e\n\x06reward\x18\x02 \x01(\x01\x12\x0c\n\x04\x64one\x18\x03 \x01(\x08\"\x12\n\x03Msg\x12\x0b\n\x03msg\x18\x01 \x01(\t2\xdb\x01\n\nGymService\x12\'\n\x04make\x12\x0b.gymEnv.Msg\x1a\x10.gymEnv.EnvSpace\"\x00\x12+\n\x05reset\x12\x0b.gymEnv.Msg\x1a\x13.gymEnv.Observation\"\x00\x12,\n\x04step\x12\x0e.gymEnv.Action\x1a\x12.gymEnv.StepResult\"\x00\x12$\n\x06render\x12\x0b.gymEnv.Msg\x1a\x0b.gymEnv.Msg\"\x00\x12#\n\x05\x63lose\x12\x0b.gymEnv.Msg\x1a\x0b.gymEnv.Msg\"\x00\x62\x06proto3'
+  serialized_pb=b'\n\x0cgymEnv.proto\x12\x06gymEnv\"O\n\x05Space\x12\t\n\x01n\x18\x01 \x01(\x05\x12\r\n\x05shape\x18\x02 \x03(\x05\x12\x0c\n\x04high\x18\x03 \x03(\x02\x12\x0b\n\x03low\x18\x04 \x03(\x02\x12\x11\n\tbDiscrete\x18\x05 \x01(\x08\"Q\n\x08\x45nvSpace\x12#\n\x0c\x61\x63tion_space\x18\x01 \x01(\x0b\x32\r.gymEnv.Space\x12 \n\tobs_space\x18\x02 \x01(\x0b\x32\r.gymEnv.Space\"\x1a\n\x0bObservation\x12\x0b\n\x03obs\x18\x01 \x03(\x02\"\x18\n\x06\x41\x63tion\x12\x0e\n\x06\x61\x63tion\x18\x01 \x03(\x02\"Q\n\nStepResult\x12%\n\x08next_obs\x18\x01 \x01(\x0b\x32\x13.gymEnv.Observation\x12\x0e\n\x06reward\x18\x02 \x01(\x02\x12\x0c\n\x04\x64one\x18\x03 \x01(\x08\"\x12\n\x03Msg\x12\x0b\n\x03msg\x18\x01 \x01(\t2\xdb\x01\n\nGymService\x12\'\n\x04make\x12\x0b.gymEnv.Msg\x1a\x10.gymEnv.EnvSpace\"\x00\x12+\n\x05reset\x12\x0b.gymEnv.Msg\x1a\x13.gymEnv.Observation\"\x00\x12,\n\x04step\x12\x0e.gymEnv.Action\x1a\x12.gymEnv.StepResult\"\x00\x12$\n\x06render\x12\x0b.gymEnv.Msg\x1a\x0b.gymEnv.Msg\"\x00\x12#\n\x05\x63lose\x12\x0b.gymEnv.Msg\x1a\x0b.gymEnv.Msg\"\x00\x62\x06proto3'
 )
 
 
@@ -49,14 +49,14 @@ _SPACE = _descriptor.Descriptor(
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='high', full_name='gymEnv.Space.high', index=2,
-      number=3, type=1, cpp_type=5, label=3,
+      number=3, type=2, cpp_type=6, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='low', full_name='gymEnv.Space.low', index=3,
-      number=4, type=1, cpp_type=5, label=3,
+      number=4, type=2, cpp_type=6, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -134,7 +134,7 @@ _OBSERVATION = _descriptor.Descriptor(
   fields=[
     _descriptor.FieldDescriptor(
       name='obs', full_name='gymEnv.Observation.obs', index=0,
-      number=1, type=1, cpp_type=5, label=3,
+      number=1, type=2, cpp_type=6, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -166,7 +166,7 @@ _ACTION = _descriptor.Descriptor(
   fields=[
     _descriptor.FieldDescriptor(
       name='action', full_name='gymEnv.Action.action', index=0,
-      number=1, type=1, cpp_type=5, label=3,
+      number=1, type=2, cpp_type=6, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -205,7 +205,7 @@ _STEPRESULT = _descriptor.Descriptor(
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='reward', full_name='gymEnv.StepResult.reward', index=1,
-      number=2, type=1, cpp_type=5, label=1,
+      number=2, type=2, cpp_type=6, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,

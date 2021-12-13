@@ -4,10 +4,10 @@
 
 using namespace rlcpp;
 
-std::tuple<double, Int> run_episode(Env& env, Qlearning_agent& agent, State& obs, State& next_obs, Action &action, double &reward, bool &done, bool bRender = false)
+std::tuple<Float, Int> run_episode(Env& env, Qlearning_agent& agent, State& obs, State& next_obs, Action &action,Float &reward, bool &done, bool bRender = false)
 {
     Int total_steps = 0;
-    double total_reward = 0.0;
+    Float total_reward = 0.0;
     env.reset(&obs);
     while (true)
     {
@@ -30,9 +30,9 @@ std::tuple<double, Int> run_episode(Env& env, Qlearning_agent& agent, State& obs
     return {total_reward, total_steps};
 }
 
-void test_episode(Env& env, Qlearning_agent& agent, State& obs, State& next_obs, Action &action, double &reward, bool &done) 
+void test_episode(Env& env, Qlearning_agent& agent, State& obs, State& next_obs, Action &action, Float &reward, bool &done) 
 {
-    double total_reward = 0.0;
+    Float total_reward = 0.0;
     env.reset(&obs);
     while (true)
     {
@@ -52,9 +52,9 @@ void test_episode(Env& env, Qlearning_agent& agent, State& obs, State& next_obs,
 int main()
 {
     /* ====================================== */
-    double learning_rate = 0.1;
-    double gamma = 0.9;
-    double e_greed = 0.1;
+    Float learning_rate = 0.1;
+    Float gamma = 0.9;
+    Float e_greed = 0.1;
     /* ====================================== */
 
     Gym_Env env("localhost:50053");
@@ -74,7 +74,7 @@ int main()
     auto obs = obs_space.getEmptyObs();
     auto next_obs = obs_space.getEmptyObs();
     auto action = action_space.getEmptyAction();
-    double reward;
+    Float reward;
     bool done;
 
     bool bRender = false;
