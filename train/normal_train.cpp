@@ -1,5 +1,4 @@
 #include "env/gym_env/gym_env.h"
-#include "agent/basic_agent/basic_agent.h"
 
 using namespace rlcpp;
 

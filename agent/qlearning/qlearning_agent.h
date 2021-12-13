@@ -6,6 +6,8 @@
 
 namespace rlcpp
 {
+    // observation space: discrete
+    // action space: discrete
     class Qlearning_agent : Agent
     {
     public:

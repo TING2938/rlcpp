@@ -18,23 +18,45 @@ namespace rlcpp
             bool done;
         };
 
-        RandomReply(size_t max_size)
+        void init(size_t max_size)
         {
-            this->size = max_size;
             this->idx = 0;
             this->memory.resize(max_size);
-        }
-        
-        void store(const State& state, const Action& action, Float reward, const State& next_state, bool done)
-        {
-            this->memory[this->idx % this->size] = {state, action, reward, next_state, done};
-            this->idx++;
+            this->bFull = false;
         }
 
-        void sample(std::vector<State>& batch_state, std::vector<Action>& batch_action, Vecf& batch_reward, std::vector<State>& batch_next_state, std::vector<bool>& batch_done)
+        void store(const State &state, const Action &action, Float reward, const State &next_state, bool done)
+        {
+            this->memory[this->idx] = {state, action, reward, next_state, done};
+            if (this->memory.empty()) {
+                printf("empty memory relpy!");
+                std::exit(-1);
+            }
+            if (this->idx == this->memory.size() - 1) {
+                this->idx = 0;
+                this->bFull = true;
+            } else {
+                this->idx++;
+            }
+        }
+
+        size_t size() const 
+        {
+            if (this->bFull) {
+                return this->memory.size();
+            } else {
+                return this->idx;
+            }
+        }
+
+        void sample(std::vector<State> &batch_state,
+                    std::vector<Action> &batch_action,
+                    Vecf &batch_reward,
+                    std::vector<State> &batch_next_state,
+                    std::vector<bool> &batch_done)
         {
             size_t batch_size = batch_state.size();
-            size_t len = std::min(this->idx, this->size);
+            size_t len = this->size();
             std::vector<size_t> index(batch_size);
             for (size_t i = 0; i < batch_size; i++)
             {
@@ -45,7 +67,7 @@ namespace rlcpp
             std::shuffle(index.begin(), index.end(), engine);
             for (size_t i = 0; i < batch_size; i++)
             {
-                auto& tmp = memory[index[i]];
+                auto &tmp = memory[index[i]];
                 batch_state[i] = tmp.state;
                 batch_action[i] = tmp.action;
                 batch_reward[i] = tmp.reward;
@@ -55,7 +77,7 @@ namespace rlcpp
         }
 
     private:
-        size_t size = 0;
+        bool bFull;
         size_t idx = 0;
         std::vector<Transition> memory;
     };

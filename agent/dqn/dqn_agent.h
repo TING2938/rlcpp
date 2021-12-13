@@ -3,21 +3,37 @@
 
 #include <algorithm>
 #include "agent/agent.h"
+#include "network/network.h"
+#include "network/random_reply.h"
 
 namespace rlcpp
 {
+    // observation space: continuous
+    // action space: discrete
     class DQN_agent : Agent
     {
     public:
-        void init(Int obs_n, Int act_n, Float learning_rate = 0.01, Float gamma = 0.9, Float e_greed = 0.1)
+        void init(Network *network, Int obs_dim, Int act_n,
+                  Int max_memory_size, Int batch_size,
+                  Int update_target_steps = 200, Float learning_rate = 0.01,
+                  Float gamma = 0.9, Float e_greed = 0.1)
         {
+            this->network = network;
+            this->target_network = network->deepCopy();
+            this->memory.init(max_memory_size);
+            this->obs_dim = obs_dim;
             this->act_n = act_n;
-            this->obs_n = obs_n;
             this->learning_rate = learning_rate;
             this->gamma = gamma;
             this->e_greed = e_greed;
-            this->Q.resize(obs_n, Vecf(act_n, 0.0));
-            srand((unsigned)time(NULL));
+            this->global_step = 0;
+            this->update_target_steps = update_target_steps;
+
+            this->batch_state.resize(batch_size);
+            this->batch_action.resize(batch_size);
+            this->batch_reward.resize(batch_size);
+            this->batch_next_state.resize(batch_size);
+            this->batch_done.resize(batch_size);
         }
 
         // 根据观测值，采样输出动作，带探索过程
@@ -36,39 +52,55 @@ namespace rlcpp
         // 根据输入观测值，预测下一步动作
         void predict(const State &obs, Action *action) override
         {
-            auto &Q_list = this->Q[obs.front()];
-            auto maxQ = *std::max_element(Q_list.begin(), Q_list.end());
-            Veci action_list;
-            for (int i = 0; i < Q_list.size(); i++)
-            {
-                if (Q_list[i] == maxQ)
-                    action_list.push_back(i);
-            }
-            action->front() = action_list[rand() % action_list.size()];
+            auto ret = this->network->predict({obs});
+            action->front() = ret.front();
         }
 
-        void learn(const State &obs, const Action &action, Float reward, const State &next_obs, const Action& next_action, bool done)
+        void store(const State &state, const Action &action, Float reward, const State &next_state, bool done)
         {
-            auto predict_Q = this->Q[obs.front()][action.front()];
-            Float target_Q = 0.0;
-            if (done)
+            this->memory.store(state, action, reward, next_state, done);
+        }
+
+        void learn(Int eposides)
+        {
+            if (this->global_step % this->update_target_steps == 0)
             {
-                target_Q = reward;
+                this->target_network->update_weights(this->network);
             }
-            else
+            this->global_step++;
+
+            for (int eposide = 0; eposide < eposides; eposide++)
             {
-                target_Q = reward + this->gamma * this->Q[next_obs.front()][next_action.front()];
+                this->memory.sample(this->batch_state, this->batch_action, this->batch_reward, this->batch_next_state, this->batch_done);
+                // get Q predict
+                auto pred_action_value = this->network->predict(batch_state);
+
+                // get max(Q') from target network
+                auto next_pred_value = this->target_network->predict(batch_next_state);
+                
+
             }
-            this->Q[obs.front()][action.front()] += this->learning_rate * (target_Q - predict_Q);
         }
 
     private:
-        Int act_n;
-        Int obs_n;
-        Float learning_rate;
+        Int obs_dim; // dimension of observation space
+        Int act_n;   // num. of action
         Float gamma;
+        Float learning_rate;
         Float e_greed;
-        std::vector<Vecf> Q;
+
+        Int update_target_steps;
+        size_t global_step;
+
+        Network *network;
+        std::shared_ptr<Network> target_network;
+
+        RandomReply memory;
+        std::vector<State> batch_state;
+        std::vector<Action> batch_action;
+        Vecf batch_reward;
+        std::vector<State> batch_next_state;
+        std::vector<bool> batch_done;
     }; // !class Sarsa_agent
 
 } // !namespace rlcpp
