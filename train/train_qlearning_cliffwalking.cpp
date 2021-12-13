@@ -57,7 +57,7 @@ int main()
     double e_greed = 0.1;
     /* ====================================== */
 
-    Gym_Env env("10.227.6.189:50053");
+    Gym_Env env("192.168.0.105:50053");
     // MountainCar-v0
     // CartPole-v0
     // CliffWalking-v0
