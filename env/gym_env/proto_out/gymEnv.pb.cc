@@ -61,7 +61,7 @@ struct ObservationDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT ObservationDefaultTypeInternal _Observation_default_instance_;
 constexpr Action::Action(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : action_(0){}
+  : action_(){}
 struct ActionDefaultTypeInternal {
   constexpr ActionDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -177,7 +177,7 @@ const char descriptor_table_protodef_gymEnv_2eproto[] PROTOBUF_SECTION_VARIABLE(
   " \003(\001\022\021\n\tbDiscrete\030\005 \001(\010\"Q\n\010EnvSpace\022#\n\014a"
   "ction_space\030\001 \001(\0132\r.gymEnv.Space\022 \n\tobs_"
   "space\030\002 \001(\0132\r.gymEnv.Space\"\032\n\013Observatio"
-  "n\022\013\n\003obs\030\001 \003(\001\"\030\n\006Action\022\016\n\006action\030\001 \001(\005"
+  "n\022\013\n\003obs\030\001 \003(\001\"\030\n\006Action\022\016\n\006action\030\001 \003(\001"
   "\"Q\n\nStepResult\022%\n\010next_obs\030\001 \001(\0132\023.gymEn"
   "v.Observation\022\016\n\006reward\030\002 \001(\001\022\014\n\004done\030\003 "
   "\001(\010\"\022\n\003Msg\022\013\n\003msg\030\001 \001(\t2\333\001\n\nGymService\022\'"
@@ -958,7 +958,8 @@ class Action::_Internal {
 
 Action::Action(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
-  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned),
+  action_(arena) {
   SharedCtor();
   if (!is_message_owned) {
     RegisterArenaDtor(arena);
@@ -966,14 +967,13 @@ Action::Action(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   // @@protoc_insertion_point(arena_constructor:gymEnv.Action)
 }
 Action::Action(const Action& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      action_(from.action_) {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  action_ = from.action_;
   // @@protoc_insertion_point(copy_constructor:gymEnv.Action)
 }
 
 void Action::SharedCtor() {
-action_ = 0;
 }
 
 Action::~Action() {
@@ -1003,7 +1003,7 @@ void Action::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  action_ = 0;
+  action_.Clear();
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -1013,11 +1013,14 @@ const char* Action::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::int
     ::PROTOBUF_NAMESPACE_ID::uint32 tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // int32 action = 1;
+      // repeated double action = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
-          action_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedDoubleParser(_internal_mutable_action(), ptr, ctx);
           CHK_(ptr);
+        } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 9) {
+          _internal_add_action(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<double>(ptr));
+          ptr += sizeof(double);
         } else
           goto handle_unusual;
         continue;
@@ -1050,10 +1053,9 @@ failure:
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // int32 action = 1;
-  if (this->_internal_action() != 0) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_action(), target);
+  // repeated double action = 1;
+  if (this->_internal_action_size() > 0) {
+    target = stream->WriteFixedPacked(1, _internal_action(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1072,9 +1074,16 @@ size_t Action::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // int32 action = 1;
-  if (this->_internal_action() != 0) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_action());
+  // repeated double action = 1;
+  {
+    unsigned int count = static_cast<unsigned int>(this->_internal_action_size());
+    size_t data_size = 8UL * count;
+    if (data_size > 0) {
+      total_size += 1 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+            static_cast<::PROTOBUF_NAMESPACE_ID::int32>(data_size));
+    }
+    total_size += data_size;
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -1099,9 +1108,7 @@ void Action::MergeFrom(const Action& from) {
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from._internal_action() != 0) {
-    _internal_set_action(from._internal_action());
-  }
+  action_.MergeFrom(from.action_);
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
@@ -1119,7 +1126,7 @@ bool Action::IsInitialized() const {
 void Action::InternalSwap(Action* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  swap(action_, other->action_);
+  action_.InternalSwap(&other->action_);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Action::GetMetadata() const {

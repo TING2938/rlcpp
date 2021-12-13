@@ -27,17 +27,29 @@ namespace rlcpp
             gymEnv::Msg name;
             name.set_msg(gameName);
             grpc::ClientContext ctx;
-            this->stub_->make(&ctx, name, &this->envSpace);
+            auto status = this->stub_->make(&ctx, name, &this->envSpace);
+            if (!status.ok()) {
+                std::cout << status.error_code() << ": " << status.error_message() << std::endl;
+                std::exit(-1);
+            }
         }
 
         Space action_space() const override
         {
             auto space = this->envSpace.action_space();
-            // TODO: add support for Box type
-            assert(space.bdiscrete() == true);
             Space ret;
-            ret.bDiscrete = true;
-            ret.n = space.n();
+            if (space.bdiscrete())
+            {
+                ret.bDiscrete = true;
+                ret.n = space.n();
+            }
+            else
+            {
+                ret.bDiscrete = false;
+                ret.shape = {space.shape().begin(), space.shape().end()};
+                ret.high = {space.high().begin(), space.high().end()};
+                ret.low = {space.low().begin(), space.low().end()};
+            }
             return ret;
         }
 
@@ -64,7 +76,7 @@ namespace rlcpp
         {
             grpc::ClientContext ctx;
             gymEnv::Action act;
-            act.set_action(action);
+            *act.mutable_action() = {action.begin(), action.end()}; 
             this->stub_->step(&ctx, act, &this->stepResult);
             this->stepResult.next_obs().obs();
             std::copy(this->stepResult.next_obs().obs().begin(), this->stepResult.next_obs().obs().end(), next_obs->begin());

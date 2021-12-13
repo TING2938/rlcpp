@@ -29,7 +29,7 @@ namespace rlcpp
             }
             else
             {
-                *action = rand() % (this->act_n);
+                action->front() = rand() % (this->act_n);
             }
         }
 
@@ -44,12 +44,12 @@ namespace rlcpp
                 if (Q_list[i] == maxQ)
                     action_list.push_back(i);
             }
-            *action = action_list[rand() % action_list.size()];
+            action->front() = action_list[rand() % action_list.size()];
         }
 
         void learn(const State &obs, const Action &action, double reward, const State &next_obs, bool done)
         {
-            auto predict_Q = this->Q[obs.front()][action];
+            auto predict_Q = this->Q[obs.front()][action.front()];
             double target_Q = 0.0;
             if (done)
             {
@@ -59,7 +59,7 @@ namespace rlcpp
             {
                 target_Q = reward + this->gamma * (*std::max_element(this->Q[next_obs.front()].begin(), this->Q[next_obs.front()].end()));
             }
-            this->Q[obs.front()][action] += this->learning_rate * (target_Q - predict_Q);
+            this->Q[obs.front()][action.front()] += this->learning_rate * (target_Q - predict_Q);
         }
 
     private:

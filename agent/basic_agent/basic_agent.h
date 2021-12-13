@@ -24,7 +24,7 @@ namespace rlcpp
         void predict(const State &obs, Action *action) override
         {
             srand((unsigned)time(NULL));
-            *action = rand() % (this->act_n);
+            action->front() = rand() % (this->act_n);
         }
 
     private:

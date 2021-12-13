@@ -20,7 +20,7 @@ message Observation {
 }
 
 message Action {
-    int32 action = 1;
+    repeated double action = 1;
 }
 
 message StepResult {

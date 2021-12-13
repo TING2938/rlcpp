@@ -13,9 +13,6 @@ namespace rlcpp
     using std::string;
     using Veci = std::vector<Int>;
     using Vecd = std::vector<double>;
-
-    using DiscreteType = Int;
-    using BoxType = Vecd;
 }
 
 #endif // !__RL_CONDIG_H__

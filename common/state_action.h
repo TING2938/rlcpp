@@ -5,9 +5,8 @@
 
 namespace rlcpp
 {
-    using State = BoxType;
-
-    using Action = DiscreteType;
+    using State = Vecd;
+    using Action = Vecd;
 
     struct Space
     {   
@@ -31,7 +30,14 @@ namespace rlcpp
 
         Action getEmptyAction()
         {
-            return Action(0);
+            if (this->bDiscrete)
+            {
+                return Action(1, 0.0);
+            } else 
+            {
+                auto n = std::accumulate(this->shape.begin(), this->shape.end(), Int(1), std::multiplies<Int>());
+                return Action(n, 0);
+            }
         }
     };
 }

@@ -761,14 +761,27 @@ class Action final :
   enum : int {
     kActionFieldNumber = 1,
   };
-  // int32 action = 1;
-  void clear_action();
-  ::PROTOBUF_NAMESPACE_ID::int32 action() const;
-  void set_action(::PROTOBUF_NAMESPACE_ID::int32 value);
+  // repeated double action = 1;
+  int action_size() const;
   private:
-  ::PROTOBUF_NAMESPACE_ID::int32 _internal_action() const;
-  void _internal_set_action(::PROTOBUF_NAMESPACE_ID::int32 value);
+  int _internal_action_size() const;
   public:
+  void clear_action();
+  private:
+  double _internal_action(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >&
+      _internal_action() const;
+  void _internal_add_action(double value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
+      _internal_mutable_action();
+  public:
+  double action(int index) const;
+  void set_action(int index, double value);
+  void add_action(double value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >&
+      action() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
+      mutable_action();
 
   // @@protoc_insertion_point(class_scope:gymEnv.Action)
  private:
@@ -777,7 +790,7 @@ class Action final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::int32 action_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< double > action_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_gymEnv_2eproto;
 };
@@ -1534,24 +1547,51 @@ Observation::mutable_obs() {
 
 // Action
 
-// int32 action = 1;
-inline void Action::clear_action() {
-  action_ = 0;
+// repeated double action = 1;
+inline int Action::_internal_action_size() const {
+  return action_.size();
 }
-inline ::PROTOBUF_NAMESPACE_ID::int32 Action::_internal_action() const {
+inline int Action::action_size() const {
+  return _internal_action_size();
+}
+inline void Action::clear_action() {
+  action_.Clear();
+}
+inline double Action::_internal_action(int index) const {
+  return action_.Get(index);
+}
+inline double Action::action(int index) const {
+  // @@protoc_insertion_point(field_get:gymEnv.Action.action)
+  return _internal_action(index);
+}
+inline void Action::set_action(int index, double value) {
+  action_.Set(index, value);
+  // @@protoc_insertion_point(field_set:gymEnv.Action.action)
+}
+inline void Action::_internal_add_action(double value) {
+  action_.Add(value);
+}
+inline void Action::add_action(double value) {
+  _internal_add_action(value);
+  // @@protoc_insertion_point(field_add:gymEnv.Action.action)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >&
+Action::_internal_action() const {
   return action_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::int32 Action::action() const {
-  // @@protoc_insertion_point(field_get:gymEnv.Action.action)
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >&
+Action::action() const {
+  // @@protoc_insertion_point(field_list:gymEnv.Action.action)
   return _internal_action();
 }
-inline void Action::_internal_set_action(::PROTOBUF_NAMESPACE_ID::int32 value) {
-  
-  action_ = value;
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
+Action::_internal_mutable_action() {
+  return &action_;
 }
-inline void Action::set_action(::PROTOBUF_NAMESPACE_ID::int32 value) {
-  _internal_set_action(value);
-  // @@protoc_insertion_point(field_set:gymEnv.Action.action)
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
+Action::mutable_action() {
+  // @@protoc_insertion_point(field_mutable_list:gymEnv.Action.action)
+  return _internal_mutable_action();
 }
 
 // -------------------------------------------------------------------

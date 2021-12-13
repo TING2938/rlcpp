@@ -23,10 +23,8 @@ class EnvServer(GymServiceServicer):
             self.bDiscrete_act = True
             action_space = Space(bDiscrete=True, n=act_space_t.n)
         else:
-            print("Continuous action space is not supported yet!")
-            os.exit()
-            # self.bDiscrete_act = False
-            # action_space = Space(bDiscrete=False, shape=act_space_t.shape, low=act_space_t.low, high=act_space_t.high)
+            self.bDiscrete_act = False
+            action_space = Space(bDiscrete=False, shape=act_space_t.shape, low=act_space_t.low, high=act_space_t.high)
         return EnvSpace(obs_space=obs_space, action_space=action_space)
 
     def reset(self, request, context):
@@ -36,7 +34,11 @@ class EnvServer(GymServiceServicer):
         return Observation(obs=obs)
         
     def step(self, request, context):
-        next_obs, reward, done, _ = self.env.step(request.action)
+        if self.bDiscrete_act:
+            action = request.action[0]
+        else:
+            action = request.action
+        next_obs, reward, done, _ = self.env.step(action)
         if self.bDiscrete_obs:
             next_obs = [next_obs]
         return StepResult(next_obs=Observation(obs=next_obs), reward=reward, done=done)
