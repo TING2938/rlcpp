@@ -6,11 +6,16 @@ set(CMAKE_CXX_STANDARD 14)
 find_package(Protobuf REQUIRED)
 find_package(gRPC REQUIRED)
 
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+
 include_directories(${PROJECT_SOURCE_DIR})
 
 ####### change this dir to proto src dir #######
 set(PROTO_SRC_DIR ${PROJECT_SOURCE_DIR}/env/gym_env/proto_out)
 ################################################
+
+include_directories(${PROJECT_SOURCE_DIR}/third_party/tiny-dnn)
 
 include_directories(${PROTO_SRC_DIR})
 include_directories(${PROJECT_SOURCE_DIR}/include)
@@ -37,3 +42,6 @@ endforeach()
 
 ## Build test
 add_executable(demo ${PROJECT_SOURCE_DIR}/test/demo.cpp)
+
+add_executable(tiny_dnn_network_test ${PROJECT_SOURCE_DIR}/network/tiny_dnn/tiny_dnn_network_test.cpp)
+target_link_libraries(tiny_dnn_network_test PUBLIC Threads::Threads)

@@ -9,7 +9,11 @@ namespace rlcpp
     class Dynet_Network : Network
     {
     public:
-        void predict(const std::vector<State>& batch_state, std::vector<Vecf>* batch_out) override
+        void predict_batch(const std::vector<State>& batch_state, std::vector<Vecf>* batch_out) override
+        {
+        }
+
+        void predict_one(const State& state, Vecf* out) override
         {
         }
 
@@ -18,8 +22,7 @@ namespace rlcpp
         }
 
         void update_weights(const Network* other) override
-        {
-            
+        {   
         }
 
         std::shared_ptr<Network> deepCopy() override

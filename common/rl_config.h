@@ -5,6 +5,7 @@
 #include <vector>
 #include <algorithm>
 #include <numeric>
+#include <tiny_dnn/tiny_dnn.h>
 
 namespace rlcpp
 {
@@ -14,7 +15,7 @@ namespace rlcpp
     using std::string;
     using Veci = std::vector<Int>;
     using Vecd = std::vector<double>;
-    using Vecf = std::vector<Float>;
+    using Vecf = tiny_dnn::vec_t;
 }
 
 #endif // !__RL_CONDIG_H__

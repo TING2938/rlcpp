@@ -9,15 +9,13 @@ namespace rlcpp
     class Network
     {
     public:
-        virtual void predict_batch(const std::vector<State>& batch_state, std::vector<Vecf>* batch_out);
+        virtual void predict_batch(const std::vector<State>& batch_state, std::vector<Vecf>* batch_out) = 0;
 
-        virtual void predict_one(const State& state, Vecf* out);
+        virtual void predict_one(const State& state, Vecf* out) = 0;
 
-        virtual void learn(const std::vector<State>& batch_state, const std::vector<Vecf>& batch_target_value);
+        virtual void learn(const std::vector<State>& batch_state, const std::vector<Vecf>& batch_target_value) = 0;
 
-        virtual void update_weights(const Network* other);
-
-        virtual std::shared_ptr<Network> deepCopy();
+        virtual void update_weights_from(const Network* other) = 0;
     };
 } // ! namespace rlcpp
 

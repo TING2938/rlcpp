@@ -3,6 +3,7 @@
 
 #include <random>
 #include "common/state_action.h"
+#include "tools/rand.h"
 
 namespace rlcpp
 {
