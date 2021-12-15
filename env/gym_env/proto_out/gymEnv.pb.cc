@@ -37,7 +37,8 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT SpaceDefaultTypeInternal _Space
 constexpr EnvSpace::EnvSpace(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : action_space_(nullptr)
-  , obs_space_(nullptr){}
+  , obs_space_(nullptr)
+  , max_episode_steps_(int64_t{0}){}
 struct EnvSpaceDefaultTypeInternal {
   constexpr EnvSpaceDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -122,6 +123,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_gymEnv_2eproto::offsets[] PROT
   ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::gymEnv::EnvSpace, action_space_),
   PROTOBUF_FIELD_OFFSET(::gymEnv::EnvSpace, obs_space_),
+  PROTOBUF_FIELD_OFFSET(::gymEnv::EnvSpace, max_episode_steps_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::gymEnv::Observation, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -156,10 +158,10 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_gymEnv_2eproto::offsets[] PROT
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::gymEnv::Space)},
   { 11, -1, -1, sizeof(::gymEnv::EnvSpace)},
-  { 19, -1, -1, sizeof(::gymEnv::Observation)},
-  { 26, -1, -1, sizeof(::gymEnv::Action)},
-  { 33, -1, -1, sizeof(::gymEnv::StepResult)},
-  { 42, -1, -1, sizeof(::gymEnv::Msg)},
+  { 20, -1, -1, sizeof(::gymEnv::Observation)},
+  { 27, -1, -1, sizeof(::gymEnv::Action)},
+  { 34, -1, -1, sizeof(::gymEnv::StepResult)},
+  { 43, -1, -1, sizeof(::gymEnv::Msg)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -174,23 +176,23 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
 const char descriptor_table_protodef_gymEnv_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\014gymEnv.proto\022\006gymEnv\"O\n\005Space\022\t\n\001n\030\001 \001"
   "(\005\022\r\n\005shape\030\002 \003(\005\022\014\n\004high\030\003 \003(\002\022\013\n\003low\030\004"
-  " \003(\002\022\021\n\tbDiscrete\030\005 \001(\010\"Q\n\010EnvSpace\022#\n\014a"
+  " \003(\002\022\021\n\tbDiscrete\030\005 \001(\010\"l\n\010EnvSpace\022#\n\014a"
   "ction_space\030\001 \001(\0132\r.gymEnv.Space\022 \n\tobs_"
-  "space\030\002 \001(\0132\r.gymEnv.Space\"\032\n\013Observatio"
-  "n\022\013\n\003obs\030\001 \003(\002\"\030\n\006Action\022\016\n\006action\030\001 \003(\002"
-  "\"Q\n\nStepResult\022%\n\010next_obs\030\001 \001(\0132\023.gymEn"
-  "v.Observation\022\016\n\006reward\030\002 \001(\002\022\014\n\004done\030\003 "
-  "\001(\010\"\022\n\003Msg\022\013\n\003msg\030\001 \001(\t2\333\001\n\nGymService\022\'"
-  "\n\004make\022\013.gymEnv.Msg\032\020.gymEnv.EnvSpace\"\000\022"
-  "+\n\005reset\022\013.gymEnv.Msg\032\023.gymEnv.Observati"
-  "on\"\000\022,\n\004step\022\016.gymEnv.Action\032\022.gymEnv.St"
-  "epResult\"\000\022$\n\006render\022\013.gymEnv.Msg\032\013.gymE"
-  "nv.Msg\"\000\022#\n\005close\022\013.gymEnv.Msg\032\013.gymEnv."
-  "Msg\"\000b\006proto3"
+  "space\030\002 \001(\0132\r.gymEnv.Space\022\031\n\021max_episod"
+  "e_steps\030\003 \001(\003\"\032\n\013Observation\022\013\n\003obs\030\001 \003("
+  "\002\"\030\n\006Action\022\016\n\006action\030\001 \003(\002\"Q\n\nStepResul"
+  "t\022%\n\010next_obs\030\001 \001(\0132\023.gymEnv.Observation"
+  "\022\016\n\006reward\030\002 \001(\002\022\014\n\004done\030\003 \001(\010\"\022\n\003Msg\022\013\n"
+  "\003msg\030\001 \001(\t2\333\001\n\nGymService\022\'\n\004make\022\013.gymE"
+  "nv.Msg\032\020.gymEnv.EnvSpace\"\000\022+\n\005reset\022\013.gy"
+  "mEnv.Msg\032\023.gymEnv.Observation\"\000\022,\n\004step\022"
+  "\016.gymEnv.Action\032\022.gymEnv.StepResult\"\000\022$\n"
+  "\006render\022\013.gymEnv.Msg\032\013.gymEnv.Msg\"\000\022#\n\005c"
+  "lose\022\013.gymEnv.Msg\032\013.gymEnv.Msg\"\000b\006proto3"
   ;
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_gymEnv_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_gymEnv_2eproto = {
-  false, false, 573, descriptor_table_protodef_gymEnv_2eproto, "gymEnv.proto", 
+  false, false, 600, descriptor_table_protodef_gymEnv_2eproto, "gymEnv.proto", 
   &descriptor_table_gymEnv_2eproto_once, nullptr, 0, 6,
   schemas, file_default_instances, TableStruct_gymEnv_2eproto::offsets,
   file_level_metadata_gymEnv_2eproto, file_level_enum_descriptors_gymEnv_2eproto, file_level_service_descriptors_gymEnv_2eproto,
@@ -559,14 +561,15 @@ EnvSpace::EnvSpace(const EnvSpace& from)
   } else {
     obs_space_ = nullptr;
   }
+  max_episode_steps_ = from.max_episode_steps_;
   // @@protoc_insertion_point(copy_constructor:gymEnv.EnvSpace)
 }
 
 void EnvSpace::SharedCtor() {
 ::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
     reinterpret_cast<char*>(&action_space_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&obs_space_) -
-    reinterpret_cast<char*>(&action_space_)) + sizeof(obs_space_));
+    0, static_cast<size_t>(reinterpret_cast<char*>(&max_episode_steps_) -
+    reinterpret_cast<char*>(&action_space_)) + sizeof(max_episode_steps_));
 }
 
 EnvSpace::~EnvSpace() {
@@ -606,6 +609,7 @@ void EnvSpace::Clear() {
     delete obs_space_;
   }
   obs_space_ = nullptr;
+  max_episode_steps_ = int64_t{0};
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -627,6 +631,14 @@ const char* EnvSpace::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::i
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
           ptr = ctx->ParseMessage(_internal_mutable_obs_space(), ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // int64 max_episode_steps = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
+          max_episode_steps_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -676,6 +688,12 @@ failure:
         2, _Internal::obs_space(this), target, stream);
   }
 
+  // int64 max_episode_steps = 3;
+  if (this->_internal_max_episode_steps() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt64ToArray(3, this->_internal_max_episode_steps(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -706,6 +724,11 @@ size_t EnvSpace::ByteSizeLong() const {
         *obs_space_);
   }
 
+  // int64 max_episode_steps = 3;
+  if (this->_internal_max_episode_steps() != 0) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int64SizePlusOne(this->_internal_max_episode_steps());
+  }
+
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
 }
 
@@ -734,6 +757,9 @@ void EnvSpace::MergeFrom(const EnvSpace& from) {
   if (from._internal_has_obs_space()) {
     _internal_mutable_obs_space()->::gymEnv::Space::MergeFrom(from._internal_obs_space());
   }
+  if (from._internal_max_episode_steps() != 0) {
+    _internal_set_max_episode_steps(from._internal_max_episode_steps());
+  }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
@@ -752,8 +778,8 @@ void EnvSpace::InternalSwap(EnvSpace* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(EnvSpace, obs_space_)
-      + sizeof(EnvSpace::obs_space_)
+      PROTOBUF_FIELD_OFFSET(EnvSpace, max_episode_steps_)
+      + sizeof(EnvSpace::max_episode_steps_)
       - PROTOBUF_FIELD_OFFSET(EnvSpace, action_space_)>(
           reinterpret_cast<char*>(&action_space_),
           reinterpret_cast<char*>(&other->action_space_));

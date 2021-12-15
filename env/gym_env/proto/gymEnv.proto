@@ -13,6 +13,7 @@ message Space {
 message EnvSpace {
     Space action_space = 1;
     Space obs_space = 2;
+    int64 max_episode_steps = 3;
 }
 
 message Observation {

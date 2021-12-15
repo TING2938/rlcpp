@@ -30,8 +30,9 @@ foreach(SRC_PATH ${TRAIN_SRC_FILES})
     get_filename_component(_target ${SRC_PATH} NAME_WE)
     message("_target is: ${_target}")
     add_executable(${_target} ${PROTO_SRC_FILE} ${SRC_PATH})
-    target_link_libraries(${_target} gRPC::grpc++_reflection protobuf::libprotobuf)
+    target_link_libraries(${_target} gRPC::grpc++_reflection protobuf::libprotobuf dynet)
 endforeach()
+
 
 ## Build dynet test
 include_directories(/home/yeting/study/ML/dynet/examples/cpp-utils)
@@ -39,6 +40,9 @@ foreach(dynet_src train_xor train_linefit train_mnist)
     add_executable(${dynet_src} ${PROJECT_SOURCE_DIR}/test/dynet/${dynet_src}.cc)
     target_link_libraries(${dynet_src} dynet)
 endforeach()
+
+add_executable(dynet_network_test network/dynet_network/dynet_network_test.cpp)
+target_link_libraries(dynet_network_test dynet Threads::Threads)
 
 ## Build test
 add_executable(demo ${PROJECT_SOURCE_DIR}/test/demo.cpp)

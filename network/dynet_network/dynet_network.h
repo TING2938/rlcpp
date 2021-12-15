@@ -9,8 +9,7 @@ namespace rlcpp
     struct Dynet_Network : public Network
     {
     public:
-
-        Dynet_Network(int in_dim, int out_dim) : nn(model), input_dim(in_dim), output_dim(out_dim) {}
+        Dynet_Network(int in_dim, int out_dim) : input_dim(in_dim), output_dim(out_dim), nn(model) {}
 
         void build_model(const std::vector<dynet::Layer>& layers)
         {
@@ -36,12 +35,20 @@ namespace rlcpp
 
         void learn(const std::vector<State>& batch_state, const std::vector<Vecf>& batch_target_value)
         {
-
+            
         }
         
         void update_weights_from(const Network* other) 
         {
-
+            auto other_network = (Dynet_Network*)other;
+            auto params_self = this->model.parameters_list();
+            auto params_other = other_network->model.parameters_list();
+            printf("size self: %ld, size other: %ld\n", params_self.size(), params_other.size());
+            assert(params_self.size() == params_other.size());
+            for (int i = 0; i < params_self.size(); i++)
+            {
+                dynet::TensorTools::copy_elements(params_self[i]->values, params_other[i]->values);
+            }
         }
 
     public:

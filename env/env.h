@@ -21,6 +21,8 @@ namespace rlcpp
         virtual void close() = 0;
 
         virtual void render() = 0;
+
+        size_t max_episode_steps;
     };
 }
 

@@ -32,6 +32,7 @@ namespace rlcpp
                 std::cout << status.error_code() << ": " << status.error_message() << std::endl;
                 std::exit(-1);
             }
+            this->max_episode_steps = this->envSpace.max_episode_steps();
         }
 
         Space action_space() const override

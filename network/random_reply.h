@@ -75,6 +75,34 @@ namespace rlcpp
             }
         }
 
+        void sample_onedim(Vecf &batch_state,
+                    Vecf &batch_action,
+                    Vecf &batch_reward,
+                    Vecf &batch_next_state,
+                    std::vector<bool> &batch_done)
+        {
+            size_t batch_size = batch_reward.size();
+            size_t state_dim = batch_state.size() / batch_size;
+            size_t action_dim = batch_action.size() / batch_size;
+
+            size_t len = this->size();
+            std::vector<size_t> index(batch_size);
+            for (size_t i = 0; i < batch_size; i++)
+            {
+                index[i] = i % len;
+            }
+            std::shuffle(index.begin(), index.end(), engine);
+            for (size_t i = 0; i < batch_size; i++)
+            {
+                auto &tmp = memory[index[i]];
+                std::copy_n(tmp.state.begin(), state_dim, batch_state.begin() + i * state_dim);
+                std::copy_n(tmp.action.begin(), action_dim, batch_action.begin() + i * action_dim); 
+                batch_reward[i] = tmp.reward;
+                std::copy_n(tmp.next_state.begin(), state_dim, batch_next_state.begin() + i * state_dim);
+                batch_done[i] = tmp.done;
+            }
+        }
+
     private:
         bool bFull;
         size_t idx = 0;

@@ -7,53 +7,55 @@
 #include "tools/rand.h"
 #include "network/dynet_network/dynet_network.h"
 
+using dynet::Expression;
+
 namespace rlcpp
 {
     // observation space: continuous
     // action space: discrete
-    class DQN_agent : Agent
+    class DQN_dynet_agent : Agent
     {
     public:
-        void init(const std::vector<dynet::Layer>& layers, 
+        DQN_dynet_agent(const std::vector<dynet::Layer>& layers, 
                   Int obs_dim, Int act_n,
                   Int max_memory_size, Int batch_size,
                   Int update_target_steps = 200, Float gamma = 0.9, 
-                  Float e_greed = 0.1, Float e_greed_decrement = 0.0)
+                  Float epsilon = 1.0, Float epsilon_decrease = 1e-4)
+        : network(obs_dim, act_n), target_network(obs_dim, act_n), trainer(network.model)
         {
             this->network.build_model(layers);
             this->target_network.build_model(layers);
-
+            this->trainer.clip_threshold = 1.0;
+            this->trainer.learning_rate = 5e-4;
+            
             this->memory.init(max_memory_size);
             this->obs_dim = obs_dim;
             this->act_n = act_n;
             this->gamma = gamma;
-            this->e_greed = e_greed;
-            this->e_greed_decrement = e_greed_decrement;
+            this->epsilon = epsilon;
+            this->epsilon_decrease = epsilon_decrease;
+            this->epsilon_lower = 0.05;
 
-            this->global_step = 0;
+            this->reward_decay = 0.99;
+            this->learn_step = 0;
             this->update_target_steps = update_target_steps;
 
-            this->batch_state.resize(batch_size);
-            this->batch_action.resize(batch_size);
+            this->batch_state.resize(batch_size * obs_dim);
+            this->batch_action.resize(batch_size * act_n);
             this->batch_reward.resize(batch_size);
-            this->batch_next_state.resize(batch_size);
+            this->batch_next_state.resize(batch_size * obs_dim);
             this->batch_done.resize(batch_size);
-            this->batch_Q.resize(batch_size, Vecf(act_n, 0.0));
-            this->batch_target_Q.resize(batch_size, Vecf(act_n, 0.0));
+            this->batch_target_Q.resize(batch_size * act_n);
         }
 
         // 根据观测值，采样输出动作，带探索过程
         void sample(const State &obs, Action *action) override
         {
-            if (randf() < (1.0 - this->e_greed))
-            {
+            if (randf() < this->epsilon) {
+                action->front() = randd(0, this->act_n);
+            } else {
                 this->predict(obs, action);
             }
-            else
-            {
-                action->front() = randd(0, this->act_n);
-            }
-            this->e_greed = std::max<Float>(0.01, this->e_greed - this->e_greed_decrement);
         }
 
         // 根据输入观测值，预测下一步动作
@@ -74,51 +76,72 @@ namespace rlcpp
             return this->memory.size();
         }
 
-        void learn(Int eposides)
+        Float learn()
         {
-            if (this->global_step % this->update_target_steps == 0)
-            {
-                this->target_network->update_weights_from(this->network);
-            }
-            this->global_step++;
+            this->memory.sample_onedim(this->batch_state, this->batch_action, this->batch_reward, this->batch_next_state, this->batch_done);
+            unsigned batch_size = this->batch_reward.size();
 
-            for (int eposide = 0; eposide < eposides; eposide++)
+            // get max(Q') from target network
+            this->target_network.predict(this->batch_next_state, &this->batch_target_Q);
+            Vecf target_values(batch_size);            
+            for (int i = 0; i < batch_size; i++)
             {
-                this->memory.sample(this->batch_state, this->batch_action, this->batch_reward, this->batch_next_state, this->batch_done);
-                // get max(Q') from target network
-                this->network->predict_batch(batch_state, &this->batch_target_Q); 
-                this->target_network->predict_batch(batch_next_state, &this->batch_Q);
-                for (int i = 0; i < this->batch_state.size(); i++)
-                {
-                    Float maxQ = *std::max_element(this->batch_Q[i].begin(), this->batch_Q[i].end());
-                    this->batch_target_Q[i][this->batch_action[i].front()] = this->batch_reward[i] + this->gamma * maxQ * (1 - this->batch_done[i]);
-                }
-                this->network->learn(this->batch_state, this->batch_target_Q);
+                Float maxQ = *std::max_element(this->batch_target_Q.begin() + i * this->act_n, this->batch_target_Q.begin() + (i+1) * this->act_n);
+                target_values[i] = this->batch_reward[i] + this->gamma * maxQ * (1 - this->batch_done[i]);
             }
+            
+            dynet::ComputationGraph cg;
+            Expression batch_state_expr = dynet::input(cg, dynet::Dim{{(unsigned) this->obs_dim}, batch_size}, this->batch_state);
+            std::cout << batch_state_expr.dim() << "\n";
+
+            Expression batch_Q_expr = this->network.nn.run(batch_state_expr, cg);
+            std::cout << batch_Q_expr.dim() << "\n";
+
+            Expression picked_values_expr = dynet::pick_batch_elems(batch_Q_expr, {this->batch_action.begin(), this->batch_action.end()});
+            std::cout << picked_values_expr.dim() << "\n";
+
+            Expression target_values_expr = dynet::input(cg, dynet::Dim{{1}, batch_size}, target_values);
+            std::cout << target_values_expr.dim() << "\n";
+
+            Expression loss_expr = dynet::sum_batches(dynet::squared_distance(picked_values_expr, target_values_expr));
+            Float loss_value = dynet::as_scalar(cg.forward(loss_expr)); 
+            cg.backward(loss_expr);
+            this->trainer.update();
+
+            this->epsilon = std::max(this->epsilon - this->epsilon_decrease, this->epsilon_lower);
+            this->learn_step += 1;
+            if (this->learn_step % this->update_target_steps == 0)
+            {
+                this->target_network.update_weights_from(&this->network);
+            }
+            return loss_value;
         }
-
     public:
-        Float e_greed;
+        Float epsilon;
+
     private:
         Int obs_dim; // dimension of observation space
         Int act_n;   // num. of action
         Float gamma;
-        Float e_greed_decrement;
 
-        Int update_target_steps;
-        size_t global_step;
+        Float epsilon_decrease;
+        Float epsilon_lower;
+
+        Float reward_decay;
+        size_t learn_step;
+        size_t update_target_steps;
 
         Dynet_Network network;
         Dynet_Network target_network;
+        dynet::AdamTrainer trainer;
 
         RandomReply memory;
-        std::vector<State> batch_state;
-        std::vector<Action> batch_action;
+        Vecf batch_state;
+        Vecf batch_action;
         Vecf batch_reward;
-        std::vector<State> batch_next_state;
+        Vecf batch_next_state;
         std::vector<bool> batch_done;
-        std::vector<Vecf> batch_target_Q;
-        std::vector<Vecf> batch_Q;
+        Vecf batch_target_Q;
     }; // !class Sarsa_agent
 
 } // !namespace rlcpp

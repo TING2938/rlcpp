@@ -9,3 +9,4 @@ build/
 draft/
 *.a
 *.out
+core.*

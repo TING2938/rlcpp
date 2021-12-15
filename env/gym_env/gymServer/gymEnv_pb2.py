@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0cgymEnv.proto\x12\x06gymEnv\"O\n\x05Space\x12\t\n\x01n\x18\x01 \x01(\x05\x12\r\n\x05shape\x18\x02 \x03(\x05\x12\x0c\n\x04high\x18\x03 \x03(\x02\x12\x0b\n\x03low\x18\x04 \x03(\x02\x12\x11\n\tbDiscrete\x18\x05 \x01(\x08\"Q\n\x08\x45nvSpace\x12#\n\x0c\x61\x63tion_space\x18\x01 \x01(\x0b\x32\r.gymEnv.Space\x12 \n\tobs_space\x18\x02 \x01(\x0b\x32\r.gymEnv.Space\"\x1a\n\x0bObservation\x12\x0b\n\x03obs\x18\x01 \x03(\x02\"\x18\n\x06\x41\x63tion\x12\x0e\n\x06\x61\x63tion\x18\x01 \x03(\x02\"Q\n\nStepResult\x12%\n\x08next_obs\x18\x01 \x01(\x0b\x32\x13.gymEnv.Observation\x12\x0e\n\x06reward\x18\x02 \x01(\x02\x12\x0c\n\x04\x64one\x18\x03 \x01(\x08\"\x12\n\x03Msg\x12\x0b\n\x03msg\x18\x01 \x01(\t2\xdb\x01\n\nGymService\x12\'\n\x04make\x12\x0b.gymEnv.Msg\x1a\x10.gymEnv.EnvSpace\"\x00\x12+\n\x05reset\x12\x0b.gymEnv.Msg\x1a\x13.gymEnv.Observation\"\x00\x12,\n\x04step\x12\x0e.gymEnv.Action\x1a\x12.gymEnv.StepResult\"\x00\x12$\n\x06render\x12\x0b.gymEnv.Msg\x1a\x0b.gymEnv.Msg\"\x00\x12#\n\x05\x63lose\x12\x0b.gymEnv.Msg\x1a\x0b.gymEnv.Msg\"\x00\x62\x06proto3'
+  serialized_pb=b'\n\x0cgymEnv.proto\x12\x06gymEnv\"O\n\x05Space\x12\t\n\x01n\x18\x01 \x01(\x05\x12\r\n\x05shape\x18\x02 \x03(\x05\x12\x0c\n\x04high\x18\x03 \x03(\x02\x12\x0b\n\x03low\x18\x04 \x03(\x02\x12\x11\n\tbDiscrete\x18\x05 \x01(\x08\"l\n\x08\x45nvSpace\x12#\n\x0c\x61\x63tion_space\x18\x01 \x01(\x0b\x32\r.gymEnv.Space\x12 \n\tobs_space\x18\x02 \x01(\x0b\x32\r.gymEnv.Space\x12\x19\n\x11max_episode_steps\x18\x03 \x01(\x03\"\x1a\n\x0bObservation\x12\x0b\n\x03obs\x18\x01 \x03(\x02\"\x18\n\x06\x41\x63tion\x12\x0e\n\x06\x61\x63tion\x18\x01 \x03(\x02\"Q\n\nStepResult\x12%\n\x08next_obs\x18\x01 \x01(\x0b\x32\x13.gymEnv.Observation\x12\x0e\n\x06reward\x18\x02 \x01(\x02\x12\x0c\n\x04\x64one\x18\x03 \x01(\x08\"\x12\n\x03Msg\x12\x0b\n\x03msg\x18\x01 \x01(\t2\xdb\x01\n\nGymService\x12\'\n\x04make\x12\x0b.gymEnv.Msg\x1a\x10.gymEnv.EnvSpace\"\x00\x12+\n\x05reset\x12\x0b.gymEnv.Msg\x1a\x13.gymEnv.Observation\"\x00\x12,\n\x04step\x12\x0e.gymEnv.Action\x1a\x12.gymEnv.StepResult\"\x00\x12$\n\x06render\x12\x0b.gymEnv.Msg\x1a\x0b.gymEnv.Msg\"\x00\x12#\n\x05\x63lose\x12\x0b.gymEnv.Msg\x1a\x0b.gymEnv.Msg\"\x00\x62\x06proto3'
 )
 
 
@@ -107,6 +107,13 @@ _ENVSPACE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='max_episode_steps', full_name='gymEnv.EnvSpace.max_episode_steps', index=2,
+      number=3, type=3, cpp_type=2, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -120,7 +127,7 @@ _ENVSPACE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=105,
-  serialized_end=186,
+  serialized_end=213,
 )
 
 
@@ -151,8 +158,8 @@ _OBSERVATION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=188,
-  serialized_end=214,
+  serialized_start=215,
+  serialized_end=241,
 )
 
 
@@ -183,8 +190,8 @@ _ACTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=216,
-  serialized_end=240,
+  serialized_start=243,
+  serialized_end=267,
 )
 
 
@@ -229,8 +236,8 @@ _STEPRESULT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=242,
-  serialized_end=323,
+  serialized_start=269,
+  serialized_end=350,
 )
 
 
@@ -261,8 +268,8 @@ _MSG = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=325,
-  serialized_end=343,
+  serialized_start=352,
+  serialized_end=370,
 )
 
 _ENVSPACE.fields_by_name['action_space'].message_type = _SPACE
@@ -327,8 +334,8 @@ _GYMSERVICE = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=346,
-  serialized_end=565,
+  serialized_start=373,
+  serialized_end=592,
   methods=[
   _descriptor.MethodDescriptor(
     name='make',

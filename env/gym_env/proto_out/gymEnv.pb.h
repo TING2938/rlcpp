@@ -433,6 +433,7 @@ class EnvSpace final :
   enum : int {
     kActionSpaceFieldNumber = 1,
     kObsSpaceFieldNumber = 2,
+    kMaxEpisodeStepsFieldNumber = 3,
   };
   // .gymEnv.Space action_space = 1;
   bool has_action_space() const;
@@ -470,6 +471,15 @@ class EnvSpace final :
       ::gymEnv::Space* obs_space);
   ::gymEnv::Space* unsafe_arena_release_obs_space();
 
+  // int64 max_episode_steps = 3;
+  void clear_max_episode_steps();
+  ::PROTOBUF_NAMESPACE_ID::int64 max_episode_steps() const;
+  void set_max_episode_steps(::PROTOBUF_NAMESPACE_ID::int64 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int64 _internal_max_episode_steps() const;
+  void _internal_set_max_episode_steps(::PROTOBUF_NAMESPACE_ID::int64 value);
+  public:
+
   // @@protoc_insertion_point(class_scope:gymEnv.EnvSpace)
  private:
   class _Internal;
@@ -479,6 +489,7 @@ class EnvSpace final :
   typedef void DestructorSkippable_;
   ::gymEnv::Space* action_space_;
   ::gymEnv::Space* obs_space_;
+  ::PROTOBUF_NAMESPACE_ID::int64 max_episode_steps_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_gymEnv_2eproto;
 };
@@ -1490,6 +1501,26 @@ inline void EnvSpace::set_allocated_obs_space(::gymEnv::Space* obs_space) {
   }
   obs_space_ = obs_space;
   // @@protoc_insertion_point(field_set_allocated:gymEnv.EnvSpace.obs_space)
+}
+
+// int64 max_episode_steps = 3;
+inline void EnvSpace::clear_max_episode_steps() {
+  max_episode_steps_ = int64_t{0};
+}
+inline ::PROTOBUF_NAMESPACE_ID::int64 EnvSpace::_internal_max_episode_steps() const {
+  return max_episode_steps_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int64 EnvSpace::max_episode_steps() const {
+  // @@protoc_insertion_point(field_get:gymEnv.EnvSpace.max_episode_steps)
+  return _internal_max_episode_steps();
+}
+inline void EnvSpace::_internal_set_max_episode_steps(::PROTOBUF_NAMESPACE_ID::int64 value) {
+  
+  max_episode_steps_ = value;
+}
+inline void EnvSpace::set_max_episode_steps(::PROTOBUF_NAMESPACE_ID::int64 value) {
+  _internal_set_max_episode_steps(value);
+  // @@protoc_insertion_point(field_set:gymEnv.EnvSpace.max_episode_steps)
 }
 
 // -------------------------------------------------------------------
