@@ -35,7 +35,7 @@ class EnvServer(GymServiceServicer):
         
     def step(self, request, context):
         if self.bDiscrete_act:
-            action = request.action[0]
+            action = int(request.action[0])
         else:
             action = request.action
         next_obs, reward, done, _ = self.env.step(action)

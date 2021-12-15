@@ -121,12 +121,13 @@ int main()
     {
         for (int i = 0; i < 50; i++)
         {
+            printf("run_episode exec\n");
             auto ret = run_episode(env, agent, obs, next_obs, action, reward, done);
             episode += 1;
         }
 
         auto test_ret = test_episode(env, agent, obs, next_obs, action, reward, done);
-        printf("episode: %d   e_greed: %.3f   test reward: %.2f", episode, agent.e_greed, test_ret);
+        printf("episode: %d   e_greed: %.3f   test reward: %.2f\n", episode, agent.e_greed, test_ret);
     }
     env.close();
 }

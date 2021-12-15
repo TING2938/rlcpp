@@ -294,5 +294,6 @@ namespace dynet
             }
         }
     };
+
 }
 #endif

@@ -9,9 +9,9 @@ namespace rlcpp
     class Network
     {
     public:
-        virtual void predict_batch(const std::vector<State>& batch_state, std::vector<Vecf>* batch_out) = 0;
+        virtual void predict(const std::vector<State>& batch_state, std::vector<Vecf>* batch_out) = 0;
 
-        virtual void predict_one(const State& state, Vecf* out) = 0;
+        virtual void predict(const State& state, Vecf* out) = 0;
 
         virtual void learn(const std::vector<State>& batch_state, const std::vector<Vecf>& batch_target_value) = 0;
 

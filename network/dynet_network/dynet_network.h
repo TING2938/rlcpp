@@ -6,28 +6,49 @@
 
 namespace rlcpp
 {
-    class Dynet_Network : Network
+    struct Dynet_Network : public Network
     {
     public:
-        void predict_batch(const std::vector<State>& batch_state, std::vector<Vecf>* batch_out) override
+
+        Dynet_Network(int in_dim, int out_dim) : nn(model), input_dim(in_dim), output_dim(out_dim) {}
+
+        void build_model(const std::vector<dynet::Layer>& layers)
         {
+            for (dynet::Layer layer : layers)
+            {
+                nn.append(model, layer);
+            }
         }
 
-        void predict_one(const State& state, Vecf* out) override
+        void predict(const std::vector<State>& batch_state, std::vector<Vecf>* batch_out)
         {
+
         }
 
-        void learn(const std::vector<State>& batch_state, const std::vector<Vecf>& batch_target_value) override
+        void predict(const Vecf& in, Vecf* out) override
         {
+            dynet::ComputationGraph cg;
+            dynet::Dim dim({input_dim}, in.size() / input_dim);
+            dynet::Expression x = dynet::input(cg, dim, in);
+            auto y = nn.run(x, cg);
+            *out = as_vector(cg.forward(y));
         }
 
-        void update_weights(const Network* other) override
-        {   
+        void learn(const std::vector<State>& batch_state, const std::vector<Vecf>& batch_target_value)
+        {
+
+        }
+        
+        void update_weights_from(const Network* other) 
+        {
+
         }
 
-        std::shared_ptr<Network> deepCopy() override
-        {
-        }
+    public:
+        dynet::ParameterCollection model;
+        dynet::MLP nn;
+        unsigned int input_dim;
+        unsigned int output_dim;
     };
 } // namespace rlcpp
 

@@ -11,7 +11,7 @@ namespace rlcpp
     class TinyDNN_Network : public Network
     {
     public:
-        void predict_batch(const std::vector<State> &batch_state, std::vector<Vecf> *batch_out) override
+        void predict(const std::vector<State> &batch_state, std::vector<Vecf> *batch_out) override
         {
             for (int i = 0; i < batch_state.size(); i++)
             {
@@ -19,7 +19,7 @@ namespace rlcpp
             }
         }
 
-        void predict_one(const State &state, Vecf *out) override
+        void predict(const State &state, Vecf *out) override
         {
             auto ret = this->nn.predict(state);
             std::copy(ret.begin(), ret.end(), out->begin());
