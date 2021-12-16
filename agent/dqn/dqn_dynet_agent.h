@@ -19,7 +19,7 @@ namespace rlcpp
         DQN_dynet_agent(const std::vector<dynet::Layer>& layers, 
                   Int obs_dim, Int act_n,
                   Int max_memory_size, Int batch_size,
-                  Int update_target_steps = 200, Float gamma = 0.99, 
+                  Int update_target_steps = 500, Float gamma = 0.99, 
                   Float epsilon = 1.0, Float epsilon_decrease = 1e-4)
         : network(obs_dim, act_n), target_network(obs_dim, act_n), trainer(network.model)
         {
@@ -79,10 +79,7 @@ namespace rlcpp
 
         Float learn()
         {
-            if (this->learn_step % this->update_target_steps == 0)
-            {
-                this->target_network.update_weights_from(&this->network);
-            }
+            
 
             this->memory.sample_onedim(this->batch_state, this->batch_action, this->batch_reward, this->batch_next_state, this->batch_done);
             unsigned batch_size = this->batch_reward.size();
@@ -101,12 +98,17 @@ namespace rlcpp
             Expression batch_Q_expr = this->network.nn.run(batch_state_expr, cg);
             Expression picked_values_expr = dynet::pick(batch_Q_expr, {this->batch_action.begin(), this->batch_action.end()});
             Expression target_values_expr = dynet::input(cg, dynet::Dim({1}, batch_size), target_values);
-            Expression loss = dynet::mean_batches(dynet::squared_distance(picked_values_expr, target_values_expr));
+            Expression loss = dynet::sum_batches(dynet::squared_distance(picked_values_expr, target_values_expr));
             Float loss_value = dynet::as_scalar(cg.forward(loss)); 
             cg.backward(loss);
             this->trainer.update();
             this->epsilon = std::max(this->epsilon - this->epsilon_decrease, this->epsilon_lower);
+            
             this->learn_step += 1;
+            if (this->learn_step % this->update_target_steps == 0)
+            {
+                this->target_network.update_weights_from(&this->network);
+            }
             return loss_value;
         }
     public:
