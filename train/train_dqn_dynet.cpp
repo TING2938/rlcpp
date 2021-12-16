@@ -5,7 +5,7 @@
 using namespace rlcpp;
 using std::vector;
 
-void train_pipeline_conservative(Env &env, DQN_dynet_agent &agent, Float score_threshold, Int n_epoch = 500, Int n_rollout = 100, Int n_train = 1000, Int learn_start = 0, bool early_stop = true)
+void train_pipeline_conservative(Env &env, DQN_dynet_agent &agent, Float score_threshold, Int n_epoch = 500, Int n_rollout = 100, Int n_train = 1000, Int learn_start = 1000, bool early_stop = true)
 {
     auto obs = env.obs_space().getEmptyObs();
     auto next_obs = env.obs_space().getEmptyObs();
@@ -117,7 +117,6 @@ int main(int argc, char** argv)
 
     vector<string> ENVs = {"CartPole-v0", "Acrobot-v1", "MountainCar-v0"};
     vector<Int> score_thresholds = {499, -100, -100};
-    
     Gym_Env env("localhost:50053");
     env.make(ENVs[env_id]);
 
@@ -133,9 +132,11 @@ int main(int argc, char** argv)
         dynet::Layer(128                    , action_space.n, dynet::LINEAR, /* dropout_rate */ 0.0)
     };
 
-    DQN_dynet_agent agent(layers, obs_space.shape.front(), action_space.n, max_reply_memory_size, batch_size, 200);
+    DQN_dynet_agent agent(layers, obs_space.shape.front(), action_space.n, max_reply_memory_size, batch_size, 200, 0.99, 1, 5e-5);
 
-    Int max_episode = 2000;
-    train_pipeline_conservative(env, agent, score_thresholds[env_id], max_episode, 100, 1000);
+    Int max_episode = 500;
+    Int learn_start = 0;
+    train_pipeline_conservative(env, agent, score_thresholds[env_id], max_episode, 100, 1000, learn_start);
+    test(env, agent, 10, false);
     env.close();
 }

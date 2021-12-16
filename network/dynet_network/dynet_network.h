@@ -43,7 +43,6 @@ namespace rlcpp
             auto other_network = (Dynet_Network*)other;
             auto params_self = this->model.parameters_list();
             auto params_other = other_network->model.parameters_list();
-            printf("size self: %ld, size other: %ld\n", params_self.size(), params_other.size());
             assert(params_self.size() == params_other.size());
             for (int i = 0; i < params_self.size(); i++)
             {

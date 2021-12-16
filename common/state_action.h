@@ -6,7 +6,7 @@
 namespace rlcpp
 {
     using State = Vecf;
-    using Action = Vecf;
+    using Action = Veci;
 
     struct Space
     {   

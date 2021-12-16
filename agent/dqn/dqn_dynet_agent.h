@@ -19,12 +19,14 @@ namespace rlcpp
         DQN_dynet_agent(const std::vector<dynet::Layer>& layers, 
                   Int obs_dim, Int act_n,
                   Int max_memory_size, Int batch_size,
-                  Int update_target_steps = 200, Float gamma = 0.9, 
+                  Int update_target_steps = 200, Float gamma = 0.99, 
                   Float epsilon = 1.0, Float epsilon_decrease = 1e-4)
         : network(obs_dim, act_n), target_network(obs_dim, act_n), trainer(network.model)
         {
             this->network.build_model(layers);
             this->target_network.build_model(layers);
+            this->target_network.update_weights_from(&this->network);
+
             this->trainer.clip_threshold = 1.0;
             this->trainer.learning_rate = 5e-4;
             
@@ -36,12 +38,11 @@ namespace rlcpp
             this->epsilon_decrease = epsilon_decrease;
             this->epsilon_lower = 0.05;
 
-            this->reward_decay = 0.99;
             this->learn_step = 0;
             this->update_target_steps = update_target_steps;
 
             this->batch_state.resize(batch_size * obs_dim);
-            this->batch_action.resize(batch_size * act_n);
+            this->batch_action.resize(batch_size);
             this->batch_reward.resize(batch_size);
             this->batch_next_state.resize(batch_size * obs_dim);
             this->batch_done.resize(batch_size);
@@ -78,6 +79,11 @@ namespace rlcpp
 
         Float learn()
         {
+            if (this->learn_step % this->update_target_steps == 0)
+            {
+                this->target_network.update_weights_from(&this->network);
+            }
+
             this->memory.sample_onedim(this->batch_state, this->batch_action, this->batch_reward, this->batch_next_state, this->batch_done);
             unsigned batch_size = this->batch_reward.size();
 
@@ -91,29 +97,16 @@ namespace rlcpp
             }
             
             dynet::ComputationGraph cg;
-            Expression batch_state_expr = dynet::input(cg, dynet::Dim{{(unsigned) this->obs_dim}, batch_size}, this->batch_state);
-            std::cout << batch_state_expr.dim() << "\n";
-
+            Expression batch_state_expr = dynet::input(cg, dynet::Dim({unsigned(this->obs_dim)}, batch_size), this->batch_state);
             Expression batch_Q_expr = this->network.nn.run(batch_state_expr, cg);
-            std::cout << batch_Q_expr.dim() << "\n";
-
-            Expression picked_values_expr = dynet::pick_batch_elems(batch_Q_expr, {this->batch_action.begin(), this->batch_action.end()});
-            std::cout << picked_values_expr.dim() << "\n";
-
-            Expression target_values_expr = dynet::input(cg, dynet::Dim{{1}, batch_size}, target_values);
-            std::cout << target_values_expr.dim() << "\n";
-
-            Expression loss_expr = dynet::sum_batches(dynet::squared_distance(picked_values_expr, target_values_expr));
-            Float loss_value = dynet::as_scalar(cg.forward(loss_expr)); 
-            cg.backward(loss_expr);
+            Expression picked_values_expr = dynet::pick(batch_Q_expr, {this->batch_action.begin(), this->batch_action.end()});
+            Expression target_values_expr = dynet::input(cg, dynet::Dim({1}, batch_size), target_values);
+            Expression loss = dynet::mean_batches(dynet::squared_distance(picked_values_expr, target_values_expr));
+            Float loss_value = dynet::as_scalar(cg.forward(loss)); 
+            cg.backward(loss);
             this->trainer.update();
-
             this->epsilon = std::max(this->epsilon - this->epsilon_decrease, this->epsilon_lower);
             this->learn_step += 1;
-            if (this->learn_step % this->update_target_steps == 0)
-            {
-                this->target_network.update_weights_from(&this->network);
-            }
             return loss_value;
         }
     public:
@@ -127,7 +120,6 @@ namespace rlcpp
         Float epsilon_decrease;
         Float epsilon_lower;
 
-        Float reward_decay;
         size_t learn_step;
         size_t update_target_steps;
 
