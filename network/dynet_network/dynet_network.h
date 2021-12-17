@@ -9,13 +9,14 @@ namespace rlcpp
     struct Dynet_Network : public Network
     {
     public:
-        Dynet_Network(int in_dim, int out_dim) : input_dim(in_dim), output_dim(out_dim), nn(model) {}
+        Dynet_Network() = default;
 
         void build_model(const std::vector<dynet::Layer>& layers)
         {
+            this->input_dim = layers.front().input_dim;
             for (dynet::Layer layer : layers)
             {
-                nn.append(model, layer);
+                this->nn.append(model, layer);
             }
         }
 
@@ -53,8 +54,7 @@ namespace rlcpp
     public:
         dynet::ParameterCollection model;
         dynet::MLP nn;
-        unsigned int input_dim;
-        unsigned int output_dim;
+        unsigned int input_dim = 0;
     };
 } // namespace rlcpp
 

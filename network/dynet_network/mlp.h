@@ -91,10 +91,7 @@ namespace dynet
    * \brief Default constructor
    * \details Dont forget to add layers!
    */
-        MLP(ParameterCollection &model)
-        {
-            LAYERS = 0;
-        }
+        MLP() = default;
         /**
    * \brief Returns a Multilayer perceptron
    * \details Creates a feedforward multilayer perceptron based on a list of layer descriptions

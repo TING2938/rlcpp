@@ -1,5 +1,5 @@
-#ifndef __BASIC_AGENT_H__
-#define __BASIC_AGENT_H__
+#ifndef __BASIC_DOUBLE_DQN_DYNET_AGENT_H__
+#define __BASIC_DOUBLE_DQN_DYNET_AGENT_H__
 
 #include <algorithm>
 #include "agent/agent.h"
@@ -17,36 +17,39 @@ namespace rlcpp
     {
     public:
         DQN_dynet_agent(const std::vector<dynet::Layer>& layers, 
-                  Int obs_dim, Int act_n,
-                  Int max_memory_size, Int batch_size,
+                  Int max_memory_size, bool use_double_dqn, Int batch_size,
                   Int update_target_steps = 500, Float gamma = 0.99, 
                   Float epsilon = 1.0, Float epsilon_decrease = 1e-4)
-        : network(obs_dim, act_n), target_network(obs_dim, act_n), trainer(network.model)
+        : network(), trainer(network.model)
         {
             this->network.build_model(layers);
-            this->target_network.build_model(layers);
-            this->target_network.update_weights_from(&this->network);
+            this->use_double_dqn = use_double_dqn;
+            if (this->use_double_dqn)
+            {
+                this->target_network.build_model(layers);
+                this->target_network.update_weights_from(&this->network);
+                this->update_target_steps = update_target_steps;
+            }
 
             this->trainer.clip_threshold = 1.0;
             this->trainer.learning_rate = 5e-4;
             
             this->memory.init(max_memory_size);
-            this->obs_dim = obs_dim;
-            this->act_n = act_n;
+            this->obs_dim = layers.front().input_dim;
+            this->act_n = layers.back().output_dim;
             this->gamma = gamma;
             this->epsilon = epsilon;
             this->epsilon_decrease = epsilon_decrease;
             this->epsilon_lower = 0.05;
 
             this->learn_step = 0;
-            this->update_target_steps = update_target_steps;
 
-            this->batch_state.resize(batch_size * obs_dim);
+            this->batch_state.resize(batch_size * this->obs_dim);
             this->batch_action.resize(batch_size);
             this->batch_reward.resize(batch_size);
-            this->batch_next_state.resize(batch_size * obs_dim);
+            this->batch_next_state.resize(batch_size * this->obs_dim);
             this->batch_done.resize(batch_size);
-            this->batch_target_Q.resize(batch_size * act_n);
+            this->batch_target_Q.resize(batch_size * this->act_n);
         }
 
         // 根据观测值，采样输出动作，带探索过程
@@ -79,13 +82,15 @@ namespace rlcpp
 
         Float learn()
         {
-            
-
             this->memory.sample_onedim(this->batch_state, this->batch_action, this->batch_reward, this->batch_next_state, this->batch_done);
             unsigned batch_size = this->batch_reward.size();
-
-            // get max(Q') from target network
-            this->target_network.predict(this->batch_next_state, &this->batch_target_Q);
+            
+            if (this->use_double_dqn)
+            {
+                this->target_network.predict(this->batch_next_state, &this->batch_target_Q);
+            } else {
+                this->network.predict(this->batch_next_state, &this->batch_target_Q);
+            }
             Vecf target_values(batch_size);            
             for (int i = 0; i < batch_size; i++)
             {
@@ -105,7 +110,7 @@ namespace rlcpp
             this->epsilon = std::max(this->epsilon - this->epsilon_decrease, this->epsilon_lower);
             
             this->learn_step += 1;
-            if (this->learn_step % this->update_target_steps == 0)
+            if (this->use_double_dqn && (this->learn_step % this->update_target_steps == 0))
             {
                 this->target_network.update_weights_from(&this->network);
             }
@@ -127,6 +132,7 @@ namespace rlcpp
 
         Dynet_Network network;
         Dynet_Network target_network;
+        bool use_double_dqn;
         dynet::AdamTrainer trainer;
 
         RandomReply memory;
@@ -140,4 +146,4 @@ namespace rlcpp
 
 } // !namespace rlcpp
 
-#endif // !__BASIC_AGENT_H__
+#endif // !__BASIC_DOUBLE_DQN_DYNET_AGENT_H__
