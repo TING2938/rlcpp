@@ -15,7 +15,8 @@ namespace rlcpp
     using std::string;
     using Veci = std::vector<Int>;
     using Vecd = std::vector<double>;
-    using Vecf = std::vector<float>; // tiny_dnn::vec_t;
+    // using Vecf = tiny_dnn::vec_t;
+    using Vecf = std::vector<float>;
 }
 
 #endif // !__RL_CONDIG_H__

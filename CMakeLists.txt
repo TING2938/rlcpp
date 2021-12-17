@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.0)
 
 set(CMAKE_CXX_STANDARD 14)
 
+set(CMAKE_CXX_FLAGS "-O3 -DNDEBUG  -O3 -pthread  -msse3 -mavx -Wall -Wpedantic -Wno-narrowing -Wno-deprecated  -msse3 -mavx -Wall -Wpedantic -Wno-narrowing -Wno-deprecated")
+
 find_package(Protobuf REQUIRED)
 find_package(gRPC REQUIRED)
 
@@ -49,3 +51,5 @@ add_executable(demo ${PROJECT_SOURCE_DIR}/test/demo.cpp)
 
 add_executable(tiny_dnn_network_test ${PROJECT_SOURCE_DIR}/network/tiny_dnn/tiny_dnn_network_test.cpp)
 target_link_libraries(tiny_dnn_network_test PUBLIC Threads::Threads)
+
+message(${CMAKE_CXX_FLAGS_RELEASE})

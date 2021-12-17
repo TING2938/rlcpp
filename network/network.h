@@ -13,7 +13,7 @@ namespace rlcpp
 
         virtual void predict(const State& state, Vecf* out) = 0;
 
-        virtual void learn(const std::vector<State>& batch_state, const std::vector<Vecf>& batch_target_value) = 0;
+        virtual Float learn(const std::vector<State>& batch_state, const std::vector<Vecf>& batch_target_value) = 0;
 
         virtual void update_weights_from(const Network* other) = 0;
     };

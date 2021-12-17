@@ -15,7 +15,7 @@ namespace rlcpp
         {
             for (int i = 0; i < batch_state.size(); i++)
             {
-                this->predict_one(batch_state[i], &(*batch_out)[i]);
+                this->predict(batch_state[i], &(*batch_out)[i]);
             }
         }
 
@@ -25,20 +25,14 @@ namespace rlcpp
             std::copy(ret.begin(), ret.end(), out->begin());
         }
 
-        void learn(const std::vector<State> &batch_state, const std::vector<Vecf> &batch_target_value) override
+        Float learn(const std::vector<State> &batch_state, const std::vector<Vecf> &batch_target_value) override
         {
             auto on_enumerate_epoch = [&]()
             {
-                // compute loss and disp 1/100 of the time
-                iEpoch++;
-                if (iEpoch % 100)
-                    return;
-                double loss = nn.get_loss<E>(batch_state, batch_target_value);
-                std::cout << "epoch=" << iEpoch << "/" << nepochs << " loss=" << loss
-                          << std::endl;
+                loss = nn.get_loss<E>(batch_state, batch_target_value);
             };
-            this->nn.fit<E>(
-                this->opt, batch_state, batch_target_value, this->minibatch_size, this->nepochs, []() {}, on_enumerate_epoch);
+            this->nn.fit<E>(this->opt, batch_state, batch_target_value, this->minibatch_size, this->nepochs, []() {}, on_enumerate_epoch);
+            return this->loss;
         }
 
         void update_weights_from(const Network *other) override
@@ -60,11 +54,11 @@ namespace rlcpp
         tiny_dnn::network<tiny_dnn::sequential> nn;
         tiny_dnn::adamax opt;
 
-        size_t minibatch_size = 16; // 16 samples for each network weight update
+        size_t minibatch_size = 1; // 16 samples for each network weight update
         int nepochs = 1;      // 2000 presentation of all samples
     
     private:
-        int iEpoch = 0;
+        Float loss;
     };
 } // namespace rlcpp
 
