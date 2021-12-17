@@ -13,10 +13,10 @@ namespace rlcpp
 {
     // observation space: continuous
     // action space: discrete
-    class DQN_dynet_agent : Agent
+    class DOUBLE_DQN_dynet_agent : Agent
     {
     public:
-        DQN_dynet_agent(const std::vector<dynet::Layer>& layers, 
+        DOUBLE_DQN_dynet_agent(const std::vector<dynet::Layer>& layers, 
                   Int obs_dim, Int act_n,
                   Int max_memory_size, Int batch_size,
                   Int update_target_steps = 500, Float gamma = 0.99, 
@@ -25,8 +25,8 @@ namespace rlcpp
         {
             this->network.build_model(layers);
 
-            this->trainer.clip_threshold *= batch_size;
-            this->trainer.learning_rate = 1e-3;
+            this->trainer.clip_threshold = 1.0;
+            this->trainer.learning_rate = 5e-4;
             
             this->memory.init(max_memory_size);
             this->obs_dim = obs_dim;

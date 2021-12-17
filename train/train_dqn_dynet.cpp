@@ -5,6 +5,57 @@
 using namespace rlcpp;
 using std::vector;
 
+void train_pipeline_progressive(Env &env, DQN_dynet_agent &agent, Float score_threshold, Int n_episode, Int learn_start = 100, Int print_every = 10)
+{
+    auto obs = env.obs_space().getEmptyObs();
+    auto next_obs = env.obs_space().getEmptyObs();
+    auto action = env.action_space().getEmptyAction();
+    Float rwd;
+    bool done;
+
+    Vecf rewards, losses;
+    for (int i_episode = 0; i_episode < n_episode; i_episode++)
+    {
+        Float reward = 0.0;
+        env.reset(&obs);
+
+        for (int t = 0; t < env.max_episode_steps; t++)
+        {
+            agent.sample(obs, &action);
+            env.step(action, &next_obs, &rwd, &done);
+            agent.store(obs, action, rwd, next_obs, (t == env.max_episode_steps - 1) ? false : done);
+            reward += rwd;
+            if (i_episode > learn_start)
+            {
+                auto loss = agent.learn();
+                losses.push_back(loss);
+            }
+            if (done)
+                break;
+            obs = next_obs;
+        }
+        rewards.push_back(reward);
+
+        if (i_episode % print_every == 0)
+        {
+            auto len = std::min<size_t>(rewards.size(), 100);
+            auto score = std::accumulate(rewards.end() - len, rewards.end(), Float(0.0)) / len;
+            printf("===========================\n");
+            printf("i_eposide: %d\n", i_episode);
+            printf("100 games mean reward: %f\n", score);
+            if (losses.size() > 0)
+            {
+                auto len = std::min<size_t>(losses.size(), 100);
+                auto loss = std::accumulate(losses.end() - len, losses.end(), Float(0.0)) / len;
+                printf("100 games mean loss: %f\n", loss);
+            }
+            printf("===========================\n\n");
+            if (score >= score_threshold)
+                break;
+        }
+    }
+}
+
 void train_pipeline_conservative(Env &env, DQN_dynet_agent &agent, Float score_threshold, Int n_epoch = 500, Int n_rollout = 100, Int n_train = 1000, Int learn_start = 0, bool early_stop = true)
 {
     auto obs = env.obs_space().getEmptyObs();
@@ -24,7 +75,7 @@ void train_pipeline_conservative(Env &env, DQN_dynet_agent &agent, Float score_t
             {
                 agent.sample(obs, &action);
                 env.step(action, &next_obs, &rwd, &done);
-                agent.store(obs, action, rwd, next_obs, t == env.max_episode_steps - 1 ? false : done);
+                agent.store(obs, action, rwd, next_obs, (t == env.max_episode_steps - 1) ? false : done);
                 reward += rwd;
                 if (done)
                 {
@@ -54,6 +105,10 @@ void train_pipeline_conservative(Env &env, DQN_dynet_agent &agent, Float score_t
             if (i_epoch > learn_start) {
                 auto mean_loss = std::accumulate(losses.begin(), losses.end(), Float(0.0)) / losses.size();
                 printf("Average training loss: %f\n", mean_loss);
+            }
+            if (mean_reward > 150)
+            {
+                printf("greater then 150\n");
             }
             printf("===========================\n\n");
             if (early_stop && mean_reward >= score_threshold) 
@@ -110,12 +165,19 @@ int main(int argc, char** argv)
     dynet::initialize(argc, argv);
     
     // ================================= //
-    int env_id = 0;
+    int env_id = 1;
     Int max_reply_memory_size = 50000;
     Int batch_size = 256;
     // ================================= //
+    if (env_id == 0)
+    {
+        batch_size = 256;
+    } else
+    {
+        batch_size = 32;
+    }
 
-    vector<string> ENVs = {"CartPole-v0", "Acrobot-v1", "MountainCar-v0"};
+    vector<string> ENVs = {"CartPole-v1", "Acrobot-v1", "MountainCar-v0"};
     vector<Int> score_thresholds = {499, -100, -100};
     Gym_Env env("localhost:50053");
     env.make(ENVs[env_id]);
@@ -131,10 +193,14 @@ int main(int argc, char** argv)
         dynet::Layer(128                    , action_space.n, dynet::LINEAR, /* dropout_rate */ 0.0)
     };
 
-    DQN_dynet_agent agent(layers, obs_space.shape.front(), action_space.n, max_reply_memory_size, batch_size, 200, 0.99, 1, 5e-5);
+    DQN_dynet_agent agent(layers, obs_space.shape.front(), action_space.n, max_reply_memory_size, batch_size);
 
-
-    train_pipeline_conservative(env, agent, score_thresholds[env_id]);
+    if (env_id == 0)
+        train_pipeline_conservative(env, agent, score_thresholds[env_id]);
+    if (env_id == 1 || env_id == 2)
+    {
+        train_pipeline_progressive(env, agent, score_thresholds[env_id], 2000, 100);
+    }
     test(env, agent, 10, false);
     env.close();
 }
