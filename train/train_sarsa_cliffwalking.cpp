@@ -1,4 +1,4 @@
-#include "env/gym_env/gym_env.h"
+#include "env/pycall_gym/pycall_gym.h"
 #include "agent/sarsa/sarsa_agent.h"
 #include <tuple>
 
@@ -60,7 +60,7 @@ int main()
     Float e_greed = 0.1;
     /* ====================================== */
 
-    Gym_Env env("localhost:50053");
+    Pycall_Gym env;
     // MountainCar-v0
     // CartPole-v0
     // CliffWalking-v0
@@ -82,7 +82,7 @@ int main()
     bool done;
 
     bool bRender = false;
-    for (int episode = 0; episode < 500; episode++)
+    for (int episode = 0; episode < 5000; episode++)
     {
         auto ret = run_episode(env, agent, obs, next_obs, action, next_action, reward, done, bRender);
         printf("Episode %d: steps = %d, reward = %.1f\n", episode, std::get<1>(ret), std::get<0>(ret));

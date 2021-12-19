@@ -1,4 +1,4 @@
-#include "env/gym_env/gym_env.h"
+#include "env/pycall_gym/pycall_gym.h"
 #include "agent/qlearning/qlearning_agent.h"
 #include <tuple>
 
@@ -55,7 +55,7 @@ int main()
     Float gamma = 0.9;
     Float e_greed = 0.1;
 
-    Gym_Env env("localhost:50053");
+    Pycall_Gym env;
     // MountainCar-v0
     // CartPole-v0
     // CliffWalking-v0
