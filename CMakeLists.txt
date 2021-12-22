@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.0)
 
 set(CMAKE_CXX_STANDARD 14)
 
-# set(CMAKE_CXX_FLAGS "-O3 -DNDEBUG  -O3 -pthread  -msse3 -mavx -msse3 -mavx")
+set(CMAKE_CXX_FLAGS "-msse3 -mavx -msse3 -mavx")
 
 find_package(Protobuf REQUIRED)
 find_package(gRPC REQUIRED)
