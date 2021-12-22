@@ -1,4 +1,4 @@
-#include "env/pycall_gym/pycall_gym.h"
+#include "env/gym_cpp/gymcpp.h"
 #include "agent/sarsa/sarsa_agent.h"
 #include <tuple>
 
@@ -60,7 +60,7 @@ int main()
     Float e_greed = 0.1;
     /* ====================================== */
 
-    Pycall_Gym env;
+    Gym_cpp env;
     // MountainCar-v0
     // CartPole-v0
     // CliffWalking-v0

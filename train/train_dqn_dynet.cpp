@@ -1,4 +1,4 @@
-#include "env/pycall_gym/pycall_gym.h"
+#include "env/gym_cpp/gymcpp.h"
 #include "agent/dqn/dqn_dynet_agent.h"
 #include "network/dynet_network/dynet_network.h"
 
@@ -178,7 +178,7 @@ int main(int argc, char **argv)
 
     vector<string> ENVs = {"CartPole-v0", "Acrobot-v1", "MountainCar-v0"};
     vector<Int> score_thresholds = {499, -100, -100};
-    Pycall_Gym env;
+    Gym_cpp env;
     env.make(ENVs[env_id]);
 
     auto action_space = env.action_space();

@@ -1,5 +1,5 @@
-#include "env/gym_env/gym_env.h"
-#include "agent/dqn/dqn_agent.h"
+#include "env/gym_cpp/gymcpp.h"
+#include "agent/dqn/dqn_tinydnn_agent.h"
 #include <tuple>
 #include "network/tiny_dnn/tiny_dnn_network.h"
 
@@ -18,7 +18,7 @@ Int batch_size = 32;
 Int learn_freq = 5;
 /* ====================================== */
 
-Float run_episode(Env &env, DQN_agent &agent, State &obs, State &next_obs, Action &action, Float &reward, bool &done, bool bRender = false)
+Float run_episode(Env &env, DQN_TinyDNN_agent &agent, State &obs, State &next_obs, Action &action, Float &reward, bool &done, bool bRender = false)
 {
     Float total_reward = 0.0;
     env.reset(&obs);
@@ -33,7 +33,7 @@ Float run_episode(Env &env, DQN_agent &agent, State &obs, State &next_obs, Actio
         // train model
         if (agent.memory_size() > memory_warmup_size && (step % learn_freq) == 0)
         {
-            agent.learn(10);
+            agent.learn();
         }
 
         total_reward += reward;
@@ -47,7 +47,7 @@ Float run_episode(Env &env, DQN_agent &agent, State &obs, State &next_obs, Actio
     return total_reward;
 }
 
-Float test_episode(Env &env, DQN_agent &agent, State &obs, State &next_obs, Action &action, Float &reward, bool &done, bool bRender = false)
+Float test_episode(Env &env, DQN_TinyDNN_agent &agent, State &obs, State &next_obs, Action &action, Float &reward, bool &done, bool bRender = false)
 {
     Vecf total_reward(5);
     for (int i = 0; i < 5; i++)
@@ -77,7 +77,7 @@ Float test_episode(Env &env, DQN_agent &agent, State &obs, State &next_obs, Acti
 int main()
 {
 
-    Gym_Env env("localhost:50053");
+    Gym_cpp env;
     // MountainCar-v0
     // CartPole-v0
     // CliffWalking-v0
@@ -98,7 +98,7 @@ int main()
                       << fc(128, 128) << relu()
                       << fc(128, action_space.n);
 
-    DQN_agent agent;
+    DQN_TinyDNN_agent agent;
     agent.init(&network, &target_network,
                obs_space.shape.front(), action_space.n,
                max_reply_memory_size, batch_size,
@@ -127,7 +127,7 @@ int main()
         }
 
         auto test_ret = test_episode(env, agent, obs, next_obs, action, reward, done);
-        printf("episode: %d   e_greed: %.3f   test reward: %.2f\n", episode, agent.e_greed, test_ret);
+        printf("episode: %d   e_greed: %.3f   test reward: %.2f\n", episode, agent.epsilon, test_ret);
     }
     env.close();
 }

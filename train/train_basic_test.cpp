@@ -1,4 +1,4 @@
-#include "env/pycall_gym/pycall_gym.h"
+#include "env/gym_cpp/gymcpp.h"
 #include "tools/rand.h"
 #include "tools/core_timer.hpp"
 
@@ -6,7 +6,7 @@ using namespace rlcpp;
 
 int main()
 {
-    Pycall_Gym env;
+    Gym_cpp env;
     // CliffWalking-v0
     // MountainCar-v0
     // CartPole-v0
