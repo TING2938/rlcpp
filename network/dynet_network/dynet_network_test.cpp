@@ -16,17 +16,19 @@ void getTrainData(std::vector<float>& vx, std::vector<float>& vy)
 
 int main(int argc, char** argv)
 {   
+    dynet::initialize(argc, argv);
+
     std::vector<dynet::Layer> layers = {
         dynet::Layer(/* input_dim */ 1,   /* output_dim */ 100, /* activation */ dynet::RELU,   /* dropout_rate */ 0.0),
         dynet::Layer(/* input_dim */ 100, /* output_dim */ 100, /* activation */ dynet::RELU,   /* dropout_rate */ 0.0),
         dynet::Layer(/* input_dim */ 100, /* output_dim */ 1,   /* activation */ dynet::LINEAR, /* dropout_rate */ 0.0)
     };
 
-    rlcpp::Dynet_Network network(1, 1);
+    rlcpp::Dynet_Network network;
     network.build_model(layers);
     dynet::SimpleSGDTrainer trainer(network.model);
 
-    rlcpp::Dynet_Network other(1, 1);
+    rlcpp::Dynet_Network other;
     other.build_model(layers);
 
     other.update_weights_from(&network);

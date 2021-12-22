@@ -163,10 +163,10 @@ int main(int argc, char **argv)
     dynet::initialize(argc, argv);
 
     // ================================= //
-    int env_id = 1;
+    int env_id = 0;
     Int max_reply_memory_size = 50000;
     Int batch_size;
-    bool use_double_dqn = false;
+    bool use_double_dqn = true;
     // ================================= //
     if (env_id == 0)
     {
@@ -176,7 +176,7 @@ int main(int argc, char **argv)
         batch_size = 32;
     }
 
-    vector<string> ENVs = {"CartPole-v0", "Acrobot-v1", "MountainCar-v0"};
+    vector<string> ENVs = {"CartPole-v1", "Acrobot-v1", "MountainCar-v0"};
     vector<Int> score_thresholds = {499, -100, -100};
     Gym_cpp env;
     env.make(ENVs[env_id]);

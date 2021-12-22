@@ -44,12 +44,12 @@ namespace rlcpp
 
             this->learn_step = 0;
 
-            this->batch_state.resize(batch_size * this->obs_dim);
-            this->batch_action.resize(batch_size);
-            this->batch_reward.resize(batch_size);
-            this->batch_next_state.resize(batch_size * this->obs_dim);
-            this->batch_done.resize(batch_size);
-            this->batch_target_Q.resize(batch_size * this->act_n);
+            this->batch_state.resize(batch_size * this->obs_dim, 0);
+            this->batch_action.resize(batch_size, 0);
+            this->batch_reward.resize(batch_size, 0);
+            this->batch_next_state.resize(batch_size * this->obs_dim, 0);
+            this->batch_done.resize(batch_size, 0);
+            this->batch_target_Q.resize(batch_size * this->act_n, 0);
         }
 
         // 根据观测值，采样输出动作，带探索过程
@@ -65,7 +65,7 @@ namespace rlcpp
         // 根据输入观测值，预测下一步动作
         void predict(const State &obs, Action *action) override
         {
-            Vecf Q(this->act_n);
+            Vecf Q(this->act_n, 0);
             this->network.predict(obs, &Q);
             action->front() = std::max_element(Q.begin(), Q.end()) - Q.begin();
         }

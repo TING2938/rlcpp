@@ -44,7 +44,6 @@ namespace rlcpp
             auto other_network = (Dynet_Network*)other;
             auto params_self = this->model.parameters_list();
             auto params_other = other_network->model.parameters_list();
-            assert(params_self.size() == params_other.size());
             for (int i = 0; i < params_self.size(); i++)
             {
                 dynet::TensorTools::copy_elements(params_self[i]->values, params_other[i]->values);
