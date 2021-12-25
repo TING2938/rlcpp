@@ -46,7 +46,7 @@ void test_episode(Env& env, Sarsa_agent& agent, State& obs, State& next_obs, Act
         env.render();
         if (done)
         {
-            printf("test reward = %.1f", total_reward);
+            printf("test reward = %.1f\n", total_reward);
             break;
         }
     }

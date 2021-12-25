@@ -6,6 +6,8 @@ using namespace rlcpp;
 
 int main()
 {
+    rlcpp::set_rand_seed();
+    
     Gym_cpp env;
     // CliffWalking-v0
     // MountainCar-v0
@@ -22,8 +24,6 @@ int main()
     Float reward;
     bool done;
 
-    std::uniform_int_distribution<int> dist(0, action_space.n - 1);
-
     itp::Timeit timeit;
     int total_episode = 2000;
     size_t count = 0;
@@ -35,7 +35,7 @@ int main()
         env.reset(&obs);
         for (int t = 0; t < env.max_episode_steps; t++)
         {
-            action.front() = dist(engine);
+            action.front() = randd(0, action_space.n);
             env.step(action, &obs, &reward, &done);
             count++;
             if (done) break;

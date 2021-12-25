@@ -1,3 +1,5 @@
+#define NN_TINYDNN
+
 #include "env/gym_cpp/gymcpp.h"
 #include "agent/dqn/dqn_tinydnn_agent.h"
 #include <tuple>
@@ -76,7 +78,8 @@ Float test_episode(Env &env, DQN_TinyDNN_agent &agent, State &obs, State &next_o
 
 int main()
 {
-
+    rlcpp::set_rand_seed();
+    
     Gym_cpp env;
     // MountainCar-v0
     // CartPole-v0

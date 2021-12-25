@@ -67,7 +67,7 @@ int main()
         yv.push_back(sinf(x));
     }
     std::vector<tiny_dnn::vec_t> pred(xv.size(), tiny_dnn::vec_t(1, 0));
-    other.predict_batch(xv, &pred);
+    other.predict(xv, &pred);
     for (int i = 0; i < xv.size(); i++)
     {
         printf("yv: %.5f   pred: %.5f\n", yv[i], pred[i][0]);

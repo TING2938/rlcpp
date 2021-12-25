@@ -1,3 +1,5 @@
+#define NN_TINYDNN
+
 #include "env/gym_cpp/gymcpp.h"
 #include "agent/dqn/dqn_tinydnn_agent.h"
 #include "network/tiny_dnn/tiny_dnn_network.h"
@@ -164,6 +166,8 @@ void test(Env &env, DQN_TinyDNN_agent &agent, Int n_turns, bool render = false)
 
 int main(int argc, char** argv)
 {
+    rlcpp::set_rand_seed();
+    
     // ================================= //
     int env_id = 1;
     Int max_reply_memory_size = 50000;

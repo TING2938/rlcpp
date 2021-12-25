@@ -43,7 +43,7 @@ void test_episode(Env& env, Qlearning_agent& agent, State& obs, State& next_obs,
         env.render();
         if (done)
         {
-            printf("test reward = %.1f", total_reward);
+            printf("test reward = %.1f\n", total_reward);
             break;
         }
     }
