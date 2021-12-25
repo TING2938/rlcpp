@@ -4,87 +4,69 @@
  * This provide an example of usage of the mlp.h model
  */
 #include "mlp.h"
-#include "dynet/io.h"
-#include "getpid.h"
-#include "cl-args.h"
 #include "data-io.h"
 
 using namespace std;
 using namespace dynet;
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv)
+{
   // Fetch dynet params ----------------------------------------------------------------------------
-  auto dyparams = dynet::extract_dynet_params(argc, argv);
-  dynet::initialize(dyparams);
-  // Fetch program specific parameters (see ../utils/cl-args.h) ------------------------------------
-  Params params;
-
-  get_args(argc, argv, params, TRAIN_SUP);
+  dynet::initialize(argc, argv);
 
   // Load Dataset ----------------------------------------------------------------------------------
   // Load data
+  string train_file = "data/train-images.idx3-ubyte";
+  string dev_file = "data/t10k-images.idx3-ubyte";
+  string train_labels_file = "data/train-labels.idx1-ubyte";
+  string dev_labels_file = "data/t10k-labels.idx1-ubyte";
+  unsigned BATCH_SIZE = 32;
+  unsigned NUM_EPOCHS = 20;
+
   vector<vector<float>> mnist_train, mnist_dev;
 
-  read_mnist(params.train_file, mnist_train);
-  read_mnist(params.dev_file, mnist_dev);
+  read_mnist(train_file, mnist_train);
+  read_mnist(dev_file, mnist_dev);
 
   // Load labels
   vector<unsigned> mnist_train_labels, mnist_dev_labels;
 
-  read_mnist_labels(params.train_labels_file, mnist_train_labels);
-  read_mnist_labels(params.dev_labels_file, mnist_dev_labels);
+  read_mnist_labels(train_labels_file, mnist_train_labels);
+  read_mnist_labels(dev_labels_file, mnist_dev_labels);
 
-  // ParameterCollection name (for saving) -----------------------------------------------------------------------
-  ostringstream os;
-  // Store a bunch of information in the model name
-  os << params.exp_name
-     << "_" << "mlp"
-     << "_" << 784 << "-" << 512 << "-relu-" << 0.2
-     << "_" << 512 << "-" << 512 << "-relu-" << 0.2
-     << "_" << 512 << "-" << 10 << "-softmax"
-     << "_" << getpid()
-     << ".params";
-  const string fname = os.str();
-  cerr << "Parameters will be written to: " << fname << endl;
   // Build model -----------------------------------------------------------------------------------
 
   ParameterCollection model;
   // Use Adam optimizer
   AdamTrainer trainer(model);
-  trainer.clip_threshold *= params.BATCH_SIZE;
+  trainer.clip_threshold *= BATCH_SIZE;
 
   // Create model
-  MLP nn(model, vector<Layer>({
-    Layer(/* input_dim */ 784, /* output_dim */ 512, /* activation */ RELU, /* dropout_rate */ 0.2),
-    Layer(/* input_dim */ 512, /* output_dim */ 512, /* activation */ RELU, /* dropout_rate */ 0.2),
-    Layer(/* input_dim */ 512, /* output_dim */ 10, /* activation */ LINEAR, /* dropout_rate */ 0.0)
-  }));
+  MLP nn(model, vector<Layer>({Layer(/* input_dim */ 784, /* output_dim */ 512, /* activation */ RELU, /* dropout_rate */ 0.2),
+                               Layer(/* input_dim */ 512, /* output_dim */ 512, /* activation */ RELU, /* dropout_rate */ 0.2),
+                               Layer(/* input_dim */ 512, /* output_dim */ 10, /* activation */ LINEAR, /* dropout_rate */ 0.0)}));
 
-
-  // Load preexisting weights (if provided)
-  if (params.model_file != "") {
-    TextFileLoader loader(params.model_file);
-    loader.populate(model);
-  }
 
   // Initialize variables for training -------------------------------------------------------------
   // Worst accuracy
   double worst = 0;
 
   // Number of batches in training set
-  unsigned num_batches = mnist_train.size()  / params.BATCH_SIZE - 1;
+  unsigned num_batches = mnist_train.size() / BATCH_SIZE - 1;
 
   // Random indexing
   unsigned si;
   vector<unsigned> order(num_batches);
-  for (unsigned i = 0; i < num_batches; ++i) order[i] = i;
+  for (unsigned i = 0; i < num_batches; ++i)
+    order[i] = i;
 
   unsigned epoch = 0;
   vector<Expression> cur_batch;
   vector<unsigned> cur_labels;
 
   // Run for the given number of epochs (or indefinitely if params.NUM_EPOCHS is negative)
-  while (static_cast<int>(epoch) < params.NUM_EPOCHS || params.NUM_EPOCHS < 0) {
+  while (static_cast<int>(epoch) < NUM_EPOCHS || NUM_EPOCHS < 0)
+  {
     // Reshuffle the dataset
     cerr << "**SHUFFLE\n";
     random_shuffle(order.begin(), order.end());
@@ -98,16 +80,18 @@ int main(int argc, char** argv) {
     // Activate dropout
     nn.enable_dropout();
 
-    for (si = 0; si < num_batches; ++si) {
+    for (si = 0; si < num_batches; ++si)
+    {
       // build graph for this instance
       ComputationGraph cg;
       // Compute batch start id and size
-      int id = order[si] * params.BATCH_SIZE;
-      unsigned bsize = std::min((unsigned) mnist_train.size() - id, params.BATCH_SIZE);
+      int id = order[si] * BATCH_SIZE;
+      unsigned bsize = std::min((unsigned)mnist_train.size() - id, BATCH_SIZE);
       // Get input batch
       cur_batch = vector<Expression>(bsize);
       cur_labels = vector<unsigned>(bsize);
-      for (unsigned idx = 0; idx < bsize; ++idx) {
+      for (unsigned idx = 0; idx < bsize; ++idx)
+      {
         cur_batch[idx] = input(cg, {784}, mnist_train[id + idx]);
         cur_labels[idx] = mnist_train_labels[id + idx];
       }
@@ -116,7 +100,8 @@ int main(int argc, char** argv) {
       // Get negative log likelihood on batch
       Expression loss_expr = nn.get_nll(x_batch, cur_labels, cg);
       // Get scalar error for monitoring
-      loss += as_scalar(cg.forward(loss_expr));
+      auto adfdf = cg.forward(loss_expr);
+      loss += as_scalar(adfdf);
       // Increment number of samples processed
       num_samples += bsize;
       // Compute gradient with backward pass
@@ -124,7 +109,8 @@ int main(int argc, char** argv) {
       // Update parameters
       trainer.update();
       // Print progress every tenth of the dataset
-      if ((si + 1) % (num_batches / 10) == 0 || si == num_batches - 1) {
+      if ((si + 1) % (num_batches / 10) == 0 || si == num_batches - 1)
+      {
         // Print informations
         trainer.status();
         cerr << " E = " << (loss / num_samples) << ' ';
@@ -140,9 +126,11 @@ int main(int argc, char** argv) {
     nn.disable_dropout();
 
     // Show score on dev data
-    if (si == num_batches) {
+    if (si == num_batches)
+    {
       double dpos = 0;
-      for (unsigned i = 0; i < mnist_dev.size(); ++i) {
+      for (unsigned i = 0; i < mnist_dev.size(); ++i)
+      {
         // build graph for this instance
         ComputationGraph cg;
         // Get input expression
@@ -153,21 +141,15 @@ int main(int argc, char** argv) {
         if (predicted_idx == mnist_dev_labels[i])
           dpos++;
       }
-      // If the dev loss is lower than the previous ones, save the model
-      if (dpos > worst) {
-        worst = dpos;
-        TextFileSaver saver(fname);
-        saver.save(model);
-      }
+
       // Print informations
       cerr << "\n***DEV [epoch=" << (epoch)
-           << "] E = " << (dpos / (double) mnist_dev.size()) << ' ';
+           << "] E = " << (dpos / (double)mnist_dev.size()) << ' ';
       // Reinitialize timer
       iteration.reset(new Timer("completed in"));
     }
 
     // Increment epoch
     ++epoch;
-
   }
 }

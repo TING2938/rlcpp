@@ -17,6 +17,7 @@ include_directories(${PROJECT_SOURCE_DIR})
 include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${PROJECT_SOURCE_DIR}/third_party/tiny-dnn)
 include_directories(/home/yeting/study/ML/dynet/examples/cpp-utils)
+include_directories(${PROJECT_SOURCE_DIR}/third_party/eigen)
 
 set(GRPC_LINK_LIB gRPC::grpc++_reflection protobuf::libprotobuf)
 set(PUBLIC_LINK_LIB dynet Threads::Threads ${Python3_LIBRARIES} Python3::NumPy)
@@ -43,7 +44,7 @@ foreach(SRC_PATH ${TRAIN_SRC_FILES})
 endforeach()
 
 ## Build dynet test
-foreach(dynet_src train_xor train_linefit train_mnist)
+foreach(dynet_src train_xor train_linefit train_mnist my_mnist_test)
     add_executable(${dynet_src} ${PROJECT_SOURCE_DIR}/test/dynet/${dynet_src}.cc)
     target_link_libraries(${dynet_src} ${GRPC_LINK_LIB} ${PUBLIC_LINK_LIB})
 endforeach()
