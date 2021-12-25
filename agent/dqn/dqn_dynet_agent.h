@@ -3,7 +3,7 @@
 
 #include <algorithm>
 #include "agent/agent.h"
-#include "network/random_reply.h"
+#include "tools/random_reply.h"
 #include "tools/rand.h"
 #include "network/dynet_network/dynet_network.h"
 

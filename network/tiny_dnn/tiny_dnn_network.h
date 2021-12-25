@@ -1,6 +1,8 @@
 #ifndef __DYNET_NETWORK_H__
 #define __DYNET_NETWORK_H__
 
+#define NN_TINYDNN
+
 #include "network/network.h"
 #include <tiny_dnn/tiny_dnn.h>
 #include <sstream>

@@ -1,10 +1,12 @@
 #ifndef __DQN_TINYDNN_AGENT_H__
 #define __DQN_TINYDNN_AGENT_H__
 
+#define NN_TINYDNN
+
 #include <algorithm>
 #include "agent/agent.h"
 #include "network/network.h"
-#include "network/random_reply.h"
+#include "tools/random_reply.h"
 #include "tools/rand.h"
 
 namespace rlcpp

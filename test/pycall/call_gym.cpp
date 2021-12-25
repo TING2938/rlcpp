@@ -1,7 +1,7 @@
 #include <iostream>
 #include <random>
 #include <string>
-#include "env/pycall_gym/pycall_gym.h"
+#include "env/gym_cpp/gymcpp.h"
 #include "tools/core_timer.hpp"
 
 // #include "tools/rand.h"
@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
     obs_space_.n = 22;
     printf("%d\n", obs_space_.n);
 
-    rlcpp::Pycall_Gym env;
+    rlcpp::Gym_cpp env;
     // CliffWalking-v0
     // MountainCar-v0
     // CartPole-v1
