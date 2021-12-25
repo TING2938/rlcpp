@@ -162,6 +162,8 @@ int main(int argc, char **argv)
 {
     dynet::initialize(argc, argv);
 
+    srand(time(nullptr));
+
     // ================================= //
     int env_id = 0;
     Int max_reply_memory_size = 50000;
@@ -200,6 +202,6 @@ int main(int argc, char **argv)
     {
         train_pipeline_progressive(env, agent, score_thresholds[env_id], 2000, 100);
     }
-    test(env, agent, 10, false);
+    test(env, agent, 10, true);
     env.close();
 }
