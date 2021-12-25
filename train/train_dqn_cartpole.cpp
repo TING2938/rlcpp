@@ -90,12 +90,10 @@ int main()
 
     rlcpp::TinyDNN_Network<tiny_dnn::mse> network;
     network.nn << fc(obs_space.shape.front(), 128) << relu()
-               << fc(128, 128) << relu()
                << fc(128, action_space.n);
 
     rlcpp::TinyDNN_Network<tiny_dnn::mse> target_network;
     target_network.nn << fc(obs_space.shape.front(), 128) << relu()
-                      << fc(128, 128) << relu()
                       << fc(128, action_space.n);
 
     DQN_TinyDNN_agent agent;
@@ -121,7 +119,7 @@ int main()
     {
         for (int i = 0; i < 50; i++)
         {
-            printf("run_episode exec\n");
+            // printf("run_episode exec\n");
             auto ret = run_episode(env, agent, obs, next_obs, action, reward, done);
             episode += 1;
         }

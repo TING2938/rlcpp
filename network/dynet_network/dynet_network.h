@@ -34,9 +34,9 @@ namespace rlcpp
             *out = as_vector(cg.forward(y));
         }
 
-        void learn(const std::vector<State>& batch_state, const std::vector<Vecf>& batch_target_value)
+        Float learn(const std::vector<State>& batch_state, const std::vector<Vecf>& batch_target_value) override
         {
-            
+            return 0.0;
         }
         
         void update_weights_from(const Network* other) 
