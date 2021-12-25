@@ -4,6 +4,8 @@
 
 int main()
 {
+    rlcpp::set_rand_seed();
+    
     rlcpp::Veci vec = {1, 3, 5, 6, 43, 54, 75};
 
     for (int i = 0; i < 10; i++)

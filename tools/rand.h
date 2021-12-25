@@ -6,6 +6,12 @@
 
 namespace rlcpp
 {
+
+    void set_rand_seed()
+    {
+        srand(time(nullptr));
+    }
+
     // [low, up) Float type
     Float randf(Float low=0.0, Float up=1.0)
     {
