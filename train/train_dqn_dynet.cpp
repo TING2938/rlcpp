@@ -1,6 +1,7 @@
 #include "env/gym_cpp/gymcpp.h"
 #include "agent/dqn/dqn_dynet_agent.h"
 #include "network/dynet_network/dynet_network.h"
+#include "tools/core_getopt.hpp"
 
 using namespace rlcpp;
 using std::vector;
@@ -160,16 +161,24 @@ void test(Env &env, DQN_dynet_agent &agent, Int n_turns, bool render = false)
 
 int main(int argc, char **argv)
 {
-    dynet::initialize(argc, argv);
-
-    srand(time(nullptr));
-
     // ================================= //
     int env_id = 0;
     Int max_reply_memory_size = 50000;
     Int batch_size;
     bool use_double_dqn = true;
     // ================================= //
+    // get options from commandline
+    itp::Getopt getopt(argc, argv, "Train RL with DQN algorithm (dynet nn lib)");
+
+    getopt(env_id, "-id", false, "env id for train. 0: CartPole-v1, 1: Acrobot-v1, 2: MountainCar-v0");
+    getopt(use_double_dqn, "-ddqn", false, "whether to use double dqn");
+
+    getopt.finish();
+
+    // ================================= // 
+    dynet::initialize(argc, argv);
+    rlcpp::set_rand_seed();
+
     if (env_id == 0)
     {
         batch_size = 256;
@@ -202,6 +211,6 @@ int main(int argc, char **argv)
     {
         train_pipeline_progressive(env, agent, score_thresholds[env_id], 2000, 100);
     }
-    test(env, agent, 10, true);
+    test(env, agent, 10, false);
     env.close();
 }
