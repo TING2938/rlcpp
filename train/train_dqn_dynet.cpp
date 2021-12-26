@@ -1,4 +1,5 @@
 #include "env/gym_cpp/gymcpp.h"
+#include "env/grpc_gym/gym_env.h"
 #include "agent/dqn/dqn_dynet_agent.h"
 #include "network/dynet_network/dynet_network.h"
 #include "tools/core_getopt.hpp"
@@ -115,10 +116,13 @@ void train_pipeline_conservative(Env &env, DQN_dynet_agent &agent, Float score_t
     }
 }
 
-void test(Env &env, DQN_dynet_agent &agent, Int n_turns, bool render = false)
+void test(const string& game_name, DQN_dynet_agent &agent, Int n_turns, bool render = false)
 {
     printf("Ready to test, Press any key to coninue...\n");
     getchar();
+
+    rlcpp::Gym_Env env("192.168.137.1:50043");
+    env.make(game_name);
 
     auto obs = env.obs_space().getEmptyObs();
     auto next_obs = env.obs_space().getEmptyObs();
@@ -132,10 +136,6 @@ void test(Env &env, DQN_dynet_agent &agent, Int n_turns, bool render = false)
         env.reset(&obs);
         for (int k = 0; k < env.max_episode_steps; k++)
         {
-            if (render)
-            {
-                env.render();
-            }
             agent.predict(obs, &action); // predict according to Q table
             env.step(action, &obs, &reward, &done);
             if (render)
@@ -148,12 +148,9 @@ void test(Env &env, DQN_dynet_agent &agent, Int n_turns, bool render = false)
                 printf("The score is %f\n", score);
                 break;
             }
-            if (render)
-            {
-                env.render();
-            }
         }
     }
+    env.close();
 }
 
 int main(int argc, char **argv)
@@ -162,7 +159,7 @@ int main(int argc, char **argv)
     int env_id = 0;
     Int max_reply_memory_size = 50000;
     Int batch_size;
-    bool use_double_dqn = true;
+    bool use_double_dqn = false;
     // ================================= //
     // get options from commandline
     itp::Getopt getopt(argc, argv, "Train RL with DQN algorithm (dynet nn lib)");
@@ -208,6 +205,6 @@ int main(int argc, char **argv)
     {
         train_pipeline_progressive(env, agent, score_thresholds[env_id], 2000, 100);
     }
-    test(env, agent, 10, false);
+    test(ENVs[env_id], agent, 10, true);
     env.close();
 }
