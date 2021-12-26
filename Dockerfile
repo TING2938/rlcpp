@@ -21,17 +21,18 @@ RUN git clone https://github.com/clab/dynet.git && \
     make install && \
     cd ../../ && rm -rf dynet 
 
-RUN echo 'export PYTHONPATH=/work/gym_cpp/include/gym_wrapper:$PYTHONPATH' >> ~/.bashrc
+RUN echo 'export PYTHONPATH=/work/rlcpp/env/gym_cpp/gym_wrapper:$PYTHONPATH' >> ~/.bashrc && \
+    echo 'export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH' >> ~/.bashrc
 
 RUN git clone https://gitlab.com/TING2938/rlcpp.git && \
     cd rlcpp && \
     mkdir build && \
     cd build && \
     cmake .. -DCMAKE_BUILD_TYPE=Release && \
-    make  
+    make -j 4
 
 ###############################################################################################
-CMD ["bash", "-c", "/work/rlcpp/build/train_dqn_dynet"]
+CMD ["bash", "-c", "/work/rlcpp/build/train/train_dqn_dynet"]
 
 
 
