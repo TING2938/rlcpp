@@ -123,11 +123,8 @@ void train_pipeline_conservative(Env &env, DQN_TinyDNN_agent &agent, Float score
 
 void test(Env &env, DQN_TinyDNN_agent &agent, Int n_turns, bool render = false)
 {
-    printf("Ready to test., Press any key to coninue...\n");
-    {
-        string tmp;
-        std::cin >> tmp;
-    }
+    printf("Ready to test, Press any key to coninue...\n");
+    getchar();
 
     auto obs = env.obs_space().getEmptyObs();
     auto next_obs = env.obs_space().getEmptyObs();
