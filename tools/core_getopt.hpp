@@ -55,7 +55,7 @@ namespace itp
                 argv.push_back(tmp);
             }
             auto p = findArgs("-h");
-            _printHelpMain = (p == argv.begin() + 1);
+            _printHelpMain = (argv.size() == 2 && p == argv.begin() + 1);
             _printHelpSub = (argv.size() == 3 && p == argv.begin() + 2);
         }
 
@@ -72,7 +72,7 @@ namespace itp
                 argv.push_back(tmp);
             }
             auto p = findArgs("-h");
-            _printHelpMain = (p == argv.begin() + 1);
+            _printHelpMain = (argv.size() == 2 && p == argv.begin() + 1);
             _printHelpSub = (argv.size() == 3 && p == argv.begin() + 2);
         }
 
@@ -83,7 +83,7 @@ namespace itp
                 argv.push_back(gv[i]);
             }
             auto p = findArgs("-h");
-            _printHelpMain = (p == argv.begin() + 1);
+            _printHelpMain = (argv.size() == 2 && p == argv.begin() + 1);
             _printHelpSub = (argv.size() == 3 && p == argv.begin() + 2);
         }
 
