@@ -15,7 +15,7 @@ RUN git clone https://github.com/clab/dynet.git && \
     cd eigen && \
     wget https://github.com/clab/dynet/releases/download/2.1/eigen-b2e267dc99d4.zip && \
     unzip eigen-b2e267dc99d4.zip && \
-    cd .. && mkdir build && cd build \
+    cd .. && mkdir build && cd build && \
     cmake .. -DEIGEN3_INCLUDE_DIR=../eigen && \
     make -j 4 && \
     make install && \

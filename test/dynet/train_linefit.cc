@@ -2,7 +2,7 @@
 #include "dynet/expr.h"
 #include "dynet/io.h"
 #include "dynet/model.h"
-#include <eigen3/Eigen/Dense>
+#include <Eigen/Dense>
 #include <iostream>
 
 using namespace std;
