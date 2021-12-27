@@ -13,10 +13,10 @@ using std::string;
 
 namespace rlcpp
 {
-    class Gym_Env : public Env
+    class Gym_gRPC : public Env
     {
     public:
-        Gym_Env(string addr)
+        Gym_gRPC(string addr)
         {
             this->stub_ = gymEnv::GymService::NewStub(grpc::CreateChannel(addr, grpc::InsecureChannelCredentials()));
             this->emptyMsg.set_msg("empty");

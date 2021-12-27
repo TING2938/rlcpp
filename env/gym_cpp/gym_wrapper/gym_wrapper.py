@@ -1,9 +1,14 @@
-import gym 
+import gym
+import numpy as np 
 
 class Gym_wrapper:
     def make(self, game_name: str):
         self.env = gym.make(game_name)
-        self.max_episode_steps=self.env.spec.max_episode_steps
+        self.max_episode_steps = self.env.spec.max_episode_steps
+        if self.max_episode_steps is None:
+            self.max_episode_steps = int(-1)
+        else:
+            self.max_episode_steps = int(self.max_episode_steps)
 
         obs_space_t = self.env.observation_space 
         act_space_t = self.env.action_space
@@ -45,3 +50,8 @@ class Gym_wrapper:
     def close(self):
         self.env.close()
 
+if __name__ == "__main__":
+    env = Gym_wrapper()
+
+    env.make("CliffWalking-v0")
+    print(env.max_episode_steps)

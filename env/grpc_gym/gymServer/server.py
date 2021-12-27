@@ -67,7 +67,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s", datefmt="%m/%d/%Y %H:%M:%S %p")
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--addr", default="[::]:50053", type=str, help="address for this listening")
+    parser.add_argument("-a", "--addr", default="[::]:50248", type=str, help="address for this listening")
     args = parser.parse_args()
 
     serve(addr=args.addr)

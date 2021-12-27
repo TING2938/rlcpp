@@ -29,7 +29,7 @@ namespace rlcpp
             this->env_reset = PyObject_GetAttrString(this->env_, "reset");
             this->env_render = PyObject_GetAttrString(this->env_, "render");
             
-            this->max_episode_steps = PyLong_AsSize_t(PyObject_GetAttrString(this->env_, "max_episode_steps"));
+            this->max_episode_steps = PyLong_AsLong(PyObject_GetAttrString(this->env_, "max_episode_steps"));
             
             this->action_space_.bDiscrete = PyObject_IsTrue(PyObject_GetAttrString(this->env_, "bDiscrete_act"));
             if (this->action_space_.bDiscrete)
@@ -116,9 +116,6 @@ namespace rlcpp
                 (*vec)[i] = PyLong_AsLong(PyList_GetItem(plist, i));
             }
         }
-    
-    public:
-        size_t max_episode_steps;
     private:
         Space action_space_;
         Space obs_space_;

@@ -116,13 +116,10 @@ void train_pipeline_conservative(Env &env, DQN_dynet_agent &agent, Float score_t
     }
 }
 
-void test(const string& game_name, DQN_dynet_agent &agent, Int n_turns, bool render = false)
+void test(Env &env, DQN_dynet_agent &agent, Int n_turns, bool render = false)
 {
     printf("Ready to test, Press any key to coninue...\n");
     getchar();
-
-    rlcpp::Gym_Env env("192.168.137.1:50043");
-    env.make(game_name);
 
     auto obs = env.obs_space().getEmptyObs();
     auto next_obs = env.obs_space().getEmptyObs();
@@ -199,12 +196,19 @@ int main(int argc, char **argv)
 
     DQN_dynet_agent agent(layers, max_reply_memory_size, use_double_dqn, batch_size, 500, 0.99, 1, 5e-5);
 
+    // for train
     if (env_id == 0)
         train_pipeline_conservative(env, agent, score_thresholds[env_id], 500, 100, 1000, 0);
     if (env_id == 1 || env_id == 2)
     {
         train_pipeline_progressive(env, agent, score_thresholds[env_id], 2000, 100);
     }
-    test(ENVs[env_id], agent, 10, true);
+    
+    // for test
+    rlcpp::Gym_gRPC grpc_env("10.227.6.132:50248");
+    grpc_env.make(ENVs[env_id]);
+    test(grpc_env, agent, 10, true);
+    
+    grpc_env.close();
     env.close();
 }
