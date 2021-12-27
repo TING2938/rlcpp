@@ -11,6 +11,8 @@ from gymEnv_pb2 import Observation, StepResult, Msg, EnvSpace, Space
 class EnvServer(GymServiceServicer):
     def make(self, request, context):
         self.env = gym.make(request.msg)
+        logging.info(f"make gym env: {request.msg}")
+
         obs_space_t = self.env.observation_space 
         act_space_t = self.env.action_space
         if len(obs_space_t.shape) == 0:
@@ -25,7 +27,7 @@ class EnvServer(GymServiceServicer):
         else:
             self.bDiscrete_act = False
             action_space = Space(bDiscrete=False, shape=act_space_t.shape, low=act_space_t.low, high=act_space_t.high)
-        print("max episode steps: ", self.env._max_episode_steps)
+        logging.info("max episode steps: ", self.env._max_episode_steps)
         return EnvSpace(obs_space=obs_space, action_space=action_space, max_episode_steps=self.env._max_episode_steps)
 
     def reset(self, request, context):
@@ -50,6 +52,7 @@ class EnvServer(GymServiceServicer):
 
     def close(self, reuest, context):
         self.env.close()
+        logging.info("close gym env")
         return Msg(msg="")
 
 def serve(addr):

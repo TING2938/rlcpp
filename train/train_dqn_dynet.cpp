@@ -153,7 +153,7 @@ void test(Env &env, DQN_dynet_agent &agent, Int n_turns, bool render = false)
 int main(int argc, char **argv)
 {
     // ================================= //
-    int env_id = 0;
+    int env_id = 1;
     Int max_reply_memory_size = 50000;
     Int batch_size;
     bool use_double_dqn = false;
