@@ -27,7 +27,7 @@ class EnvServer(GymServiceServicer):
         else:
             self.bDiscrete_act = False
             action_space = Space(bDiscrete=False, shape=act_space_t.shape, low=act_space_t.low, high=act_space_t.high)
-        logging.info(f"max episode steps: {self.env.spec.max_episode_steps}")
+        logging.info(f"    max episode steps: {self.env.spec.max_episode_steps}")
         return EnvSpace(obs_space=obs_space, action_space=action_space, max_episode_steps=self.env.spec.max_episode_steps)
 
     def reset(self, request, context):
@@ -52,7 +52,7 @@ class EnvServer(GymServiceServicer):
 
     def close(self, reuest, context):
         self.env.close()
-        logging.info("close gym env")
+        logging.info(f"    close gym env: {self.env}")
         return Msg(msg="")
 
 def serve(addr):

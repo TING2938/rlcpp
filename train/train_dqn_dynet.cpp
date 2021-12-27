@@ -147,7 +147,6 @@ void test(Env &env, DQN_dynet_agent &agent, Int n_turns, bool render = false)
             }
         }
     }
-    env.close();
 }
 
 int main(int argc, char **argv)
