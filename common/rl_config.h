@@ -6,10 +6,6 @@
 #include <algorithm>
 #include <numeric>
 
-#ifdef NN_TINYDNN
-  #include <tiny_dnn/tiny_dnn.h>
-#endif
-
 namespace rlcpp
 {
     using Int = int32_t;
@@ -18,12 +14,8 @@ namespace rlcpp
     using std::string;
     using Veci = std::vector<Int>;
     using Vecd = std::vector<double>;
+    using Vecf = std::vector<Float>;
 
-    #ifdef NN_TINYDNN
-        using Vecf = tiny_dnn::vec_t;
-    #else
-        using Vecf = std::vector<Float>;
-    #endif
 }
 
 #endif // !__RL_CONDIG_H__
