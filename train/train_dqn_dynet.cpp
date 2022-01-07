@@ -204,10 +204,10 @@ int main(int argc, char **argv)
     }
     
     // for test
-    rlcpp::Gym_gRPC grpc_env("10.227.6.132:50248");
-    grpc_env.make(ENVs[env_id]);
-    test(grpc_env, agent, 10, true);
+    // rlcpp::Gym_gRPC grpc_env("10.227.6.132:50248");
+    // grpc_env.make(ENVs[env_id]);
+    test(env, agent, 100, false);
     
-    grpc_env.close();
+    // grpc_env.close();
     env.close();
 }
