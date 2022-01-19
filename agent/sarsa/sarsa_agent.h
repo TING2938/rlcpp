@@ -2,12 +2,12 @@
 #define __BASIC_AGENT_H__
 
 #include <algorithm>
-#include "agent/agent.h"
 #include "tools/rand.h"
+#include "agent/agent.h"
 
 namespace rlcpp
 {
-    class Sarsa_agent : Agent
+    class Sarsa_agent : public Agent 
     {
     public:
         void init(Int obs_n, Int act_n, Float learning_rate = 0.01, Float gamma = 0.9, Float e_greed = 0.1)
@@ -21,7 +21,7 @@ namespace rlcpp
         }
 
         // 根据观测值，采样输出动作，带探索过程
-        void sample(const State &obs, Action *action) override
+        void sample(const State &obs, Action *action) override 
         {
             if (randf() < (1.0 - this->e_greed))
             {
@@ -46,6 +46,10 @@ namespace rlcpp
             }
             action->front() = random_choise(action_list);
         }
+
+        void store(const State &state, const Action &action, Float reward, const State &next_state, bool done) override {}
+
+        Float learn() override { return 0.0f; }
 
         void learn(const State &obs, const Action &action, Float reward, const State &next_obs, const Action& next_action, bool done)
         {

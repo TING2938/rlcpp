@@ -2,14 +2,14 @@
 #define __BASIC_AGENT_H__
 
 #include <algorithm>
-#include "agent/agent.h"
 #include "tools/rand.h"
+#include "agent/agent.h"
 
 namespace rlcpp
 {
     // observation space: discrete
     // action space: discrete
-    class Qlearning_agent : Agent
+    class Qlearning_agent : public Agent 
     {
     public:
         void init(Int obs_n, Int act_n, Float learning_rate = 0.01, Float gamma = 0.9, Float e_greed = 0.1)
@@ -48,6 +48,10 @@ namespace rlcpp
             }
             action->front() = random_choise(action_list);
         }
+
+        void store(const State &state, const Action &action, Float reward, const State &next_state, bool done) override {}
+
+        Float learn() override { return 0.0f; }
 
         void learn(const State &obs, const Action &action, Float reward, const State &next_obs, bool done)
         {

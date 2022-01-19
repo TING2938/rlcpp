@@ -1,22 +1,22 @@
-#ifndef __BASIC_DOUBLE_DQN_DYNET_AGENT_H__
-#define __BASIC_DOUBLE_DQN_DYNET_AGENT_H__
+#ifndef __RLCPP_DQN_RANDOMREPLY_AGENT_H__
+#define __RLCPP_DQN_RANDOMREPLY_AGENT_H__
 
 #include <algorithm>
 #include "agent/agent.h"
-#include "tools/random_reply.h"
+#include "tools/memory_reply.h"
 #include "tools/rand.h"
 #include "network/dynet_network/dynet_network.h"
-
-using dynet::Expression;
 
 namespace rlcpp
 {
     // observation space: continuous
     // action space: discrete
-    class DQN_dynet_agent : Agent
-    {
+    class DQN_RandomReply_Agent : public Agent
+    {   
+        using Expression = dynet::Expression;
+
     public:
-        DQN_dynet_agent(const std::vector<dynet::Layer>& layers, 
+        DQN_RandomReply_Agent(const std::vector<dynet::Layer>& layers, 
                   Int max_memory_size, bool use_double_dqn, Int batch_size,
                   Int update_target_steps = 500, Float gamma = 0.99, 
                   Float epsilon = 1.0, Float epsilon_decrease = 1e-4)
@@ -70,17 +70,12 @@ namespace rlcpp
             action->front() = std::max_element(Q.begin(), Q.end()) - Q.begin();
         }
 
-        void store(const State &state, const Action &action, Float reward, const State &next_state, bool done)
+        void store(const State &state, const Action &action, Float reward, const State &next_state, bool done) override 
         {
             this->memory.store(state, action, reward, next_state, done);
         }
 
-        size_t memory_size() const 
-        {
-            return this->memory.size();
-        }
-
-        Float learn()
+        Float learn() override 
         {
             this->memory.sample_onedim(this->batch_state, this->batch_action, this->batch_reward, this->batch_next_state, this->batch_done);
             unsigned batch_size = this->batch_reward.size();
@@ -142,8 +137,8 @@ namespace rlcpp
         Vecf batch_next_state;
         std::vector<bool> batch_done;
         Vecf batch_target_Q;
-    }; // !class Sarsa_agent
+    }; // !class
 
 } // !namespace rlcpp
 
-#endif // !__BASIC_DOUBLE_DQN_DYNET_AGENT_H__
+#endif // !__RLCPP_DQN_RANDOMREPLY_AGENT_H__
