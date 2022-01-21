@@ -23,6 +23,7 @@ namespace rlcpp
                 return State(1, 0.0);
             } else 
             {
+                
                 auto n = std::accumulate(this->shape.begin(), this->shape.end(), Int(1), std::multiplies<Int>());
                 return State(n, 0);
             }

@@ -1,62 +1,138 @@
+/**
+ * @file rand.h
+ * @author Ting Ye (yeting2938@163.com)
+ * @brief 随机数实现
+ * @version 0.1
+ * @date 2022-01-21
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ */
+
 #ifndef __RL_RAND_H__
 #define __RL_RAND_H__
 
-#include <random>
+#include <cassert>
 #include "common/rl_config.h"
 
 namespace rlcpp
 {
 
+    /**
+     * @brief Set the rand seed
+     */
     void set_rand_seed()
     {
         srand(time(nullptr));
     }
 
-    // [low, up) Float type
-    Float randf(Float low=0.0, Float up=1.0)
+    /**
+     * @brief [low, up) Float type
+     * 
+     * @param low 
+     * @param up 
+     * @return Float 
+     */
+    Float randf(Float low = 0.0, Float up = 1.0)
     {
         return (float)rand() / ((float)RAND_MAX + 1) * (up - low) + low;
     }
 
-    // [low, up) Int type
-    Int randd(Int low=0, Int up=10)
+    /**
+     * @brief [low, up) Int type
+     * 
+     * @param low 
+     * @param up 
+     * @return Int 
+     */
+    Int randd(Int low = 0, Int up = 10)
     {
         return rand() % (up - low) + low;
     }
 
-    template<typename T>
-    T random_choise(const std::vector<T>& a)
+    /**
+     * @brief choise one element from [0, a).
+     * 
+     * @param a vector or int, for choose from vector or [0, a)
+     * @param prob The probabilities associated with each entry in a. 
+     *             If empty, the sample assumes a uniform distribution over all entries in a
+     * @return Int 
+     */
+    Int random_choise(Int a, const Vecf &prob = {})
     {
-        return a[randd(0, a.size())];
-    }
-
-    Int random_choise(Int a)
-    {
-        return randd(0, a);
-    }
-
-    template<typename T>
-    std::vector<T> random_choise(const std::vector<T>& a, Int size)
-    {
-        std::vector<T> ret;
-        ret.reserve(size);
-        for (Int i = 0; i < size; i++)
+        if (prob.empty())
         {
-            ret.push_back(a[randd(0, a.size())]);
+            return randd(0, a);
+        }
+        else
+        {
+            assert(std::abs(std::accumulate(prob.begin(), prob.end(), Float(0.0f)) - Float(1.0f)) < 1e-6);
+            auto r = randf(0.0f, 1.0f);
+            Float s = 0.0f;
+            for (Int i = 0; i < prob.size(); i++)
+            {
+                s += prob[i];
+                if (s >= r)
+                    return i;
+            }
+            return -1; // else return error
         }
     }
 
-    Veci random_choise(Int a, Int size)
+    /**
+     * @brief choise one element from vector a.
+     * 
+     * @tparam T 
+     * @param a vector or int, for choose from vector or [0, a)
+     * @param prob The probabilities associated with each entry in a. 
+     *             If empty, the sample assumes a uniform distribution over all entries in a
+     * @return T 
+     */
+    template <typename T>
+    T random_choise(const std::vector<T> &a, const Vecf &prob = {})
     {
-        Veci ret(size);
+        return a[random_choise(a.size(), prob)];
+    }
+
+    /**
+     * @brief choise `size` elements from vector a.
+     * 
+     * @tparam T 
+     * @param a vector or int, for choose from vector or [0, a)
+     * @param size 
+     * @param prob The probabilities associated with each entry in a. 
+     *             If empty, the sample assumes a uniform distribution over all entries in a
+     * @return std::vector<T> 
+     */
+    template <typename T>
+    std::vector<T> random_choise(const std::vector<T> &a, Int size, const Vecf &prob = {})
+    {
+        std::vector<T> ret(size);
         for (Int i = 0; i < size; i++)
         {
-            ret[i] = randd(0, a);
+            ret[i] = random_choise(a, prob);
         }
         return ret;
     }
 
-
-
+    /**
+     * @brief choise `size` elements from [0, a).
+     * 
+     * @param a vector or int, for choose from vector or [0, a)
+     * @param size number of samples to choise
+     * @param prob The probabilities associated with each entry in a. 
+     *             If empty, the sample assumes a uniform distribution over all entries in a
+     * @return Veci 
+     */
+    Veci random_choise(Int a, Int size, const Vecf &prob = {})
+    {
+        Veci ret(size);
+        for (Int i = 0; i < size; i++)
+        {
+            ret[i] = random_choise(a, prob);
+        }
+        return ret;
+    }
 }
+
 #endif // !__RL_RAND_H__

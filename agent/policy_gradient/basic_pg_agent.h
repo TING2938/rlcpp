@@ -1,4 +1,13 @@
-// basic policy gradient algorithm
+/**
+ * @file basic_pg_agent.h
+ * @author Ting Ye (yeting2938@163.com)
+ * @brief basic policy gradient algorithm
+ * @version 0.1
+ * @date 2022-01-21
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ */
 
 #ifndef __RLCPP_BASIC_PG_AGENT_H__
 #define __RLCPP_BASIC_PG_AGENT_H__
@@ -48,7 +57,7 @@ namespace rlcpp
         {
             Vecf act_prob(this->act_n, 0);
             this->network.predict(obs, &act_prob);
-            
+            action->front() = random_choise(this->act_n, act_prob);
         }
 
         // 根据输入观测值，预测下一步动作
