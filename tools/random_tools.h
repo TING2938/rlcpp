@@ -1,5 +1,5 @@
 /**
- * @file rand.h
+ * @file random_tools.h
  * @author Ting Ye (yeting2938@163.com)
  * @brief 随机数实现
  * @version 0.1
@@ -9,11 +9,11 @@
  * 
  */
 
-#ifndef __RL_RAND_H__
-#define __RL_RAND_H__
+#ifndef __RL_RANDOM_TOOLS_H__
+#define __RL_RANDOM_TOOLS_H__
 
 #include <cassert>
-#include "common/rl_config.h"
+#include "tools/vector_tools.h"
 
 namespace rlcpp
 {
@@ -33,7 +33,7 @@ namespace rlcpp
      * @param up 
      * @return Float 
      */
-    Float randf(Float low = 0.0, Float up = 1.0)
+    Real randf(Real low = 0.0, Real up = 1.0)
     {
         return (float)rand() / ((float)RAND_MAX + 1) * (up - low) + low;
     }
@@ -66,9 +66,9 @@ namespace rlcpp
         }
         else
         {
-            assert(std::abs(std::accumulate(prob.begin(), prob.end(), Float(0.0f)) - Float(1.0f)) < 1e-6);
+            assert(std::abs(sum(prob) - Real(1.0f)) < 1e-6);
             auto r = randf(0.0f, 1.0f);
-            Float s = 0.0f;
+            Real s = 0.0f;
             for (Int i = 0; i < prob.size(); i++)
             {
                 s += prob[i];
@@ -135,4 +135,4 @@ namespace rlcpp
     }
 }
 
-#endif // !__RL_RAND_H__
+#endif // !__RL_RANDOM_TOOLS_H__

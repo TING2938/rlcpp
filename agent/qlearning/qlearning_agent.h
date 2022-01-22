@@ -2,7 +2,7 @@
 #define __BASIC_AGENT_H__
 
 #include <algorithm>
-#include "tools/rand.h"
+#include "tools/random_tools.h"
 #include "agent/agent.h"
 
 namespace rlcpp
@@ -12,7 +12,7 @@ namespace rlcpp
     class Qlearning_agent : public Agent 
     {
     public:
-        void init(Int obs_n, Int act_n, Float learning_rate = 0.01, Float gamma = 0.9, Float e_greed = 0.1)
+        void init(Int obs_n, Int act_n, Real learning_rate = 0.01, Real gamma = 0.9, Real e_greed = 0.1)
         {
             this->act_n = act_n;
             this->obs_n = obs_n;
@@ -39,7 +39,7 @@ namespace rlcpp
         void predict(const State &obs, Action *action) override
         {
             auto &Q_list = this->Q[obs.front()];
-            auto maxQ = *std::max_element(Q_list.begin(), Q_list.end());
+            auto maxQ = max(Q_list);
             Veci action_list;
             for (int i = 0; i < Q_list.size(); i++)
             {
@@ -49,21 +49,21 @@ namespace rlcpp
             action->front() = random_choise(action_list);
         }
 
-        void store(const State &state, const Action &action, Float reward, const State &next_state, bool done) override {}
+        void store(const State &state, const Action &action, Real reward, const State &next_state, bool done) override {}
 
-        Float learn() override { return 0.0f; }
+        Real learn() override { return 0.0f; }
 
-        void learn(const State &obs, const Action &action, Float reward, const State &next_obs, bool done)
+        void learn(const State &obs, const Action &action, Real reward, const State &next_obs, bool done)
         {
             auto predict_Q = this->Q[obs.front()][action.front()];
-            Float target_Q = 0.0;
+            Real target_Q = 0.0;
             if (done)
             {
                 target_Q = reward;
             }
             else
             {
-                target_Q = reward + this->gamma * (*std::max_element(this->Q[next_obs.front()].begin(), this->Q[next_obs.front()].end()));
+                target_Q = reward + this->gamma * max(this->Q[next_obs.front()]);
             }
             this->Q[obs.front()][action.front()] += this->learning_rate * (target_Q - predict_Q);
         }
@@ -71,9 +71,9 @@ namespace rlcpp
     private:
         Int act_n;
         Int obs_n;
-        Float learning_rate;
-        Float gamma;
-        Float e_greed;
+        Real learning_rate;
+        Real gamma;
+        Real e_greed;
         std::vector<Vecf> Q;
     }; // !class Qlearning_agent
 

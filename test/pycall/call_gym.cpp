@@ -4,8 +4,6 @@
 #include "env/gym_cpp/gymcpp.h"
 #include "tools/core_timer.hpp"
 
-// #include "tools/rand.h"
-
 using namespace std;
 using namespace rlcpp;
 
@@ -27,7 +25,7 @@ int main(int argc, char *argv[])
     auto obs = obs_space.getEmptyObs();
     auto next_obs = obs_space.getEmptyObs();
     Action action = action_space.getEmptyAction();
-    Float reward;
+    Real reward;
     bool done;
     
     std::default_random_engine engine;

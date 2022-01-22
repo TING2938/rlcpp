@@ -4,10 +4,10 @@
 
 using namespace rlcpp;
 
-std::tuple<Float, Int> run_episode(Env& env, Qlearning_agent& agent, State& obs, State& next_obs, Action &action,Float &reward, bool &done, bool bRender = false)
+std::tuple<Real, Int> run_episode(Env& env, Qlearning_agent& agent, State& obs, State& next_obs, Action &action,Real &reward, bool &done, bool bRender = false)
 {
     Int total_steps = 0;
-    Float total_reward = 0.0;
+    Real total_reward = 0.0;
     env.reset(&obs);
     while (true)
     {
@@ -30,9 +30,9 @@ std::tuple<Float, Int> run_episode(Env& env, Qlearning_agent& agent, State& obs,
     return {total_reward, total_steps};
 }
 
-void test_episode(Env& env, Qlearning_agent& agent, State& obs, State& next_obs, Action &action, Float &reward, bool &done) 
+void test_episode(Env& env, Qlearning_agent& agent, State& obs, State& next_obs, Action &action, Real &reward, bool &done) 
 {
-    Float total_reward = 0.0;
+    Real total_reward = 0.0;
     env.reset(&obs);
     while (true)
     {
@@ -51,9 +51,9 @@ void test_episode(Env& env, Qlearning_agent& agent, State& obs, State& next_obs,
 
 int main()
 {
-    Float learning_rate = 0.1;
-    Float gamma = 0.9;
-    Float e_greed = 0.1;
+    Real learning_rate = 0.1;
+    Real gamma = 0.9;
+    Real e_greed = 0.1;
 
     Gym_cpp env;
     // MountainCar-v0
@@ -72,7 +72,7 @@ int main()
     auto obs = obs_space.getEmptyObs();
     auto next_obs = obs_space.getEmptyObs();
     auto action = action_space.getEmptyAction();
-    Float reward;
+    Real reward;
     bool done;
 
     bool bRender = false;

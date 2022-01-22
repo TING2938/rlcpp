@@ -3,7 +3,7 @@
 
 #include <random>
 #include "common/state_action.h"
-#include "tools/rand.h"
+#include "tools/random_tools.h"
 #include "tools/reduce_tree.h"
 
 namespace rlcpp
@@ -12,7 +12,7 @@ namespace rlcpp
     {
         State state;
         Action action;
-        Float reward;
+        Real reward;
         State next_state;
         bool done;
     };
@@ -27,7 +27,7 @@ namespace rlcpp
             this->bFull = false;
         }
 
-        void store(const State &state, const Action &action, Float reward, const State &next_state, bool done)
+        void store(const State &state, const Action &action, Real reward, const State &next_state, bool done)
         {
             this->memory[this->idx] = {state, action, reward, next_state, done};
             if (this->memory.empty())
@@ -109,7 +109,7 @@ namespace rlcpp
     class PrioritizedReply
     {
     public:
-        void init(size_t max_size, Float alpha = 0.6)
+        void init(size_t max_size, Real alpha = 0.6)
         {
             this->max_size = std::pow(2, std::ceil(std::log2(max_size)));
             this->memory.resize(this->max_size);
@@ -121,7 +121,7 @@ namespace rlcpp
             this->alpha = alpha;
         }
 
-        void store(const State &state, const Action &action, Float reward, const State &next_state, bool done)
+        void store(const State &state, const Action &action, Real reward, const State &next_state, bool done)
         {
             this->memory[this->idx] = {state, action, reward, next_state, done};
             this->sum_tree.setItem(idx, this->max_value);
@@ -142,7 +142,7 @@ namespace rlcpp
             }
         }
 
-        void sample_onedim(Float beta,
+        void sample_onedim(Real beta,
                            Veci& indices, 
                            Vecf &batch_state,
                            Vecf &batch_action,
@@ -193,7 +193,7 @@ namespace rlcpp
     private:
         struct Func_min
         {
-            Float operator()(Float __x, Float __y) const
+            Real operator()(Real __x, Real __y) const
             {
                 return std::min(__x, __y);
             }
@@ -204,10 +204,10 @@ namespace rlcpp
         std::vector<Transition> memory;
         SumTree sum_tree;
         ReduceTree<Func_min> min_tree;
-        Float alpha;
+        Real alpha;
         size_t idx;
-        Float max_value;
-        Float max_value_upper;
+        Real max_value;
+        Real max_value_upper;
         bool bFull;
     };
 }

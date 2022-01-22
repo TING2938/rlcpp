@@ -4,10 +4,10 @@
 
 using namespace rlcpp;
 
-std::tuple<Float, Int> run_episode(Env& env, Sarsa_agent& agent, State& obs, State& next_obs, Action &action, Action& next_action, Float &reward, bool &done, bool bRender = false)
+std::tuple<Real, Int> run_episode(Env& env, Sarsa_agent& agent, State& obs, State& next_obs, Action &action, Action& next_action, Real &reward, bool &done, bool bRender = false)
 {
     Int total_steps = 0;
-    Float total_reward = 0.0;
+    Real total_reward = 0.0;
     env.reset(&obs);
     agent.sample(obs, &action);
 
@@ -33,9 +33,9 @@ std::tuple<Float, Int> run_episode(Env& env, Sarsa_agent& agent, State& obs, Sta
     return {total_reward, total_steps};
 }
 
-void test_episode(Env& env, Sarsa_agent& agent, State& obs, State& next_obs, Action &action, Float &reward, bool &done) 
+void test_episode(Env& env, Sarsa_agent& agent, State& obs, State& next_obs, Action &action, Real &reward, bool &done) 
 {
-    Float total_reward = 0.0;
+    Real total_reward = 0.0;
     env.reset(&obs);
     while (true)
     {
@@ -55,9 +55,9 @@ void test_episode(Env& env, Sarsa_agent& agent, State& obs, State& next_obs, Act
 int main()
 {
     /* ====================================== */
-    Float learning_rate = 0.1;
-    Float gamma = 0.9;
-    Float e_greed = 0.1;
+    Real learning_rate = 0.1;
+    Real gamma = 0.9;
+    Real e_greed = 0.1;
     /* ====================================== */
 
     Gym_cpp env;
@@ -78,7 +78,7 @@ int main()
     auto next_obs = obs_space.getEmptyObs();
     auto action = action_space.getEmptyAction();
     auto next_action = action_space.getEmptyAction();
-    Float reward;
+    Real reward;
     bool done;
 
     bool bRender = false;

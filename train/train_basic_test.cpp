@@ -1,5 +1,5 @@
 #include "env/gym_cpp/gymcpp.h"
-#include "tools/rand.h"
+#include "tools/random_tools.h"
 #include "tools/core_timer.hpp"
 
 using namespace rlcpp;
@@ -21,7 +21,7 @@ int main()
     auto obs = obs_space.getEmptyObs();
     auto next_obs = obs_space.getEmptyObs();
     Action action = action_space.getEmptyAction();
-    Float reward;
+    Real reward;
     bool done;
 
     itp::Timeit timeit;

@@ -4,7 +4,7 @@
 #include <algorithm>
 #include "agent/agent.h"
 #include "tools/memory_reply.h"
-#include "tools/rand.h"
+#include "tools/random_tools.h"
 #include "network/dynet_network/dynet_network.h"
 
 namespace rlcpp
@@ -18,8 +18,8 @@ namespace rlcpp
     public:
         DQN_RandomReply_Agent(const std::vector<dynet::Layer>& layers, 
                   Int max_memory_size, bool use_double_dqn, Int batch_size,
-                  Int update_target_steps = 500, Float gamma = 0.99, 
-                  Float epsilon = 1.0, Float epsilon_decrease = 1e-4)
+                  Int update_target_steps = 500, Real gamma = 0.99, 
+                  Real epsilon = 1.0, Real epsilon_decrease = 1e-4)
         : network(), trainer(network.model)
         {
             this->network.build_model(layers);
@@ -67,15 +67,15 @@ namespace rlcpp
         {
             Vecf Q(this->act_n, 0);
             this->network.predict(obs, &Q);
-            action->front() = std::max_element(Q.begin(), Q.end()) - Q.begin();
+            action->front() = argmax(Q);
         }
 
-        void store(const State &state, const Action &action, Float reward, const State &next_state, bool done) override 
+        void store(const State &state, const Action &action, Real reward, const State &next_state, bool done) override 
         {
             this->memory.store(state, action, reward, next_state, done);
         }
 
-        Float learn() override 
+        Real learn() override 
         {
             this->memory.sample_onedim(this->batch_state, this->batch_action, this->batch_reward, this->batch_next_state, this->batch_done);
             unsigned batch_size = this->batch_reward.size();
@@ -89,7 +89,7 @@ namespace rlcpp
             Vecf target_values(batch_size);            
             for (int i = 0; i < batch_size; i++)
             {
-                Float maxQ = *std::max_element(this->batch_target_Q.begin() + i * this->act_n, this->batch_target_Q.begin() + (i+1) * this->act_n);
+                Real maxQ = *std::max_element(this->batch_target_Q.begin() + i * this->act_n, this->batch_target_Q.begin() + (i+1) * this->act_n);
                 target_values[i] = this->batch_reward[i] + this->gamma * maxQ * (1 - this->batch_done[i]);
             }
             
@@ -99,7 +99,7 @@ namespace rlcpp
             Expression picked_values_expr = dynet::pick(batch_Q_expr, {this->batch_action.begin(), this->batch_action.end()});
             Expression target_values_expr = dynet::input(cg, dynet::Dim({1}, batch_size), target_values);
             Expression loss = dynet::sum_batches(dynet::squared_distance(picked_values_expr, target_values_expr));
-            Float loss_value = dynet::as_scalar(cg.forward(loss)); 
+            Real loss_value = dynet::as_scalar(cg.forward(loss)); 
             cg.backward(loss);
             this->trainer.update();
             this->epsilon = std::max(this->epsilon - this->epsilon_decrease, this->epsilon_lower);
@@ -112,15 +112,15 @@ namespace rlcpp
             return loss_value;
         }
     public:
-        Float epsilon;
+        Real epsilon;
 
     private:
         Int obs_dim; // dimension of observation space
         Int act_n;   // num. of action
-        Float gamma;
+        Real gamma;
 
-        Float epsilon_decrease;
-        Float epsilon_lower;
+        Real epsilon_decrease;
+        Real epsilon_lower;
 
         size_t learn_step;
         size_t update_target_steps;

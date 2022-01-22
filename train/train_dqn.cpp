@@ -16,7 +16,7 @@ int main(int argc, char **argv)
     Int max_reply_memory_size = 50000;
     Int batch_size;
     bool use_double_dqn = false;
-    bool use_prioritized = true;
+    bool use_prioritized = false;
     // ================================= //
     // get options from commandline
     itp::Getopt getopt(argc, argv, "Train RL with DQN algorithm (dynet nn lib)");
@@ -68,7 +68,7 @@ int main(int argc, char **argv)
         train_pipeline_conservative(env, *agent, score_thresholds[env_id], 500, 100, 1000, 0);
     if (env_id == 1 || env_id == 2)
     {
-        train_pipeline_progressive(env, *agent, score_thresholds[env_id], 2000, 100);
+        train_pipeline_progressive(env, *agent, score_thresholds[env_id], 10000, 100);
     }
     
     // for test

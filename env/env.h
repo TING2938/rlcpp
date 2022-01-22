@@ -46,7 +46,7 @@ namespace rlcpp
          * @param[out]  done  执行后，环境是否结束
          * @return None
          */
-        virtual void step(const Action &action, State *next_obs, Float *reward, bool *done) = 0;
+        virtual void step(const Action &action, State *next_obs, Real *reward, bool *done) = 0;
 
         /**
          * @brief  重置环境

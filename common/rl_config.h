@@ -3,19 +3,15 @@
 
 #include <string>
 #include <vector>
-#include <algorithm>
-#include <numeric>
-#include <Eigen/Dense>
 
 namespace rlcpp
 {
     using Int = int;
-    using Float = float;
+    using Real = float;
 
     using std::string;
-    using Veci = Eigen::ArrayXi;
-    using Vecd = Eigen::ArrayXd;
-    using Vecf = Eigen::ArrayXf;
+    using Veci = std::vector<Int>;
+    using Vecf = std::vector<Real>;
 }
 
 #endif // !__RL_CONDIG_H__

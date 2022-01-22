@@ -21,12 +21,12 @@ namespace rlcpp
             this->values.resize(2 * this->size, 0);
         }
 
-        Float root()
+        Real root()
         {
             return this->values[1];
         }
 
-        void setItem(size_t idx, Float val)
+        void setItem(size_t idx, Real val)
         {
             idx += this->size;
             this->values[idx] = val;
@@ -42,7 +42,7 @@ namespace rlcpp
             }
         }
 
-        Float getItem(size_t idx)
+        Real getItem(size_t idx)
         {
             return this->values[idx + this->size];
         }
@@ -76,10 +76,10 @@ namespace rlcpp
     };
 
 
-    class SumTree: public ReduceTree<std::plus<Float>>
+    class SumTree: public ReduceTree<std::plus<Real>>
     {
     public:
-        size_t sample(Float value)
+        size_t sample(Real value)
         {
             size_t idx = 1;
             size_t child;

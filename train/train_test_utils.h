@@ -19,18 +19,18 @@
 using namespace rlcpp;
 using std::vector;
 
-void train_pipeline_progressive(Env &env, Agent &agent, Float score_threshold, Int n_episode, Int learn_start = 100, Int print_every = 10)
+void train_pipeline_progressive(Env &env, Agent &agent, Real score_threshold, Int n_episode, Int learn_start = 100, Int print_every = 10)
 {
     auto obs = env.obs_space().getEmptyObs();
     auto next_obs = env.obs_space().getEmptyObs();
     auto action = env.action_space().getEmptyAction();
-    Float rwd;
+    Real rwd;
     bool done;
 
     Vecf rewards, losses;
     for (int i_episode = 0; i_episode < n_episode; i_episode++)
     {
-        Float reward = 0.0;
+        Real reward = 0.0;
         env.reset(&obs);
 
         for (int t = 0; t < env.max_episode_steps; t++)
@@ -53,14 +53,14 @@ void train_pipeline_progressive(Env &env, Agent &agent, Float score_threshold, I
         if (i_episode % print_every == 0)
         {
             auto len = std::min<size_t>(rewards.size(), 100);
-            auto score = std::accumulate(rewards.end() - len, rewards.end(), Float(0.0)) / len;
+            auto score = std::accumulate(rewards.end() - len, rewards.end(), Real(0.0)) / len;
             printf("===========================\n");
             printf("i_eposide: %d\n", i_episode);
             printf("100 games mean reward: %f\n", score);
             if (losses.size() > 0)
             {
                 auto len = std::min<size_t>(losses.size(), 100);
-                auto loss = std::accumulate(losses.end() - len, losses.end(), Float(0.0)) / len;
+                auto loss = std::accumulate(losses.end() - len, losses.end(), Real(0.0)) / len;
                 printf("100 games mean loss: %f\n", loss);
             }
             printf("===========================\n\n");
@@ -70,12 +70,12 @@ void train_pipeline_progressive(Env &env, Agent &agent, Float score_threshold, I
     }
 }
 
-void train_pipeline_conservative(Env &env, Agent &agent, Float score_threshold, Int n_epoch = 500, Int n_rollout = 100, Int n_train = 1000, Int learn_start = 0, bool early_stop = true)
+void train_pipeline_conservative(Env &env, Agent &agent, Real score_threshold, Int n_epoch = 500, Int n_rollout = 100, Int n_train = 1000, Int learn_start = 0, bool early_stop = true)
 {
     auto obs = env.obs_space().getEmptyObs();
     auto next_obs = env.obs_space().getEmptyObs();
     auto action = env.action_space().getEmptyAction();
-    Float rwd;
+    Real rwd;
     bool done;
 
     for (int i_epoch = 0; i_epoch < n_epoch; i_epoch++)
@@ -83,7 +83,7 @@ void train_pipeline_conservative(Env &env, Agent &agent, Float score_threshold, 
         Vecf rewards, losses;
         for (int rollout = 0; rollout < n_rollout; rollout++)
         {
-            Float reward = 0.0;
+            Real reward = 0.0;
             env.reset(&obs);
             for (int t = 0; t < env.max_episode_steps; t++)
             {
@@ -111,13 +111,13 @@ void train_pipeline_conservative(Env &env, Agent &agent, Float score_threshold, 
 
         if (i_epoch % 1 == 0)
         {
-            auto mean_reward = std::accumulate(rewards.begin(), rewards.end(), Float(0.0)) / rewards.size();
+            auto mean_reward = mean(rewards);
             printf("===========================\n");
             printf("i_epoch: %d\n", i_epoch);
             printf("Average score of %d rollout games: %f\n", n_rollout, mean_reward);
             if (i_epoch > learn_start)
             {
-                auto mean_loss = std::accumulate(losses.begin(), losses.end(), Float(0.0)) / losses.size();
+                auto mean_loss = mean(losses);
                 printf("Average training loss: %f\n", mean_loss);
             }
             printf("===========================\n\n");
@@ -135,12 +135,12 @@ void test(Env &env, Agent &agent, Int n_turns, bool render = false)
     auto obs = env.obs_space().getEmptyObs();
     auto next_obs = env.obs_space().getEmptyObs();
     auto action = env.action_space().getEmptyAction();
-    Float reward;
+    Real reward;
     bool done;
 
     for (int i = 0; i < n_turns; i++)
     {
-        Float score = 0.0;
+        Real score = 0.0;
         env.reset(&obs);
         for (int k = 0; k < env.max_episode_steps; k++)
         {

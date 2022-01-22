@@ -45,13 +45,13 @@ namespace rlcpp
          * @param[in]  done 是否结束
          * @return None
          */
-        virtual void store(const State &state, const Action &action, Float reward, const State &next_state, bool done) = 0;
+        virtual void store(const State &state, const Action &action, Real reward, const State &next_state, bool done) = 0;
 
         /**
          * @brief  学习一次，返回此次学习的error
          * @return 此次学习的error
          */
-        virtual Float learn() = 0;
+        virtual Real learn() = 0;
 
     }; // !sturct Agent
 

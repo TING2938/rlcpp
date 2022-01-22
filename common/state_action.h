@@ -1,7 +1,7 @@
 #ifndef __RL_STATE_ACTION_H__
 #define __RL_STATE_ACTION_H__
 
-#include "common/rl_config.h"
+#include "tools/vector_tools.h"
 
 namespace rlcpp
 {
@@ -20,12 +20,10 @@ namespace rlcpp
         {
             if (this->bDiscrete)
             {
-                return State(1, 0.0);
+                return { 0.0 };
             } else 
             {
-                
-                auto n = std::accumulate(this->shape.begin(), this->shape.end(), Int(1), std::multiplies<Int>());
-                return State(n, 0);
+                return State(prod(this->shape), 0);
             }
         }
 
@@ -33,11 +31,10 @@ namespace rlcpp
         {
             if (this->bDiscrete)
             {
-                return Action(1, 0.0);
+                return { 0 };
             } else 
             {
-                auto n = std::accumulate(this->shape.begin(), this->shape.end(), Int(1), std::multiplies<Int>());
-                return Action(n, 0);
+                return Action(prod(this->shape), 0);
             }
         }
     };

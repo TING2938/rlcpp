@@ -47,9 +47,9 @@ namespace rlcpp
             else
             {
                 ret.bDiscrete = false;
-                ret.shape = {space.shape().begin(), space.shape().end()};
-                ret.high = {space.high().begin(), space.high().end()};
-                ret.low = {space.low().begin(), space.low().end()};
+                ret.shape = { ALL(space.shape()) };
+                ret.high = { ALL(space.high()) };
+                ret.low = { ALL(space.low()) };
             }
             return ret;
         }
@@ -66,20 +66,20 @@ namespace rlcpp
             else
             {
                 ret.bDiscrete = false;
-                ret.shape = {space.shape().begin(), space.shape().end()};
-                ret.high = {space.high().begin(), space.high().end()};
-                ret.low = {space.low().begin(), space.low().end()};
+                ret.shape = { ALL(space.shape()) };
+                ret.high = { ALL(space.high()) };
+                ret.low = { ALL(space.low()) };
             }
             return ret;
         }
 
-        void step(const Action &action, State *next_obs, Float *reward, bool *done) override
+        void step(const Action &action, State *next_obs, Real *reward, bool *done) override
         {
             grpc::ClientContext ctx;
             gymEnv::Action act;
-            *act.mutable_action() = {action.begin(), action.end()}; 
+            *act.mutable_action() = { ALL(action) }; 
             this->stub_->step(&ctx, act, &this->stepResult);
-            std::copy(this->stepResult.next_obs().obs().begin(), this->stepResult.next_obs().obs().end(), next_obs->begin());
+            std::copy( ALL(this->stepResult.next_obs().obs()), next_obs->begin());
             *reward = this->stepResult.reward();
             *done = this->stepResult.done();
         }
@@ -89,7 +89,7 @@ namespace rlcpp
             grpc::ClientContext ctx;
             gymEnv::Observation tmp;
             this->stub_->reset(&ctx, this->emptyMsg, &tmp);
-            std::copy(tmp.obs().begin(), tmp.obs().end(), obs->begin());
+            std::copy( ALL(tmp.obs()), obs->begin());
         }
 
         void close() override

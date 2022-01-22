@@ -73,7 +73,7 @@ namespace rlcpp
             PyObject_CallMethod(this->env_, "close", NULL);
         }
 
-        void step(const Action &action, State *next_obs, Float *reward, bool *done) override
+        void step(const Action &action, State *next_obs, Real *reward, bool *done) override
         {
             PyObject* ret;
             auto plist = PyList_New(action.size());
