@@ -76,13 +76,13 @@ int main()
     bool done;
 
     bool bRender = false;
-    for (int episode = 0; episode < 500; episode++)
+    for (int episode = 0; episode < 500000; episode++)
     {
         auto ret = run_episode(env, agent, obs, next_obs, action, reward, done, bRender);
         printf("Episode %d: steps = %d, reward = %.1f\n", episode, std::get<1>(ret), std::get<0>(ret));
 
         if (episode % 20 == 0) {
-            bRender = true;
+            bRender = false;
         } else {
             bRender = false;
         }

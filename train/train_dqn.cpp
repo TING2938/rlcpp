@@ -17,18 +17,27 @@ int main(int argc, char **argv)
     Int batch_size;
     bool use_double_dqn = false;
     bool use_prioritized = false;
+    std::string dynet_memory = "";
     // ================================= //
     // get options from commandline
     itp::Getopt getopt(argc, argv, "Train RL with DQN algorithm (dynet nn lib)");
 
-    getopt(env_id, "-id", false, "env id for train. 0: CartPole-v1, 1: Acrobot-v1, 2: MountainCar-v0");
-    getopt(use_double_dqn, "-ddqn", false, "whether to use double dqn");
-    getopt(use_prioritized, "-prioritized", false, "whether to use prioitized memory reply");
+    getopt(env_id, "-id", false, "env id for train."
+                                    "\n0: CartPole-v1, 1: Acrobot-v1, 2: MountainCar-v0\n");
+    getopt(use_double_dqn, "-ddqn", false, "whether to use double dqn\n");
+    getopt(use_prioritized, "-prioritized", false, "whether to use prioitized memory reply\n");
+    getopt(dynet_memory, "-dynet_mem", false, "Memory used for dynet (MB).\n"
+                                                "or set as FOR,BACK,PARAM,SCRATCH\n"
+                                                "for the amount of memory for forward calculation, backward calculation, parameters, and scratch use\n"
+                                                "by using comma separated variables");
 
     getopt.finish();
 
     // ================================= // 
-    dynet::initialize(argc, argv);
+    // for dynet command line options
+    dynet::DynetParams dynetParams;
+    if (!dynet_memory.empty()) dynetParams.mem_descriptor = dynet_memory;
+    dynet::initialize(dynetParams);
     rlcpp::set_rand_seed();
 
     if (env_id == 0)
@@ -40,7 +49,7 @@ int main(int argc, char **argv)
     }
 
     vector<string> ENVs = {"CartPole-v1", "Acrobot-v1", "MountainCar-v0"};
-    vector<Int> score_thresholds = {499, -100, -100};
+    vector<Int> score_thresholds = {499, -60, -100};
     Gym_cpp env;
     env.make(ENVs[env_id]);
 
@@ -68,7 +77,7 @@ int main(int argc, char **argv)
         train_pipeline_conservative(env, *agent, score_thresholds[env_id], 500, 100, 1000, 0);
     if (env_id == 1 || env_id == 2)
     {
-        train_pipeline_progressive(env, *agent, score_thresholds[env_id], 10000, 100);
+        train_pipeline_progressive(env, *agent, score_thresholds[env_id], 2000000, 100);
     }
     
     // for test
