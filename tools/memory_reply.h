@@ -4,20 +4,13 @@
 #include <random>
 #include "common/state_action.h"
 #include "tools/random_tools.h"
+#include "tools/vector_tools.h"
 #include "tools/reduce_tree.h"
 
 namespace rlcpp
 {
-    struct Transition
-    {
-        State state;
-        Action action;
-        Real reward;
-        State next_state;
-        bool done;
-    };
-
-    class RandomReply
+    template <typename T>
+    class RingVector
     {
     public:
         void init(size_t max_size)
@@ -27,9 +20,9 @@ namespace rlcpp
             this->bFull = false;
         }
 
-        void store(const State &state, const Action &action, Real reward, const State &next_state, bool done)
+        void store(const T &value)
         {
-            this->memory[this->idx] = {state, action, reward, next_state, done};
+            this->memory[this->idx] = value;
             if (this->memory.empty())
             {
                 printf("empty memory relpy!");
@@ -58,31 +51,59 @@ namespace rlcpp
             }
         }
 
-        void sample(std::vector<State> &batch_state,
-                    std::vector<Action> &batch_action,
-                    Vecf &batch_reward,
-                    std::vector<State> &batch_next_state,
-                    std::vector<bool> &batch_done)
+        bool is_full() const
         {
-            size_t batch_size = batch_state.size();
-            size_t len = this->size();
+            return this->bFull;
+        }
 
-            for (size_t i = 0; i < batch_size; i++)
+        Real mean() const 
+        {
+            if (this->bFull)
             {
-                auto &tmp = memory[randd(0, len)];
-                batch_state[i] = tmp.state;
-                batch_action[i] = tmp.action;
-                batch_reward[i] = tmp.reward;
-                batch_next_state[i] = tmp.next_state;
-                batch_done[i] = tmp.done;
+                return rlcpp::mean(memory);
+            } else 
+            {
+                if (this->idx == 0)
+                    return 0.0f;
+                else 
+                    return std::accumulate(memory.begin(), memory.begin() + this->idx, 0.0f) / this->idx;
             }
         }
 
+        T sum() const 
+        {
+            if (this->bFull)
+            {
+                return rlcpp::sum(memory);
+            } else 
+            {
+                return std::accumulate(memory.begin(), memory.begin() + this->idx, 0.0f);
+            }
+        }
+
+    protected:
+        bool bFull;
+        size_t idx = 0;
+        std::vector<T> memory;
+    };
+
+    struct Transition
+    {
+        State state;
+        Action action;
+        Real reward;
+        State next_state;
+        bool done;
+    };
+
+    class RandomReply : public RingVector<Transition>
+    {
+    public:
         void sample_onedim(Vecf &batch_state,
                            Vecf &batch_action,
                            Vecf &batch_reward,
                            Vecf &batch_next_state,
-                           std::vector<bool> &batch_done)
+                           std::vector<bool> &batch_done) const
         {
             size_t batch_size = batch_reward.size();
             size_t state_dim = batch_state.size() / batch_size;
@@ -91,7 +112,7 @@ namespace rlcpp
 
             for (size_t i = 0; i < batch_size; i++)
             {
-                auto &tmp = memory[randd(0, len)];
+                auto &tmp = this->memory[randd(0, len)];
                 std::copy_n(tmp.state.begin(), state_dim, batch_state.begin() + i * state_dim);
                 std::copy_n(tmp.action.begin(), action_dim, batch_action.begin() + i * action_dim);
                 batch_reward[i] = tmp.reward;
@@ -100,10 +121,25 @@ namespace rlcpp
             }
         }
 
-    private:
-        bool bFull;
-        size_t idx = 0;
-        std::vector<Transition> memory;
+        void sample(std::vector<State> &batch_state,
+                    std::vector<Action> &batch_action,
+                    Vecf &batch_reward,
+                    std::vector<State> &batch_next_state,
+                    std::vector<bool> &batch_done) const
+        {
+            size_t batch_size = batch_state.size();
+            size_t len = this->size();
+
+            for (size_t i = 0; i < batch_size; i++)
+            {
+                auto &tmp = this->memory[randd(0, len)];
+                batch_state[i] = tmp.state;
+                batch_action[i] = tmp.action;
+                batch_reward[i] = tmp.reward;
+                batch_next_state[i] = tmp.next_state;
+                batch_done[i] = tmp.done;
+            }
+        }
     };
 
     class PrioritizedReply
@@ -125,7 +161,7 @@ namespace rlcpp
         {
             this->memory[this->idx] = {state, action, reward, next_state, done};
             this->sum_tree.setItem(idx, this->max_value);
-            this->min_tree.setItem(idx, this->max_value); 
+            this->min_tree.setItem(idx, this->max_value);
             if (this->memory.empty())
             {
                 printf("empty memory relpy!");
@@ -143,13 +179,13 @@ namespace rlcpp
         }
 
         void sample_onedim(Real beta,
-                           Veci& indices, 
+                           Veci &indices,
                            Vecf &batch_state,
                            Vecf &batch_action,
                            Vecf &batch_reward,
                            Vecf &batch_next_state,
                            std::vector<bool> &batch_done,
-                           Vecf& weights)
+                           Vecf &weights)
         {
             size_t batch_size = batch_reward.size();
             size_t state_dim = batch_state.size() / batch_size;
@@ -173,7 +209,7 @@ namespace rlcpp
             }
         }
 
-        void update(const Veci& indices, const Vecf& values)
+        void update(const Veci &indices, const Vecf &values)
         {
             for (Int i = 0; i < indices.size(); i++)
             {
@@ -185,7 +221,7 @@ namespace rlcpp
             this->max_value = std::min(this->max_value, this->max_value_upper);
         }
 
-        bool is_full()
+        bool is_full() const
         {
             return this->bFull;
         }

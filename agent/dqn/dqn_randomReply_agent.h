@@ -72,7 +72,7 @@ namespace rlcpp
 
         void store(const State &state, const Action &action, Real reward, const State &next_state, bool done) override 
         {
-            this->memory.store(state, action, reward, next_state, done);
+            this->memory.store({state, action, reward, next_state, done});
         }
 
         Real learn() override 

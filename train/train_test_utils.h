@@ -27,7 +27,10 @@ void train_pipeline_progressive(Env &env, Agent &agent, Real score_threshold, In
     Real rwd;
     bool done;
 
-    Vecf rewards, losses;
+    RingVector<Real> rewards, losses;
+    rewards.init(100);
+    losses.init(100);
+
     for (int i_episode = 0; i_episode < n_episode; i_episode++)
     {
         Real reward = 0.0;
@@ -42,27 +45,21 @@ void train_pipeline_progressive(Env &env, Agent &agent, Real score_threshold, In
             if (i_episode > learn_start)
             {
                 auto loss = agent.learn();
-                losses.push_back(loss);
+                losses.store(loss);
             }
             if (done)
                 break;
             obs = next_obs;
         }
-        rewards.push_back(reward);
+        rewards.store(reward);
 
         if (i_episode % print_every == 0)
         {
-            auto len = std::min<size_t>(rewards.size(), 100);
-            auto score = std::accumulate(rewards.end() - len, rewards.end(), Real(0.0)) / len;
+            auto score = rewards.mean();
             printf("===========================\n");
             printf("i_eposide: %d\n", i_episode);
             printf("100 games mean reward: %f\n", score);
-            if (losses.size() > 0)
-            {
-                auto len = std::min<size_t>(losses.size(), 100);
-                auto loss = std::accumulate(losses.end() - len, losses.end(), Real(0.0)) / len;
-                printf("100 games mean loss: %f\n", loss);
-            }
+            printf("100 games mean loss: %f\n", losses.mean());
             printf("===========================\n\n");
             if (score >= score_threshold)
                 break;
