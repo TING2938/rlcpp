@@ -3,10 +3,29 @@
 
 #include "tools/vector_tools.h"
 
+// discrete: 0, box: 1
+#ifndef RLCPP_STATE_TYPE
+    #define RLCPP_STATE_TYPE 1
+#endif // !RLCPP_STATE_TYPE
+
+#ifndef RLCPP_ACTION_TYPE
+    #define RLCPP_ACTION_TYPE 0
+#endif // !RLCPP_ACTION_TYPE
+
 namespace rlcpp
 {
+
+#if RLCPP_STATE_TYPE == 0
+    using State = Int;
+#elif RLCPP_STATE_TYPE == 1
     using State = Vecf;
-    using Action = Veci;
+#endif
+
+#if RLCPP_ACTION_TYPE == 0
+    using Action = Int;
+#elif RLCPP_ACTION_TYPE == 1
+    using Action = Vecf;
+#endif 
 
     struct Space
     {   
@@ -18,24 +37,20 @@ namespace rlcpp
 
         State getEmptyObs()
         {
-            if (this->bDiscrete)
-            {
-                return { 0.0 };
-            } else 
-            {
+            #if RLCPP_STATE_TYPE == 0
+                return 0;
+            #elif RLCPP_STATE_TYPE == 1
                 return State(prod(this->shape), 0);
-            }
+            #endif 
         }
 
         Action getEmptyAction()
         {
-            if (this->bDiscrete)
-            {
-                return { 0 };
-            } else 
-            {
+            #if RLCPP_ACTION_TYPE == 0
+                return 0;    
+            #elif RLCPP_ACTION_TYPE == 1
                 return Action(prod(this->shape), 0);
-            }
+            #endif 
         }
     };
 }

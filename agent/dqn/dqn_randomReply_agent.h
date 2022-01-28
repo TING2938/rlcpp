@@ -1,6 +1,9 @@
 #ifndef __RLCPP_DQN_RANDOMREPLY_AGENT_H__
 #define __RLCPP_DQN_RANDOMREPLY_AGENT_H__
 
+#define RLCPP_STATE_TYPE 1
+#define RLCPP_ACTION_TYPE 0
+
 #include <algorithm>
 #include "agent/agent.h"
 #include "tools/memory_reply.h"
@@ -56,7 +59,7 @@ namespace rlcpp
         void sample(const State &obs, Action *action) override
         {
             if (randf() < this->epsilon) {
-                action->front() = randd(0, this->act_n);
+                *action = randd(0, this->act_n);
             } else {
                 this->predict(obs, action);
             }
@@ -67,7 +70,7 @@ namespace rlcpp
         {
             Vecf Q(this->act_n, 0);
             this->network.predict(obs, &Q);
-            action->front() = argmax(Q);
+            *action = argmax(Q);
         }
 
         void store(const State &state, const Action &action, Real reward, const State &next_state, bool done) override 

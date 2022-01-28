@@ -1,6 +1,9 @@
 #ifndef __BASIC_AGENT_H__
 #define __BASIC_AGENT_H__
 
+#define RLCPP_STATE_TYPE 0
+#define RLCPP_ACTION_TYPE 0
+
 #include <algorithm>
 #include "tools/random_tools.h"
 #include "agent/agent.h"
@@ -29,14 +32,14 @@ namespace rlcpp
             }
             else
             {
-                action->front() = randd(0, this->act_n);
+                *action = randd(0, this->act_n);
             }
         }
 
         // 根据输入观测值，预测下一步动作
         void predict(const State &obs, Action *action) override
         {
-            auto &Q_list = this->Q[obs.front()];
+            auto &Q_list = this->Q[obs];
             auto maxQ = max(Q_list);
             Veci action_list;
             for (int i = 0; i < Q_list.size(); i++)
@@ -44,7 +47,7 @@ namespace rlcpp
                 if (Q_list[i] == maxQ)
                     action_list.push_back(i);
             }
-            action->front() = random_choise(action_list);
+            *action = random_choise(action_list);
         }
 
         void store(const State &state, const Action &action, Real reward, const State &next_state, bool done) override {}
@@ -53,7 +56,7 @@ namespace rlcpp
 
         void learn(const State &obs, const Action &action, Real reward, const State &next_obs, const Action& next_action, bool done)
         {
-            auto predict_Q = this->Q[obs.front()][action.front()];
+            auto predict_Q = this->Q[obs][action];
             Real target_Q = 0.0;
             if (done)
             {
@@ -61,9 +64,9 @@ namespace rlcpp
             }
             else
             {
-                target_Q = reward + this->gamma * this->Q[next_obs.front()][next_action.front()];
+                target_Q = reward + this->gamma * this->Q[next_obs][next_action];
             }
-            this->Q[obs.front()][action.front()] += this->learning_rate * (target_Q - predict_Q);
+            this->Q[obs][action] += this->learning_rate * (target_Q - predict_Q);
         }
 
     private:

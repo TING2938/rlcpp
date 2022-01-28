@@ -51,9 +51,9 @@ namespace rlcpp
                 auto p_act_shape = PyObject_GetAttrString(this->env_, "act_shape");
                 auto p_act_high = PyObject_GetAttrString(this->env_, "act_high");
                 auto p_act_low = PyObject_GetAttrString(this->env_, "act_low");
-                this->getList_int(&this->action_space_.shape, p_act_shape);
-                this->getList_float(&this->action_space_.high, p_act_high);
-                this->getList_float(&this->action_space_.low, p_act_low);
+                this->getList(&this->action_space_.shape, p_act_shape);
+                this->getList(&this->action_space_.high, p_act_high);
+                this->getList(&this->action_space_.low, p_act_low);
                 Py_DecRef(p_act_shape);
                 Py_DecRef(p_act_high);
                 Py_DecRef(p_act_low);
@@ -72,9 +72,9 @@ namespace rlcpp
                 auto p_obs_shape = PyObject_GetAttrString(this->env_, "obs_shape");
                 auto p_obs_high = PyObject_GetAttrString(this->env_, "obs_high");
                 auto p_obs_low = PyObject_GetAttrString(this->env_, "obs_low");
-                this->getList_int(&this->obs_space_.shape, p_obs_shape);
-                this->getList_float(&this->obs_space_.high, p_obs_high);
-                this->getList_float(&this->obs_space_.low, p_obs_low);
+                this->getList(&this->obs_space_.shape, p_obs_shape);
+                this->getList(&this->obs_space_.high, p_obs_high);
+                this->getList(&this->obs_space_.low, p_obs_low);
                 Py_DecRef(p_obs_shape);
                 Py_DecRef(p_obs_high);
                 Py_DecRef(p_obs_low);
@@ -99,7 +99,8 @@ namespace rlcpp
         void reset(State *obs) override
         {
             auto pobs = PyObject_CallObject(this->env_reset, NULL);
-            this->getList_float(obs, pobs);
+
+            this->getList(obs, pobs);
             Py_DecRef(pobs);
         }
 
@@ -111,16 +112,23 @@ namespace rlcpp
         void step(const Action &action, State *next_obs, Real *reward, bool *done) override
         {
             PyObject *ret;
+
+            #if RLCPP_ACTION_TYPE == 0
+            auto plist = PyList_New(1);
+            PyList_SET_ITEM(plist, 0, PyLong_FromLong(action));
+            #elif RLCPP_ACTION_TYPE == 1
             auto plist = PyList_New(action.size());
             for (ssize_t i = 0; i < action.size(); i++)
             {
                 PyList_SET_ITEM(plist, i, PyFloat_FromDouble(action[i]));
             }
+            #endif 
+
             auto argList = PyTuple_New(1);
             PyTuple_SetItem(argList, 0, plist);
             ret = PyObject_CallObject(this->env_step, argList);
 
-            this->getList_float(next_obs, PyTuple_GetItem(ret, 0));
+            this->getList(next_obs, PyTuple_GetItem(ret, 0));
             *reward = PyFloat_AsDouble(PyTuple_GetItem(ret, 1));
             *done = PyObject_IsTrue(PyTuple_GetItem(ret, 2));
             Py_DecRef(argList);
@@ -135,7 +143,7 @@ namespace rlcpp
         }
 
     private:
-        void getList_float(Vecf *vec, PyObject *plist)
+        void getList(Vecf *vec, PyObject *plist)
         {
             auto len = PyList_Size(plist);
             vec->resize(len);
@@ -145,7 +153,7 @@ namespace rlcpp
             }
         }
 
-        void getList_int(Veci *vec, PyObject *plist)
+        void getList(Veci *vec, PyObject *plist)
         {
             auto len = PyList_Size(plist);
             vec->resize(len);
@@ -153,6 +161,11 @@ namespace rlcpp
             {
                 (*vec)[i] = PyLong_AsLong(PyList_GetItem(plist, i));
             }
+        }
+
+        void getList(Int* val, PyObject* plist)
+        {
+            *val = PyLong_AsLong(PyList_GetItem(plist, 0));
         }
 
     private:

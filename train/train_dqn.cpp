@@ -1,3 +1,6 @@
+#define RLCPP_STATE_TYPE 1
+#define RLCPP_ACTION_TYPE 0
+
 #include "env/gym_cpp/gymcpp.h"
 #include "env/grpc_gym/gym_env.h"
 

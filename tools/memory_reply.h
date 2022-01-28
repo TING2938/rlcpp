@@ -98,6 +98,7 @@ namespace rlcpp
 
     class RandomReply : public RingVector<Transition>
     {
+        static_assert(RLCPP_STATE_TYPE == 1, "state must be box type");
     public:
         void sample_onedim(Vecf &batch_state,
                            Vecf &batch_action,
@@ -114,7 +115,13 @@ namespace rlcpp
             {
                 auto &tmp = this->memory[randd(0, len)];
                 std::copy_n(tmp.state.begin(), state_dim, batch_state.begin() + i * state_dim);
+                
+                #if RLCPP_ACTION_TYPE == 0
+                batch_action[i] = tmp.action;
+                #elif RLCPP_ACTION_TYPE == 1
                 std::copy_n(tmp.action.begin(), action_dim, batch_action.begin() + i * action_dim);
+                #endif
+
                 batch_reward[i] = tmp.reward;
                 std::copy_n(tmp.next_state.begin(), state_dim, batch_next_state.begin() + i * state_dim);
                 batch_done[i] = tmp.done;
@@ -197,7 +204,13 @@ namespace rlcpp
                 indices[i] = this->sum_tree.sample(randd(0, max_value));
                 auto &tmp = this->memory[indices[i]];
                 std::copy_n(tmp.state.begin(), state_dim, batch_state.begin() + i * state_dim);
-                std::copy_n(tmp.action.begin(), action_dim, batch_action.begin() + i * action_dim);
+
+                #if RLCPP_ACTION_TYPE == 0
+                    batch_action[i] = tmp.action;
+                #elif RLCPP_ACTION_TYPE == 1
+                    std::copy_n(tmp.action.begin(), action_dim, batch_action.begin() + i * action_dim);
+                #endif
+
                 batch_reward[i] = tmp.reward;
                 std::copy_n(tmp.next_state.begin(), state_dim, batch_next_state.begin() + i * state_dim);
                 batch_done[i] = tmp.done;

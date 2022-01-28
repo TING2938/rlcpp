@@ -1,3 +1,6 @@
+#define RLCPP_STATE_TYPE 0
+#define RLCPP_ACTION_TYPE 0
+
 #include "env/gym_cpp/gymcpp.h"
 #include "agent/sarsa/sarsa_agent.h"
 #include <tuple>

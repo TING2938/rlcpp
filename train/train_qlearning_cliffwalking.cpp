@@ -1,3 +1,6 @@
+#define RLCPP_STATE_TYPE 0
+#define RLCPP_ACTION_TYPE 0
+
 #include "env/gym_cpp/gymcpp.h"
 #include "agent/qlearning/qlearning_agent.h"
 #include <tuple>
@@ -76,7 +79,7 @@ int main()
     bool done;
 
     bool bRender = false;
-    for (int episode = 0; episode < 500000; episode++)
+    for (int episode = 0; episode < 5000; episode++)
     {
         auto ret = run_episode(env, agent, obs, next_obs, action, reward, done, bRender);
         printf("Episode %d: steps = %d, reward = %.1f\n", episode, std::get<1>(ret), std::get<0>(ret));

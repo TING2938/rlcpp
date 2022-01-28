@@ -77,7 +77,13 @@ namespace rlcpp
         {
             grpc::ClientContext ctx;
             gymEnv::Action act;
-            *act.mutable_action() = { ALL(action) }; 
+
+            #if RLCPP_ACTION_TYPE == 0
+                act.add_action(action); 
+            #elif RLCPP_ACTION_TYPE == 1
+                *act.mutable_action() = { ALL(action) }; 
+            #endif
+
             this->stub_->step(&ctx, act, &this->stepResult);
             std::copy( ALL(this->stepResult.next_obs().obs()), next_obs->begin());
             *reward = this->stepResult.reward();
