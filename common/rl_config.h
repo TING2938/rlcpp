@@ -6,12 +6,12 @@
 
 namespace rlcpp
 {
-    using Int = int;
-    using Real = float;
+using Int  = int;
+using Real = float;
 
-    using std::string;
-    using Veci = std::vector<Int>;
-    using Vecf = std::vector<Real>;
-}
+using std::string;
+using Veci = std::vector<Int>;
+using Vecf = std::vector<Real>;
+}  // namespace rlcpp
 
-#endif // !__RL_CONDIG_H__
+#endif  // !__RL_CONDIG_H__

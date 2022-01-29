@@ -3,24 +3,24 @@
  *
  * This provide an example of usage of the mlp.h model
  */
-#include "network/dynet_network/dynet_network.h"
 #include "data-io.h"
+#include "network/dynet_network/dynet_network.h"
 
 using namespace std;
 using namespace dynet;
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
     dynet::initialize(argc, argv);
 
     // Load Dataset ----------------------------------------------------------------------------------
     // Load data
-    string train_file = "data/train-images.idx3-ubyte";
-    string dev_file = "data/t10k-images.idx3-ubyte";
+    string train_file        = "data/train-images.idx3-ubyte";
+    string dev_file          = "data/t10k-images.idx3-ubyte";
     string train_labels_file = "data/train-labels.idx1-ubyte";
-    string dev_labels_file = "data/t10k-labels.idx1-ubyte";
-    unsigned BATCH_SIZE = 32;
-    unsigned NUM_EPOCHS = 20;
+    string dev_labels_file   = "data/t10k-labels.idx1-ubyte";
+    unsigned BATCH_SIZE      = 32;
+    unsigned NUM_EPOCHS      = 20;
 
     vector<vector<float>> mnist_train, mnist_dev;
 
@@ -36,9 +36,10 @@ int main(int argc, char **argv)
     // Build model -----------------------------------------------------------------------------------
     rlcpp::Dynet_Network network;
 
-    vector<Layer> layers = {Layer(/* input_dim */ 784, /* output_dim */ 512, /* activation */ RELU, /* dropout_rate */ 0.2),
-                            Layer(/* input_dim */ 512, /* output_dim */ 512, /* activation */ RELU, /* dropout_rate */ 0.2),
-                            Layer(/* input_dim */ 512, /* output_dim */ 10, /* activation */ LINEAR, /* dropout_rate */ 0.0)};
+    vector<Layer> layers = {
+        Layer(/* input_dim */ 784, /* output_dim */ 512, /* activation */ RELU, /* dropout_rate */ 0.2),
+        Layer(/* input_dim */ 512, /* output_dim */ 512, /* activation */ RELU, /* dropout_rate */ 0.2),
+        Layer(/* input_dim */ 512, /* output_dim */ 10, /* activation */ LINEAR, /* dropout_rate */ 0.0)};
     network.build_model(layers);
 
     // Use Adam optimizer
@@ -57,34 +58,31 @@ int main(int argc, char **argv)
     std::iota(order.begin(), order.end(), 0);
 
     // Run for the given number of epochs
-    for (unsigned epoch = 0; epoch < NUM_EPOCHS; epoch++)
-    {
+    for (unsigned epoch = 0; epoch < NUM_EPOCHS; epoch++) {
         // Reshuffle the dataset
         cerr << "**SHUFFLE\n";
         random_shuffle(order.begin(), order.end());
         // Initialize loss and number of samples processed (to average loss)
-        double loss = 0;
+        double loss        = 0;
         double num_samples = 0;
 
         // Activate dropout
         network.nn.enable_dropout();
 
-        for (si = 0; si < num_batches; ++si)
-        {
+        for (si = 0; si < num_batches; ++si) {
             // build graph for this instance
             ComputationGraph cg;
             // Compute batch start id and size
-            int id = order[si] * BATCH_SIZE;
+            int id         = order[si] * BATCH_SIZE;
             unsigned bsize = std::min((unsigned)mnist_train.size() - id, BATCH_SIZE);
             // Get input batch
 
             vector<float> batch_x(784 * bsize);
             vector<unsigned> batch_y(bsize);
 
-            for (unsigned idx = 0; idx < bsize; ++idx)
-            {
-                std::copy(mnist_train[id+idx].begin(), mnist_train[id+idx].end(), batch_x.begin() + idx * 784);
-                batch_y[idx] =  mnist_train_labels[id+idx];
+            for (unsigned idx = 0; idx < bsize; ++idx) {
+                std::copy(mnist_train[id + idx].begin(), mnist_train[id + idx].end(), batch_x.begin() + idx * 784);
+                batch_y[idx] = mnist_train_labels[id + idx];
             }
             Expression batch_x_expr = input(cg, Dim({784}, bsize), batch_x);
             // Get negative log likelihood on batch
@@ -98,13 +96,12 @@ int main(int argc, char **argv)
             // Update parameters
             trainer.update();
             // Print progress every tenth of the dataset
-            if ((si + 1) % (num_batches / 10) == 0 || si == num_batches - 1)
-            {
+            if ((si + 1) % (num_batches / 10) == 0 || si == num_batches - 1) {
                 // Print informations
                 trainer.status();
                 cerr << " E = " << (loss / num_samples) << " \n";
                 // Reinitialize loss
-                loss = 0;
+                loss        = 0;
                 num_samples = 0;
             }
         }
@@ -113,11 +110,9 @@ int main(int argc, char **argv)
         network.nn.disable_dropout();
 
         // Show score on dev data
-        if (si == num_batches)
-        {
+        if (si == num_batches) {
             double dpos = 0;
-            for (unsigned i = 0; i < mnist_dev.size(); ++i)
-            {
+            for (unsigned i = 0; i < mnist_dev.size(); ++i) {
                 // build graph for this instance
                 ComputationGraph cg;
                 // Get input expression
@@ -129,8 +124,7 @@ int main(int argc, char **argv)
                     dpos++;
             }
             // Print informations
-            cerr << "\n***DEV [epoch=" << (epoch)
-                 << "] E = " << (dpos / (double)mnist_dev.size()) << ' ';
+            cerr << "\n***DEV [epoch=" << (epoch) << "] E = " << (dpos / (double)mnist_dev.size()) << ' ';
         }
     }
 }

@@ -7,7 +7,7 @@
 using namespace std;
 using namespace rlcpp;
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     // Py_Initialize();
     Space obs_space_;
@@ -20,32 +20,31 @@ int main(int argc, char *argv[])
     // CartPole-v1
     env.make("CartPole-v1");
     auto action_space = env.action_space();
-    auto obs_space = env.obs_space();
+    auto obs_space    = env.obs_space();
 
-    auto obs = obs_space.getEmptyObs();
+    auto obs      = obs_space.getEmptyObs();
     auto next_obs = obs_space.getEmptyObs();
     Action action = action_space.getEmptyAction();
     Real reward;
     bool done;
-    
+
     std::default_random_engine engine;
     std::uniform_int_distribution<int> dist(0, action_space.n - 1);
 
     itp::Timeit timeit;
     int total_episode = 2000;
-    size_t count = 0;
+    size_t count      = 0;
 
     timeit.start();
 
-    for (int episode = 0; episode < total_episode; episode++)
-    {
+    for (int episode = 0; episode < total_episode; episode++) {
         env.reset(&obs);
-        for (int t = 0; t < env.max_episode_steps; t++)
-        {
+        for (int t = 0; t < env.max_episode_steps; t++) {
             action.front() = dist(engine);
             env.step(action, &obs, &reward, &done);
             count++;
-            if (done) break;
+            if (done)
+                break;
         }
     }
     env.close();

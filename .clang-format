@@ -1,0 +1,47 @@
+
+BasedOnStyle: Chromium
+
+# 标准: Cpp03, Cpp11, Auto
+Standard:	Cpp11
+
+# 每行字符的限制，0表示没有限制
+ColumnLimit:	120
+
+# 缩进宽度
+IndentWidth:	4
+
+# tab宽度
+TabWidth:	4
+
+# 访问说明符(public、private等)的偏移
+AccessModifierOffset:	-4
+
+# 连续赋值时，对齐所有等号
+AlignConsecutiveAssignments:	true
+
+# 连续空行的最大数量
+MaxEmptyLinesToKeep:	2
+
+# 指针和引用的对齐: Left, Right, Middle
+PointerAlignment:	Left
+
+# 允许短的函数放在同一行: None, InlineOnly(定义在类中), Empty(空函数), Inline(定义在类中，空函数), All
+AllowShortFunctionsOnASingleLine:	Empty
+
+# 大括号换行
+BreakBeforeBraces:	Custom
+BraceWrapping:   
+  AfterCaseLabel:  false
+  AfterClass:      true
+  AfterControlStatement: false
+  AfterEnum:       true
+  AfterFunction:   true
+  AfterNamespace:  true
+  AfterStruct:     true
+  AfterUnion:      true
+  AfterExternBlock: false
+  BeforeCatch:     false
+  BeforeElse:      false
+  IndentBraces:    false
+
+

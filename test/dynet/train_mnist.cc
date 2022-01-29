@@ -3,153 +3,148 @@
  *
  * This provide an example of usage of the mlp.h model
  */
-#include "mlp.h"
 #include "data-io.h"
+#include "mlp.h"
 
 using namespace std;
 using namespace dynet;
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
-  // Fetch dynet params ----------------------------------------------------------------------------
-  dynet::initialize(argc, argv);
+    // Fetch dynet params ----------------------------------------------------------------------------
+    dynet::initialize(argc, argv);
 
-  // Load Dataset ----------------------------------------------------------------------------------
-  // Load data
-  string train_file = "data/train-images.idx3-ubyte";
-  string dev_file = "data/t10k-images.idx3-ubyte";
-  string train_labels_file = "data/train-labels.idx1-ubyte";
-  string dev_labels_file = "data/t10k-labels.idx1-ubyte";
-  unsigned BATCH_SIZE = 32;
-  unsigned NUM_EPOCHS = 20;
+    // Load Dataset ----------------------------------------------------------------------------------
+    // Load data
+    string train_file        = "data/train-images.idx3-ubyte";
+    string dev_file          = "data/t10k-images.idx3-ubyte";
+    string train_labels_file = "data/train-labels.idx1-ubyte";
+    string dev_labels_file   = "data/t10k-labels.idx1-ubyte";
+    unsigned BATCH_SIZE      = 32;
+    unsigned NUM_EPOCHS      = 20;
 
-  vector<vector<float>> mnist_train, mnist_dev;
+    vector<vector<float>> mnist_train, mnist_dev;
 
-  read_mnist(train_file, mnist_train);
-  read_mnist(dev_file, mnist_dev);
+    read_mnist(train_file, mnist_train);
+    read_mnist(dev_file, mnist_dev);
 
-  // Load labels
-  vector<unsigned> mnist_train_labels, mnist_dev_labels;
+    // Load labels
+    vector<unsigned> mnist_train_labels, mnist_dev_labels;
 
-  read_mnist_labels(train_labels_file, mnist_train_labels);
-  read_mnist_labels(dev_labels_file, mnist_dev_labels);
+    read_mnist_labels(train_labels_file, mnist_train_labels);
+    read_mnist_labels(dev_labels_file, mnist_dev_labels);
 
-  // Build model -----------------------------------------------------------------------------------
+    // Build model -----------------------------------------------------------------------------------
 
-  ParameterCollection model;
-  // Use Adam optimizer
-  AdamTrainer trainer(model);
-  trainer.clip_threshold *= BATCH_SIZE;
+    ParameterCollection model;
+    // Use Adam optimizer
+    AdamTrainer trainer(model);
+    trainer.clip_threshold *= BATCH_SIZE;
 
-  // Create model
-  MLP nn(model, vector<Layer>({Layer(/* input_dim */ 784, /* output_dim */ 512, /* activation */ RELU, /* dropout_rate */ 0.2),
-                               Layer(/* input_dim */ 512, /* output_dim */ 512, /* activation */ RELU, /* dropout_rate */ 0.2),
-                               Layer(/* input_dim */ 512, /* output_dim */ 10, /* activation */ LINEAR, /* dropout_rate */ 0.0)}));
+    // Create model
+    MLP nn(model,
+           vector<Layer>(
+               {Layer(/* input_dim */ 784, /* output_dim */ 512, /* activation */ RELU, /* dropout_rate */ 0.2),
+                Layer(/* input_dim */ 512, /* output_dim */ 512, /* activation */ RELU, /* dropout_rate */ 0.2),
+                Layer(/* input_dim */ 512, /* output_dim */ 10, /* activation */ LINEAR, /* dropout_rate */ 0.0)}));
 
 
-  // Initialize variables for training -------------------------------------------------------------
-  // Worst accuracy
-  double worst = 0;
+    // Initialize variables for training -------------------------------------------------------------
+    // Worst accuracy
+    double worst = 0;
 
-  // Number of batches in training set
-  unsigned num_batches = mnist_train.size() / BATCH_SIZE - 1;
+    // Number of batches in training set
+    unsigned num_batches = mnist_train.size() / BATCH_SIZE - 1;
 
-  // Random indexing
-  unsigned si;
-  vector<unsigned> order(num_batches);
-  for (unsigned i = 0; i < num_batches; ++i)
-    order[i] = i;
+    // Random indexing
+    unsigned si;
+    vector<unsigned> order(num_batches);
+    for (unsigned i = 0; i < num_batches; ++i)
+        order[i] = i;
 
-  unsigned epoch = 0;
-  vector<Expression> cur_batch;
-  vector<unsigned> cur_labels;
+    unsigned epoch = 0;
+    vector<Expression> cur_batch;
+    vector<unsigned> cur_labels;
 
-  // Run for the given number of epochs (or indefinitely if params.NUM_EPOCHS is negative)
-  while (static_cast<int>(epoch) < NUM_EPOCHS || NUM_EPOCHS < 0)
-  {
-    // Reshuffle the dataset
-    cerr << "**SHUFFLE\n";
-    random_shuffle(order.begin(), order.end());
-    // Initialize loss and number of samples processed (to average loss)
-    double loss = 0;
-    double num_samples = 0;
+    // Run for the given number of epochs (or indefinitely if params.NUM_EPOCHS is negative)
+    while (static_cast<int>(epoch) < NUM_EPOCHS || NUM_EPOCHS < 0) {
+        // Reshuffle the dataset
+        cerr << "**SHUFFLE\n";
+        random_shuffle(order.begin(), order.end());
+        // Initialize loss and number of samples processed (to average loss)
+        double loss        = 0;
+        double num_samples = 0;
 
-    // Start timer
-    std::unique_ptr<Timer> iteration(new Timer("completed in"));
+        // Start timer
+        std::unique_ptr<Timer> iteration(new Timer("completed in"));
 
-    // Activate dropout
-    nn.enable_dropout();
+        // Activate dropout
+        nn.enable_dropout();
 
-    for (si = 0; si < num_batches; ++si)
-    {
-      // build graph for this instance
-      ComputationGraph cg;
-      // Compute batch start id and size
-      int id = order[si] * BATCH_SIZE;
-      unsigned bsize = std::min((unsigned)mnist_train.size() - id, BATCH_SIZE);
-      // Get input batch
-      cur_batch = vector<Expression>(bsize);
-      cur_labels = vector<unsigned>(bsize);
-      for (unsigned idx = 0; idx < bsize; ++idx)
-      {
-        cur_batch[idx] = input(cg, {784}, mnist_train[id + idx]);
-        cur_labels[idx] = mnist_train_labels[id + idx];
-      }
-      // Reshape as batch (not very intuitive yet)
-      Expression x_batch = reshape(concatenate_cols(cur_batch), Dim({784}, bsize));
-      // Get negative log likelihood on batch
-      Expression loss_expr = nn.get_nll(x_batch, cur_labels, cg);
-      // Get scalar error for monitoring
-      auto adfdf = cg.forward(loss_expr);
-      loss += as_scalar(adfdf);
-      // Increment number of samples processed
-      num_samples += bsize;
-      // Compute gradient with backward pass
-      cg.backward(loss_expr);
-      // Update parameters
-      trainer.update();
-      // Print progress every tenth of the dataset
-      if ((si + 1) % (num_batches / 10) == 0 || si == num_batches - 1)
-      {
-        // Print informations
-        trainer.status();
-        cerr << " E = " << (loss / num_samples) << ' ';
-        // Reinitialize timer
-        iteration.reset(new Timer("completed in"));
-        // Reinitialize loss
-        loss = 0;
-        num_samples = 0;
-      }
+        for (si = 0; si < num_batches; ++si) {
+            // build graph for this instance
+            ComputationGraph cg;
+            // Compute batch start id and size
+            int id         = order[si] * BATCH_SIZE;
+            unsigned bsize = std::min((unsigned)mnist_train.size() - id, BATCH_SIZE);
+            // Get input batch
+            cur_batch  = vector<Expression>(bsize);
+            cur_labels = vector<unsigned>(bsize);
+            for (unsigned idx = 0; idx < bsize; ++idx) {
+                cur_batch[idx]  = input(cg, {784}, mnist_train[id + idx]);
+                cur_labels[idx] = mnist_train_labels[id + idx];
+            }
+            // Reshape as batch (not very intuitive yet)
+            Expression x_batch = reshape(concatenate_cols(cur_batch), Dim({784}, bsize));
+            // Get negative log likelihood on batch
+            Expression loss_expr = nn.get_nll(x_batch, cur_labels, cg);
+            // Get scalar error for monitoring
+            auto adfdf = cg.forward(loss_expr);
+            loss += as_scalar(adfdf);
+            // Increment number of samples processed
+            num_samples += bsize;
+            // Compute gradient with backward pass
+            cg.backward(loss_expr);
+            // Update parameters
+            trainer.update();
+            // Print progress every tenth of the dataset
+            if ((si + 1) % (num_batches / 10) == 0 || si == num_batches - 1) {
+                // Print informations
+                trainer.status();
+                cerr << " E = " << (loss / num_samples) << ' ';
+                // Reinitialize timer
+                iteration.reset(new Timer("completed in"));
+                // Reinitialize loss
+                loss        = 0;
+                num_samples = 0;
+            }
+        }
+
+        // Disable dropout for dev testing
+        nn.disable_dropout();
+
+        // Show score on dev data
+        if (si == num_batches) {
+            double dpos = 0;
+            for (unsigned i = 0; i < mnist_dev.size(); ++i) {
+                // build graph for this instance
+                ComputationGraph cg;
+                // Get input expression
+                Expression x = input(cg, {784}, mnist_dev[i]);
+                // Get negative log likelihood on batch
+                unsigned predicted_idx = nn.predict(x, cg);
+                // Increment count of positive classification
+                if (predicted_idx == mnist_dev_labels[i])
+                    dpos++;
+            }
+
+            // Print informations
+            cerr << "\n***DEV [epoch=" << (epoch) << "] E = " << (dpos / (double)mnist_dev.size()) << ' ';
+            // Reinitialize timer
+            iteration.reset(new Timer("completed in"));
+        }
+
+        // Increment epoch
+        ++epoch;
     }
-
-    // Disable dropout for dev testing
-    nn.disable_dropout();
-
-    // Show score on dev data
-    if (si == num_batches)
-    {
-      double dpos = 0;
-      for (unsigned i = 0; i < mnist_dev.size(); ++i)
-      {
-        // build graph for this instance
-        ComputationGraph cg;
-        // Get input expression
-        Expression x = input(cg, {784}, mnist_dev[i]);
-        // Get negative log likelihood on batch
-        unsigned predicted_idx = nn.predict(x, cg);
-        // Increment count of positive classification
-        if (predicted_idx == mnist_dev_labels[i])
-          dpos++;
-      }
-
-      // Print informations
-      cerr << "\n***DEV [epoch=" << (epoch)
-           << "] E = " << (dpos / (double)mnist_dev.size()) << ' ';
-      // Reinitialize timer
-      iteration.reset(new Timer("completed in"));
-    }
-
-    // Increment epoch
-    ++epoch;
-  }
 }
