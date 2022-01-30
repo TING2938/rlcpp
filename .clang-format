@@ -31,7 +31,6 @@ AllowShortFunctionsOnASingleLine:	Empty
 # 大括号换行
 BreakBeforeBraces:	Custom
 BraceWrapping:   
-  AfterCaseLabel:  false
   AfterClass:      true
   AfterControlStatement: false
   AfterEnum:       true

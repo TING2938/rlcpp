@@ -1,3 +1,6 @@
+#define RLCPP_STATE_TYPE 1
+#define RLCPP_ACTION_TYPE 0
+
 #include "env/gym_cpp/gymcpp.h"
 #include "tools/core_timer.hpp"
 #include "tools/random_tools.h"
@@ -33,7 +36,7 @@ int main()
     for (int episode = 0; episode < total_episode; episode++) {
         env.reset(&obs);
         for (int t = 0; t < env.max_episode_steps; t++) {
-            action.front() = randd(0, action_space.n);
+            action = randd(0, action_space.n);
             env.step(action, &obs, &reward, &done);
             count++;
             if (done)

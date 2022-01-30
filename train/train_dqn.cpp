@@ -53,7 +53,7 @@ int main(int argc, char** argv)
     }
 
     vector<string> ENVs          = {"CartPole-v1", "Acrobot-v1", "MountainCar-v0"};
-    vector<Int> score_thresholds = {499, -60, -100};
+    vector<Int> score_thresholds = {499, -100, -100};
     Gym_cpp env;
     env.make(ENVs[env_id]);
 
