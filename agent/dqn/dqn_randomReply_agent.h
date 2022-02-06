@@ -55,7 +55,6 @@ public:
         this->batch_reward.resize(batch_size, 0);
         this->batch_next_state.resize(batch_size * this->obs_dim, 0);
         this->batch_done.resize(batch_size, 0);
-        this->batch_target_Q.resize(batch_size * this->act_n, 0);
     }
 
     // 根据观测值，采样输出动作，带探索过程
@@ -71,8 +70,7 @@ public:
     // 根据输入观测值，预测下一步动作
     void predict(const State& obs, Action* action) override
     {
-        Vecf Q(this->act_n, 0);
-        this->network.predict(obs, &Q);
+        auto Q  = this->network.predict(obs);
         *action = argmax(Q);
     }
 
@@ -87,15 +85,16 @@ public:
                                    this->batch_done);
         unsigned batch_size = this->batch_reward.size();
 
+        Vecf batch_target_Q;
         if (this->use_double_dqn) {
-            this->target_network.predict(this->batch_next_state, &this->batch_target_Q);
+            batch_target_Q = this->target_network.predict(this->batch_next_state);
         } else {
-            this->network.predict(this->batch_next_state, &this->batch_target_Q);
+            batch_target_Q = this->network.predict(this->batch_next_state);
         }
         Vecf target_values(batch_size);
         for (int i = 0; i < batch_size; i++) {
-            Real maxQ        = *std::max_element(this->batch_target_Q.begin() + i * this->act_n,
-                                          this->batch_target_Q.begin() + (i + 1) * this->act_n);
+            Real maxQ        = *std::max_element(batch_target_Q.begin() + i * this->act_n,
+                                                 batch_target_Q.begin() + (i + 1) * this->act_n);
             target_values[i] = this->batch_reward[i] + this->gamma * maxQ * (1 - this->batch_done[i]);
         }
 
@@ -144,7 +143,6 @@ private:
     Vecf batch_reward;
     Vecf batch_next_state;
     std::vector<bool> batch_done;
-    Vecf batch_target_Q;
 };  // !class
 
 }  // namespace rlcpp

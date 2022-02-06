@@ -12,6 +12,7 @@
 #define __RLCPP_VECTOR_TOOLS_H__
 
 #include <algorithm>
+#include <cmath>
 #include <numeric>
 #include <ostream>
 #include <vector>
@@ -58,6 +59,25 @@ template <typename T>
 inline T argmin(const std::vector<T>& vec)
 {
     return std::min_element(ALL(vec)) - vec.begin();
+}
+
+/**
+ * @brief stddev of vector
+ *  stddev = \sqrt{\frac{1}{n} \sum_{i = 0}^{n} {(x_{i}-\bar{x})^{2}}}
+ * @tparam T
+ * @param vec
+ * @return double
+ */
+template <typename T>
+inline double stddev(const std::vector<T>& vec)
+{
+    auto mean       = rlcpp::mean(vec);
+    double variance = 0.0;
+    for (auto v : vec) {
+        variance += std::pow(v - mean, 2);
+    }
+    variance /= vec.size();
+    return std::sqrt(variance);
 }
 
 template <typename T>

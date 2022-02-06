@@ -14,7 +14,7 @@
 
 #include "agent/agent.h"
 #include "env/env.h"
-
+#include "tools/ring_vector.h"
 
 using namespace rlcpp;
 using std::vector;

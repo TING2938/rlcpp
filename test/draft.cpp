@@ -5,6 +5,9 @@
 
 int main()
 {
+    rlcpp::Veci aa = {1, 2, 3};
+    std::cout << rlcpp::stddev(aa) << std::endl;
+
     std::string str = "aaac";
     std::cout << str << std::endl;
 

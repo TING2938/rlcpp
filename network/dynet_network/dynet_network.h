@@ -18,13 +18,13 @@ public:
         }
     }
 
-    void predict(const Vecf& in, Vecf* out)
+    Vecf predict(const Vecf& in)
     {
         dynet::ComputationGraph cg;
         dynet::Dim dim({input_dim}, in.size() / input_dim);
         dynet::Expression x = dynet::input(cg, dim, in);
         auto y              = nn.run(x, cg);
-        *out                = as_vector(cg.forward(y));
+        return as_vector(cg.forward(y));
     }
 
     void update_weights_from(const Dynet_Network* other)
