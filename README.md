@@ -8,7 +8,7 @@ Reinforcement Learning Algorithms with C++
 ```bash
 mkdir build
 cd build
-cmake ..
-make -j 4
+cmake .. -DDYNET_ROOT=/path/to/dynet
+make -j
 ```
 
