@@ -90,11 +90,11 @@ int main(int argc, char** argv)
         px.push_back(x);
         py.push_back(sinf(x));
     }
-    std::vector<float> py_pred, other_py_pred1, other_py_pred2;
-    network.predict(px, &py_pred);
-    other.predict(px, &other_py_pred1);
+
+    auto py_pred        = network.predict(px);
+    auto other_py_pred1 = other.predict(px);
     other.update_weights_from(&network);
-    other.predict(px, &other_py_pred2);
+    auto other_py_pred2 = other.predict(px);
 
     for (int i = 0; i < px.size(); i++) {
         printf("py: %.5f   py_pred: %.5f  other_py_pred1: %.5f, other_py_pred2: %.5f\n", py[i], py_pred[i],

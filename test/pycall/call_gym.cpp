@@ -1,3 +1,6 @@
+#define RLCPP_STATE_TYPE 1
+#define RLCPP_ACTION_TYPE 0
+
 #include <iostream>
 #include <random>
 #include <string>
@@ -40,7 +43,7 @@ int main(int argc, char* argv[])
     for (int episode = 0; episode < total_episode; episode++) {
         env.reset(&obs);
         for (int t = 0; t < env.max_episode_steps; t++) {
-            action.front() = dist(engine);
+            action = dist(engine);
             env.step(action, &obs, &reward, &done);
             count++;
             if (done)

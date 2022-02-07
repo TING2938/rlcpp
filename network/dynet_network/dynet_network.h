@@ -18,7 +18,7 @@ public:
         }
     }
 
-    Vecf predict(const Vecf& in)
+    std::vector<float> predict(const std::vector<float>& in)
     {
         dynet::ComputationGraph cg;
         dynet::Dim dim({input_dim}, in.size() / input_dim);

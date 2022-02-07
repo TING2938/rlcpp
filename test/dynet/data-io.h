@@ -1,6 +1,7 @@
 #ifndef DATA_IO_H
 #define DATA_IO_H
 
+#include <fstream>
 #include <iostream>
 #include <sstream>
 #include <vector>

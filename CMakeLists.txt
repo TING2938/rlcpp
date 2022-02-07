@@ -10,6 +10,11 @@ find_package(Python3 COMPONENTS Interpreter Development)
 include_directories(${Python3_INCLUDE_DIRS})
 include_directories(${PROJECT_SOURCE_DIR})
 
+## for dynet
+set(DYNET_ROOT "/usr/local" CACHE PATH "the dynet installed prefix")
+include_directories(${DYNET_ROOT}/include)
+link_directories(${DYNET_ROOT}/lib)
+
 set(PUBLIC_LINK_LIB dynet Threads::Threads ${Python3_LIBRARIES})
 
 if(NOT CMAKE_BUILD_TYPE)

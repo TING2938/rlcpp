@@ -1,9 +1,9 @@
-#include <Eigen/Dense>
 #include <iostream>
 #include "dynet/expr.h"
 #include "dynet/io.h"
 #include "dynet/model.h"
 #include "dynet/training.h"
+#include "tools/vector_tools.h"
 
 using namespace std;
 using namespace dynet;
@@ -25,7 +25,7 @@ int main(int argc, char** argv)
     dynet::real p1 = 32.32;
     dynet::real p2 = 25.66;
 
-    Eigen::Array<dynet::real, -1, 1> train_x(ntrain), train_y(ntrain), test_x(ntest), test_y(ntest);
+    std::vector<dynet::real> train_x(ntrain), train_y(ntrain), test_x(ntest), test_y(ntest);
     for (int i = 0; i < ntrain; i++) {
         train_x[i] = i * getRand(-1, 1);
         train_y[i] = p1 * train_x[i] + p2;
@@ -35,8 +35,8 @@ int main(int argc, char** argv)
         test_y[i] = p1 * test_x[i] + p2;
     }
 
-    dynet::real ymean = train_y.mean();
-    dynet::real ystd  = std::sqrt((train_y - train_y.mean()).square().sum() / (train_y.size() - 1));
+    dynet::real ymean = rlcpp::mean(train_y);
+    dynet::real ystd  = rlcpp::stddev(train_y);
     train_y -= ymean;
     train_y /= ystd;
     train_x -= ymean;
