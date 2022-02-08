@@ -27,13 +27,13 @@ public:
                           Real gamma              = 0.99,
                           Real epsilon            = 1.0,
                           Real epsilon_decrease   = 1e-4)
-        : network(), trainer(network.model)
+        : trainer(network.model)
     {
         this->network.build_model(layers);
         this->use_double_dqn = use_double_dqn;
         if (this->use_double_dqn) {
             this->target_network.build_model(layers);
-            this->target_network.update_weights_from(&this->network);
+            this->target_network.update_weights_from(this->network);
             this->update_target_steps = update_target_steps;
         }
 
@@ -113,7 +113,7 @@ public:
 
         this->learn_step += 1;
         if (this->use_double_dqn && (this->learn_step % this->update_target_steps == 0)) {
-            this->target_network.update_weights_from(&this->network);
+            this->target_network.update_weights_from(this->network);
         }
         return loss_value;
     }
