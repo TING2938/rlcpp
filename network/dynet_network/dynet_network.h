@@ -27,12 +27,32 @@ public:
         return as_vector(cg.forward(y));
     }
 
-    void update_weights_from(const Dynet_Network& other)
+    /**
+     * @brief update parameters from other network.
+     *
+     * if soft is true:
+     *     [this network] = [this network] * (1 - tau) + [other network] * tau
+     * else:
+     *     [this network] = [other network]
+     *
+     * @param other other network
+     * @param soft whether to use soft update
+     * @param tau update rate when use soft update
+     */
+    void update_weights_from(const Dynet_Network& other, bool soft = false, Real tau = 0.1f)
     {
         auto params_self  = this->model.parameters_list();
         auto params_other = other.model.parameters_list();
-        for (int i = 0; i < params_self.size(); i++) {
-            dynet::TensorTools::copy_elements(params_self[i]->values, params_other[i]->values);
+        for (unsigned int i = 0; i < params_self.size(); i++) {
+            auto x = params_self[i]->values;
+            auto y = params_other[i]->values;
+            if (soft) {
+                for (unsigned int j = 0; j < x.d.size(); j++) {
+                    x.v[j] = x.v[j] * (1 - tau) + y.v[j] * tau;
+                }
+            } else {
+                dynet::TensorTools::copy_elements(x, y);
+            }
         }
     }
 

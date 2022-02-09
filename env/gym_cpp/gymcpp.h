@@ -27,6 +27,10 @@ public:
     void make(const string& game_name) override
     {
         auto gym_wapper = PyImport_ImportModule("gym_wrapper");
+        if (gym_wapper == nullptr) {
+            fprintf(stderr, "%s(%d): cannot load module: gym_wrapper!\n", __FILE__, __LINE__);
+            std::exit(-2);
+        }
 
         auto Gym_wrapper = PyObject_GetAttrString(gym_wapper, "Gym_wrapper");
         this->env_       = PyObject_CallObject(Gym_wrapper, NULL);

@@ -12,6 +12,7 @@
 #define __RLCPP_VECTOR_TOOLS_H__
 
 #include <algorithm>
+#include <cassert>
 #include <cmath>
 #include <numeric>
 #include <ostream>
@@ -85,6 +86,126 @@ inline T prod(const std::vector<T>& vec)
 {
     return std::accumulate(ALL(vec), T(1), std::multiplies<T>());
 }
+
+
+/**
+ * @brief Clip (limit) the values in an array.
+ *
+ *  Given an interval, values outside the interval are clipped to
+ *  the interval edges.  For example, if an interval of ``[0, 1]``
+ *  is specified, values smaller than 0 become 0, and values larger
+ *  than 1 become 1.
+ *
+ * the inplace version of clip
+ *
+ * @tparam T
+ * @param vec the vector to clip
+ * @param low low boundary
+ * @param up up boundary
+ */
+template <typename T>
+inline void clip_(std::vector<T>& vec, const T& low, const T& up)
+{
+    for (auto&& v : vec) {
+        if (v > up)
+            v = up;
+        if (v < low)
+            v = low;
+    }
+}
+
+template <typename T>
+inline void clip_(std::vector<T>& vec, const std::vector<T>& low, const std::vector<T>& up)
+{
+    for (unsigned i = 0; i < vec.size(); i++) {
+        if (vec[i] > up[i])
+            vec[i] = up[i];
+        if (vec[i] < low[i])
+            vec[i] = low[i];
+    }
+}
+
+/**
+ * @brief Clip (limit) the values in an array.
+ *
+ *  Given an interval, values outside the interval are clipped to
+ *  the interval edges.  For example, if an interval of ``[0, 1]``
+ *  is specified, values smaller than 0 become 0, and values larger
+ *  than 1 become 1.
+ *
+ * @tparam T
+ * @param vec the vector to clip
+ * @param low low boundary
+ * @param up up boundary
+ * @return the cliped vec
+ */
+template <typename T>
+inline std::vector<T> clip(const std::vector<T>& vec, const T& low, const T& up)
+{
+    auto ret = vec;
+    clip_(ret, low, up);
+    return ret;
+}
+
+template <typename T>
+inline std::vector<T> clip(const std::vector<T>& vec, const std::vector<T>& low, const std::vector<T>& up)
+{
+    auto ret = vec;
+    clip_(ret, low, up);
+    return ret;
+}
+
+/**
+ * @brief Do an elementwise linear transform of values a * vec + b
+ *
+ * the inplace version of scale
+ *
+ * @tparam T
+ * @param vec vector to modify
+ * @param a The value to multiply by
+ * @param b The value to add
+ */
+template <typename T>
+inline void scale_(std::vector<T>& vec, const T& a, const T& b)
+{
+    for (size_t i = 0; i < vec.size(); i++) {
+        vec[i] = a * vec[i] + b;
+    }
+}
+
+template <typename T>
+inline void scale_(std::vector<T>& vec, const std::vector<T>& a, const std::vector<T>& b)
+{
+    for (size_t i = 0; i < vec.size(); i++) {
+        vec[i] = a[i] * vec[i] + b[i];
+    }
+}
+
+/**
+ * @brief Do an elementwise linear transform of values a * vec + b
+ *
+ * @tparam T
+ * @param vec vector to modify
+ * @param a The value to multiply by
+ * @param b The value to add
+ * @return a * vec + b
+ */
+template <typename T>
+inline std::vector<T> scale(const std::vector<T>& vec, const T& a, const T& b)
+{
+    auto ret = vec;
+    scale_(ret, a, b);
+    return ret;
+}
+
+template <typename T>
+inline std::vector<T> scale(const std::vector<T>& vec, const std::vector<T>& a, const std::vector<T>& b)
+{
+    auto ret = vec;
+    scale_(ret, a, b);
+    return ret;
+}
+
 }  // namespace rlcpp
 
 template <typename T>

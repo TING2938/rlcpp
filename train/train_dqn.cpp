@@ -20,7 +20,7 @@ int main(int argc, char** argv)
     Int batch_size;
     bool use_double_dqn      = false;
     bool use_prioritized     = false;
-    std::string dynet_memory = "";
+    std::string dynet_memory = "1";
     // ================================= //
     // get options from commandline
     itp::Getopt getopt(argc, argv, "Train RL with DQN algorithm (dynet nn lib)");
