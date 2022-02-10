@@ -70,16 +70,16 @@ int main(int argc, char** argv)
 
     // for train
     if (env_id == 1)
-        train_pipeline_conservative(env, agent, 800, 50000, 100, 40, 1);
+        train_pipeline_conservative(env, agent, 800, 50000, 100, 30, 1);
     if (env_id == 0) {
-        train_pipeline_progressive(env, agent, 800, 50000);
+        train_pipeline_progressive(env, agent, 800, 1000);
     }
 
     // for test
     // rlcpp::Gym_gRPC grpc_env("10.227.6.132:50248");
     // grpc_env.make(ENVs[env_id]);
     // grpc_env.close();
-    test(env, agent, 100, false);
+    test(env, agent, 100, true);
 
     env.close();
 }
