@@ -7,7 +7,7 @@
 #include "agent/dqn/dqn_prioritizedReply_agent.h"
 #include "agent/dqn/dqn_randomReply_agent.h"
 
-#include "network/dynet_network/dynet_network.h"
+#include "tools/dynet_network/dynet_network.h"
 
 #include "tools/core_getopt.hpp"
 #include "train/train_test_utils.h"
@@ -85,7 +85,7 @@ int main(int argc, char** argv)
     // for test
     // rlcpp::Gym_gRPC grpc_env("10.227.6.132:50248");
     // grpc_env.make(ENVs[env_id]);
-    test(env, *agent, 100, false);
+    test(env, *agent, 100, true);
 
     // grpc_env.close();
     env.close();

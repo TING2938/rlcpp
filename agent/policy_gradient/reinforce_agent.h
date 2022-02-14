@@ -17,7 +17,7 @@
 
 #include <algorithm>
 #include "agent/agent.h"
-#include "network/dynet_network/dynet_network.h"
+#include "tools/dynet_network/dynet_network.h"
 #include "tools/random_tools.h"
 
 namespace rlcpp

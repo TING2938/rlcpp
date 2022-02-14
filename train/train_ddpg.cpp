@@ -4,8 +4,8 @@
 #include "agent/ddpg/ddpg_agent.h"
 #include "env/grpc_gym/gym_env.h"
 #include "env/gym_cpp/gymcpp.h"
-#include "network/dynet_network/dynet_network.h"
 #include "tools/core_getopt.hpp"
+#include "tools/dynet_network/dynet_network.h"
 #include "train/train_test_utils_ddpg.h"
 
 using namespace rlcpp;
@@ -70,16 +70,16 @@ int main(int argc, char** argv)
 
     // for train
     if (env_id == 1)
-        train_pipeline_conservative(env, agent, 999, 50000, 100, 100);
+        train_pipeline_conservative(env, agent, 999, 5000, 100, 100);
     if (env_id == 0) {
-        train_pipeline_progressive(env, agent, -10, 5000);
+        train_pipeline_progressive(env, agent, -200, 5000);
     }
 
     // for test
     // rlcpp::Gym_gRPC grpc_env("10.227.6.132:50248");
     // grpc_env.make(ENVs[env_id]);
     // grpc_env.close();
-    test(env, agent, 100, true);
+    test(env, agent, 100000, true);
 
     env.close();
 }

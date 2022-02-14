@@ -1,5 +1,5 @@
 
-#include "network/dynet_network/dynet_network.h"
+#include "tools/dynet_network/dynet_network.h"
 
 using dynet::Expression;
 
@@ -29,7 +29,7 @@ int main(int argc, char** argv)
     rlcpp::Dynet_Network other;
     other.build_model(layers);
 
-    other.update_weights_from(&network);
+    other.update_weights_from(network);
 
     std::vector<float> X;
     std::vector<float> sinusX;
@@ -93,7 +93,7 @@ int main(int argc, char** argv)
 
     auto py_pred        = network.predict(px);
     auto other_py_pred1 = other.predict(px);
-    other.update_weights_from(&network);
+    other.update_weights_from(network);
     auto other_py_pred2 = other.predict(px);
 
     for (int i = 0; i < px.size(); i++) {

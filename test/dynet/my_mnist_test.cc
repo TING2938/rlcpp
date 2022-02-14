@@ -4,7 +4,7 @@
  * This provide an example of usage of the mlp.h model
  */
 #include "data-io.h"
-#include "network/dynet_network/dynet_network.h"
+#include "tools/dynet_network/dynet_network.h"
 
 using namespace std;
 using namespace dynet;

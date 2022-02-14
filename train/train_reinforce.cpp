@@ -6,7 +6,7 @@
 
 #include "agent/policy_gradient/reinforce_agent.h"
 
-#include "network/dynet_network/dynet_network.h"
+#include "tools/dynet_network/dynet_network.h"
 
 #include "tools/core_getopt.hpp"
 #include "train/train_test_utils.h"

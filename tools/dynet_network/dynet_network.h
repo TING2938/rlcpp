@@ -1,7 +1,7 @@
 #ifndef __DYNET_NETWORK_H__
 #define __DYNET_NETWORK_H__
 
-#include "network/dynet_network/mlp.h"
+#include "tools/dynet_network/mlp.h"
 
 namespace rlcpp
 {
@@ -39,7 +39,7 @@ public:
      * @param soft whether to use soft update
      * @param tau update rate when use soft update
      */
-    void update_weights_from(const Dynet_Network& other, bool soft = false, Real tau = 0.1f)
+    void update_weights_from(const Dynet_Network& other, bool soft = false, float tau = 0.1f)
     {
         auto params_self  = this->model.parameters_list();
         auto params_other = other.model.parameters_list();
