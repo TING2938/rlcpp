@@ -115,7 +115,6 @@ void train_pipeline_conservative(Env& env,
 
         if (i_epoch > learn_start) {
             for (int i = 0; i < n_train; i++) {
-                printf("i=%d\n", i);
                 auto loss = agent.learn();
                 losses.push_back(loss);
             }

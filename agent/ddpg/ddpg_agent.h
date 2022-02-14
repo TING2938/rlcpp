@@ -35,10 +35,8 @@ public:
         this->actor_target.update_weights_from(this->actor);
         this->critic_target.update_weights_from(this->critic);
 
-        this->trainer_actor.clip_threshold  = 1.0;
-        this->trainer_actor.learning_rate   = 1e-4;
-        this->trainer_critic.clip_threshold = 1.0;
-        this->trainer_critic.learning_rate  = 1e-3;
+        this->trainer_actor.learning_rate  = 1e-4;
+        this->trainer_critic.learning_rate = 1e-3;
 
         this->memory.init(max_memory_size);
         this->obs_dim = actor_layers.front().input_dim;
@@ -50,7 +48,7 @@ public:
         this->noise_stddev_lower    = 5e-2f;
 
         this->batch_state.resize(batch_size * this->obs_dim, 0);
-        this->batch_action.resize(batch_size, 0);
+        this->batch_action.resize(batch_size * this->act_dim, 0);
         this->batch_reward.resize(batch_size, 0);
         this->batch_next_state.resize(batch_size * this->obs_dim, 0);
         this->batch_done.resize(batch_size, 0);

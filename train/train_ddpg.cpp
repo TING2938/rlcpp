@@ -70,9 +70,9 @@ int main(int argc, char** argv)
 
     // for train
     if (env_id == 1)
-        train_pipeline_conservative(env, agent, 800, 50000, 100, 30, 1);
+        train_pipeline_conservative(env, agent, 999, 50000, 100, 100);
     if (env_id == 0) {
-        train_pipeline_progressive(env, agent, 800, 1000);
+        train_pipeline_progressive(env, agent, -10, 5000);
     }
 
     // for test
