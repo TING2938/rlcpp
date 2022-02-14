@@ -1,6 +1,7 @@
 #ifndef __DYNET_NETWORK_H__
 #define __DYNET_NETWORK_H__
 
+#include "dynet/io.h"
 #include "tools/dynet_network/mlp.h"
 
 namespace rlcpp
@@ -54,6 +55,18 @@ public:
                 dynet::TensorTools::copy_elements(x, y);
             }
         }
+    }
+
+    void save(const std::string& model_name)
+    {
+        dynet::TextFileSaver saver(model_name);
+        saver.save(this->model);
+    }
+
+    void load(const std::string& model_name)
+    {
+        dynet::TextFileLoader loader(model_name);
+        loader.populate(this->model);
     }
 
 public:
