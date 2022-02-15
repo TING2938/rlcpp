@@ -22,6 +22,8 @@
 
 namespace rlcpp
 {
+using namespace opt;
+
 // observation space: continuous
 // action space: discrete
 class REINFORCE_Agent : public Agent
@@ -94,7 +96,7 @@ private:
             // G(i) = r(i) + γ * G(i+1)
             this->op_rewards[i] += this->gamma * this->op_rewards[i + 1];
         }
-        this->op_rewards -= mean(this->op_rewards);
+        this->op_rewards -= Real(mean(this->op_rewards));
         this->op_rewards /= Real(stddev(this->op_rewards));
     }
 

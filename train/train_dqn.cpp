@@ -77,17 +77,14 @@ int main(int argc, char** argv)
 
     // for train
     if (env_id == 0)
-        train_pipeline_conservative(env, *agent, score_thresholds[env_id], 500, 100, 1000, 0);
+        train_pipeline_conservative(env, *agent, score_thresholds[env_id], 500, 100, 1000);
     if (env_id == 1 || env_id == 2) {
-        train_pipeline_progressive(env, *agent, score_thresholds[env_id], 2000000, 100);
+        train_pipeline_progressive(env, *agent, score_thresholds[env_id], 2000000);
     }
 
     // for test
-    // rlcpp::Gym_gRPC grpc_env("10.227.6.132:50248");
-    // grpc_env.make(ENVs[env_id]);
     test(env, *agent, 100, true);
 
-    // grpc_env.close();
     env.close();
     delete agent;
 }

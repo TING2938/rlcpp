@@ -18,56 +18,95 @@
 #include <ostream>
 #include <vector>
 
-#include "common/rl_config.h"
-
 namespace rlcpp
 {
-#define ALL(vec) vec.begin(), vec.end()
 
+/**
+ * @brief the sum value of `vec`
+ *
+ * @tparam T
+ * @param vec the vector to calculate
+ * @return T the result
+ */
 template <typename T>
 inline T sum(const std::vector<T>& vec)
 {
-    return std::accumulate(ALL(vec), T(0));
+    return std::accumulate(vec.begin(), vec.end(), T(0));
 }
 
+/**
+ * @brief the mean value of `vec`
+ *
+ * @tparam T
+ * @param vec the vector to calculate
+ * @return double the result
+ */
 template <typename T>
-inline Real mean(const std::vector<T>& vec)
+inline double mean(const std::vector<T>& vec)
 {
     if (vec.empty())
         return 0.0;
-    return Real(sum(vec)) / Real(vec.size());
+    return double(sum(vec)) / double(vec.size());
 }
 
+/**
+ * @brief the max value of `vec`
+ *
+ * @tparam T
+ * @param vec the vector to calculate
+ * @return T the result
+ */
 template <typename T>
 inline T max(const std::vector<T>& vec)
 {
-    return *std::max_element(ALL(vec));
+    return *std::max_element(vec.begin(), vec.end());
 }
 
+/**
+ * @brief the max position of `vec`
+ *
+ * @tparam T
+ * @param vec the vector to calculate
+ * @return std::ptrdiff_t the result
+ */
 template <typename T>
-inline T argmax(const std::vector<T>& vec)
+inline std::ptrdiff_t argmax(const std::vector<T>& vec)
 {
-    return std::max_element(ALL(vec)) - vec.begin();
+    return std::max_element(vec.begin(), vec.end()) - vec.begin();
 }
 
+/**
+ * @brief the min value of `vec`
+ *
+ * @tparam T
+ * @param vec the vector to calculate
+ * @return T the result
+ */
 template <typename T>
 inline T min(const std::vector<T>& vec)
 {
-    return *std::min_element(ALL(vec));
+    return *std::min_element(vec.begin(), vec.end());
 }
 
+/**
+ * @brief the min position of `vec`
+ *
+ * @tparam T
+ * @param vec the vector to calculate
+ * @return std::ptrdiff_t the result
+ */
 template <typename T>
-inline T argmin(const std::vector<T>& vec)
+inline std::ptrdiff_t argmin(const std::vector<T>& vec)
 {
-    return std::min_element(ALL(vec)) - vec.begin();
+    return std::min_element(vec.begin(), vec.end()) - vec.begin();
 }
 
 /**
  * @brief stddev of vector
  *  stddev = \sqrt{\frac{1}{n} \sum_{i = 0}^{n} {(x_{i}-\bar{x})^{2}}}
  * @tparam T
- * @param vec
- * @return double
+ * @param vec the vector to calculate
+ * @return double the result
  */
 template <typename T>
 inline double stddev(const std::vector<T>& vec)
@@ -81,12 +120,18 @@ inline double stddev(const std::vector<T>& vec)
     return std::sqrt(variance);
 }
 
+/**
+ * @brief calculate vec[0] * vec[1] * vec[2] * ...
+ *
+ * @tparam T
+ * @param vec the vector to calculate
+ * @return T the result
+ */
 template <typename T>
 inline T prod(const std::vector<T>& vec)
 {
-    return std::accumulate(ALL(vec), T(1), std::multiplies<T>());
+    return std::accumulate(vec.begin(), vec.end(), T(1), std::multiplies<T>());
 }
-
 
 /**
  * @brief Clip (limit) the values in an array.
@@ -114,6 +159,22 @@ inline void clip_(std::vector<T>& vec, const T& low, const T& up)
     }
 }
 
+/**
+ * @brief Clip (limit) the values in an array.
+ *
+ *  Given an interval, values outside the interval are clipped to
+ *  the interval edges.  For example, if an interval of ``[0, 1]``
+ *  is specified, values smaller than 0 become 0, and values larger
+ *  than 1 become 1.
+ *
+ * the inplace version of clip
+ *
+ * @tparam T
+ * @param vec the vector to clip
+ * @param low low boundary
+ * @param up up boundary
+ * @return the cliped vec
+ */
 template <typename T>
 inline void clip_(std::vector<T>& vec, const std::vector<T>& low, const std::vector<T>& up)
 {
@@ -147,6 +208,20 @@ inline std::vector<T> clip(const std::vector<T>& vec, const T& low, const T& up)
     return ret;
 }
 
+/**
+ * @brief Clip (limit) the values in an array.
+ *
+ *  Given an interval, values outside the interval are clipped to
+ *  the interval edges.  For example, if an interval of ``[0, 1]``
+ *  is specified, values smaller than 0 become 0, and values larger
+ *  than 1 become 1.
+ *
+ * @tparam T
+ * @param vec the vector to clip
+ * @param low low boundary
+ * @param up up boundary
+ * @return the cliped vec
+ */
 template <typename T>
 inline std::vector<T> clip(const std::vector<T>& vec, const std::vector<T>& low, const std::vector<T>& up)
 {
@@ -173,6 +248,16 @@ inline void scale_(std::vector<T>& vec, const T& a, const T& b)
     }
 }
 
+/**
+ * @brief Do an elementwise linear transform of values a * vec + b
+ *
+ * the inplace version of scale
+ *
+ * @tparam T
+ * @param vec vector to modify
+ * @param a The value to multiply by
+ * @param b The value to add
+ */
 template <typename T>
 inline void scale_(std::vector<T>& vec, const std::vector<T>& a, const std::vector<T>& b)
 {
@@ -198,6 +283,15 @@ inline std::vector<T> scale(const std::vector<T>& vec, const T& a, const T& b)
     return ret;
 }
 
+/**
+ * @brief Do an elementwise linear transform of values a * vec + b
+ *
+ * @tparam T
+ * @param vec vector to modify
+ * @param a The value to multiply by
+ * @param b The value to add
+ * @return a * vec + b
+ */
 template <typename T>
 inline std::vector<T> scale(const std::vector<T>& vec, const std::vector<T>& a, const std::vector<T>& b)
 {
@@ -206,8 +300,11 @@ inline std::vector<T> scale(const std::vector<T>& vec, const std::vector<T>& a, 
     return ret;
 }
 
-}  // namespace rlcpp
-
+/**
+ * the operator namespace for rlcpp
+ */
+namespace opt
+{
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec)
 {
@@ -289,5 +386,8 @@ RLCPP_VEC_OP_NUM_INPLACE(-=)
 RLCPP_VEC_OP_NUM_INPLACE(*=)
 RLCPP_VEC_OP_NUM_INPLACE(/=)
 RLCPP_VEC_OP_NUM_INPLACE(%=)
+
+}  // namespace opt
+}  // namespace rlcpp
 
 #endif  // !__RLCPP_VECTOR_TOOLS_H__

@@ -1,7 +1,7 @@
 /**
  * @file train_test_utils.h
  * @author Ting Ye (yeting2938@163.com)
- * @brief 训练与测试流程
+ * @brief 训练与测试流程，用于DQN和DDPG算法
  * @version 0.1
  * @date 2022-01-21
  *
@@ -19,12 +19,27 @@
 using namespace rlcpp;
 using std::vector;
 
+inline Action scale_action(const Action& action, const Vecf& scale_a, const Vecf& scale_b)
+{
+#if RLCPP_ACTION_TYPE == 0
+    return action;
+#elif RLCPP_ACTION_TYPE == 1
+    if (scale_a.empty())
+        return action;
+    else {
+        return scale(action, scale_a, scale_b);
+    }
+#endif
+}
+
 void train_pipeline_progressive(Env& env,
                                 Agent& agent,
                                 Real score_threshold,
                                 Int n_episode,
-                                Int learn_start = 100,
-                                Int print_every = 10)
+                                const Vecf& scale_action_a = {},
+                                const Vecf& scale_action_b = {},
+                                Int learn_start            = 100,
+                                Int print_every            = 10)
 {
     auto obs      = env.obs_space().getEmptyObs();
     auto next_obs = env.obs_space().getEmptyObs();
@@ -42,7 +57,7 @@ void train_pipeline_progressive(Env& env,
 
         for (int t = 0; t < env.max_episode_steps; t++) {
             agent.sample(obs, &action);
-            env.step(action, &next_obs, &rwd, &done);
+            env.step(scale_action(action, scale_action_a, scale_action_b), &next_obs, &rwd, &done);
             agent.store(obs, action, rwd, next_obs, (t == env.max_episode_steps - 1) ? false : done);
             reward += rwd;
             if (i_episode > learn_start) {
@@ -71,11 +86,13 @@ void train_pipeline_progressive(Env& env,
 void train_pipeline_conservative(Env& env,
                                  Agent& agent,
                                  Real score_threshold,
-                                 Int n_epoch     = 500,
-                                 Int n_rollout   = 100,
-                                 Int n_train     = 1000,
-                                 Int learn_start = 0,
-                                 bool early_stop = true)
+                                 Int n_epoch                = 500,
+                                 Int n_rollout              = 100,
+                                 Int n_train                = 1000,
+                                 const Vecf& scale_action_a = {},
+                                 const Vecf& scale_action_b = {},
+                                 Int learn_start            = 0,
+                                 bool early_stop            = true)
 {
     auto obs      = env.obs_space().getEmptyObs();
     auto next_obs = env.obs_space().getEmptyObs();
@@ -90,7 +107,7 @@ void train_pipeline_conservative(Env& env,
             env.reset(&obs);
             for (int t = 0; t < env.max_episode_steps; t++) {
                 agent.sample(obs, &action);
-                env.step(action, &next_obs, &rwd, &done);
+                env.step(scale_action(action, scale_action_a, scale_action_b), &next_obs, &rwd, &done);
                 agent.store(obs, action, rwd, next_obs, (t == env.max_episode_steps - 1) ? false : done);
                 reward += rwd;
                 if (done) {
@@ -124,7 +141,12 @@ void train_pipeline_conservative(Env& env,
     }
 }
 
-void test(Env& env, Agent& agent, Int n_turns, bool render = false)
+void test(Env& env,
+          Agent& agent,
+          Int n_turns,
+          bool render                = false,
+          const Vecf& scale_action_a = {},
+          const Vecf& scale_action_b = {})
 {
     printf("Ready to test, Press any key to coninue...\n");
     getchar();
@@ -140,7 +162,7 @@ void test(Env& env, Agent& agent, Int n_turns, bool render = false)
         env.reset(&obs);
         for (int k = 0; k < env.max_episode_steps; k++) {
             agent.predict(obs, &action);  // predict according to Q table
-            env.step(action, &obs, &reward, &done);
+            env.step(scale_action(action, scale_action_a, scale_action_b), &obs, &reward, &done);
             if (render) {
                 env.render();
             }

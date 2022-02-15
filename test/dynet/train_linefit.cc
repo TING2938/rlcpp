@@ -7,6 +7,7 @@
 
 using namespace std;
 using namespace dynet;
+using namespace rlcpp::opt;
 
 // [low, up]
 dynet::real getRand(dynet::real low, dynet::real up)

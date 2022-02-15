@@ -44,9 +44,9 @@ public:
             ret.n         = space.n();
         } else {
             ret.bDiscrete = false;
-            ret.shape     = {ALL(space.shape())};
-            ret.high      = {ALL(space.high())};
-            ret.low       = {ALL(space.low())};
+            ret.shape     = {space.shape().begin(), space.shape().end()};
+            ret.high      = {space.high().begin(), space.high().end()};
+            ret.low       = {space.low().begin(), space.low().end()};
         }
         return ret;
     }
@@ -60,9 +60,9 @@ public:
             ret.n         = space.n();
         } else {
             ret.bDiscrete = false;
-            ret.shape     = {ALL(space.shape())};
-            ret.high      = {ALL(space.high())};
-            ret.low       = {ALL(space.low())};
+            ret.shape     = {space.shape().begin(), space.shape().end()};
+            ret.high      = {space.high().begin(), space.high().end()};
+            ret.low       = {space.low().begin(), space.low().end()};
         }
         return ret;
     }
@@ -75,11 +75,12 @@ public:
 #if RLCPP_ACTION_TYPE == 0
         act.add_action(action);
 #elif RLCPP_ACTION_TYPE == 1
-        *act.mutable_action() = {ALL(action)};
+        *act.mutable_action() = {action.begin(), action.end()};
 #endif
 
         this->stub_->step(&ctx, act, &this->stepResult);
-        std::copy(ALL(this->stepResult.next_obs().obs()), next_obs->begin());
+        std::copy(this->stepResult.next_obs().obs().begin(), this->stepResult.next_obs().obs().end(),
+                  next_obs->begin());
         *reward = this->stepResult.reward();
         *done   = this->stepResult.done();
     }
@@ -89,7 +90,7 @@ public:
         grpc::ClientContext ctx;
         gymEnv::Observation tmp;
         this->stub_->reset(&ctx, this->emptyMsg, &tmp);
-        std::copy(ALL(tmp.obs()), obs->begin());
+        std::copy(tmp.obs().begin(), tmp.obs().end(), obs->begin());
     }
 
     void close() override

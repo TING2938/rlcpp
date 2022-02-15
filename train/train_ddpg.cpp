@@ -6,9 +6,10 @@
 #include "env/gym_cpp/gymcpp.h"
 #include "tools/core_getopt.hpp"
 #include "tools/dynet_network/dynet_network.h"
-#include "train/train_test_utils_ddpg.h"
+#include "train/train_test_utils.h"
 
 using namespace rlcpp;
+using namespace rlcpp::opt;
 
 int main(int argc, char** argv)
 {
@@ -67,19 +68,21 @@ int main(int argc, char** argv)
 
     DDPG_Agent agent(actor_layers, critic_layers, max_reply_memory_size, batch_size);
 
+    // scale action from [-1, 1] to [low, high]
+    auto low     = env.action_space().low;
+    auto high    = env.action_space().high;
+    auto bound_a = (high - low) / 2.0f;
+    auto bound_b = low + 1.0f;
 
     // for train
     if (env_id == 1)
-        train_pipeline_conservative(env, agent, 999, 5000, 100, 100);
+        train_pipeline_conservative(env, agent, 999, 5000, 100, 100, bound_a, bound_b);
     if (env_id == 0) {
-        train_pipeline_progressive(env, agent, -200, 5000);
+        train_pipeline_progressive(env, agent, -200, 5000, bound_a, bound_b);
     }
 
     // for test
-    // rlcpp::Gym_gRPC grpc_env("10.227.6.132:50248");
-    // grpc_env.make(ENVs[env_id]);
-    // grpc_env.close();
-    test(env, agent, 100000, true);
+    test(env, agent, 100000, true, bound_a, bound_b);
 
     env.close();
 }
