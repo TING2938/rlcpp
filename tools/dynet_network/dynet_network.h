@@ -57,16 +57,16 @@ public:
         }
     }
 
-    void save(const std::string& model_name)
+    void save(const std::string& model_name, const std::string& key = "", bool append = false)
     {
-        dynet::TextFileSaver saver(model_name);
-        saver.save(this->model);
+        dynet::TextFileSaver saver(model_name, append);
+        saver.save(this->model, key);
     }
 
-    void load(const std::string& model_name)
+    void load(const std::string& model_name, const std::string& key = "")
     {
         dynet::TextFileLoader loader(model_name);
-        loader.populate(this->model);
+        loader.populate(this->model, key);
     }
 
 public:
@@ -74,6 +74,12 @@ public:
     dynet::MLP nn;
     unsigned int input_dim = 0;
 };
+
+std::ostream& operator<<(std::ostream& os, const Dynet_Network& network)
+{
+    return os << network.nn;
+}
+
 }  // namespace rlcpp
 
 #endif  // !__DYNET_NETWORK_H__

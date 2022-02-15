@@ -86,6 +86,16 @@ public:
         return loss_value;
     }
 
+    void save_model(const string& file_name) override
+    {
+        this->network.save(file_name, "/reinforce_network");
+    }
+
+    void load_model(const string& file_name) override
+    {
+        this->network.load(file_name, "/reinforce_network");
+    }
+
 private:
     void calc_norm_rewards()
     {

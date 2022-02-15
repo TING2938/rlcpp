@@ -14,17 +14,19 @@
 int main(int argc, char** argv)
 {
     // ================================= //
-    int env_id               = 1;
+    int env_id               = 0;
     rlcpp::Real gamma        = 0.99;
     std::string dynet_memory = "1";
+    std::string method       = "train";  // train/test
     // ================================= //
     // get options from commandline
-    itp::Getopt getopt(argc, argv, "Train RL with DQN algorithm (dynet nn lib)");
+    itp::Getopt getopt(argc, argv, "Train RL with PG reinforce algorithm (dynet nn lib)");
 
     getopt(env_id, "-id", false,
            "env id for train."
            "\n0: CartPole-v1, 1: Acrobot-v1, 2: MountainCar-v0\n");
     getopt(gamma, "-gamma", false, "gamma for Gt");
+    getopt(method, "-method", false, "set to train or test model\n");
     getopt(dynet_memory, "-dynet_mem", false,
            "Memory used for dynet (MB).\n"
            "or set as FOR,BACK,PARAM,SCRATCH\n"
@@ -59,33 +61,47 @@ int main(int argc, char** argv)
 
     REINFORCE_Agent agent(layers, gamma);
 
-    auto obs      = obs_space.getEmptyObs();
-    auto action   = action_space.getEmptyAction();
-    auto next_obs = obs_space.getEmptyObs();
-    Real reward   = 0.0;
-    bool done     = false;
+    std::stringstream model_name;
+    model_name << "Reinforce-" << ENVs[env_id] << "_network-" << layers << ".params";
+    std::cout << "model name: " << model_name.str() << std::endl;
 
-    for (int i_episode = 0; i_episode < 5000; i_episode++) {
-        env.reset(&obs);
-        Real tot_reward = 0;
-        while (true) {
-            agent.sample(obs, &action);
-            env.step(action, &next_obs, &reward, &done);
-            agent.store(obs, action, reward, next_obs, done);
-            tot_reward += reward;
-            if (done) {
-                auto loss = agent.learn();
-                if (i_episode % 50 == 0) {
-                    std::cout << "episode: " << i_episode << ", loss: " << loss << ", reward: " << tot_reward
-                              << std::endl;
-                }
-                tot_reward = 0;
-                break;
-            }
-            obs = next_obs;
-        }
+    try {
+        agent.load_model(model_name.str());
+    } catch (const std::exception& e) {
+        std::cerr << e.what() << '\n';
     }
 
-    // grpc_env.close();
+    if (method == "train") {
+        auto obs      = obs_space.getEmptyObs();
+        auto action   = action_space.getEmptyAction();
+        auto next_obs = obs_space.getEmptyObs();
+        Real reward   = 0.0;
+        bool done     = false;
+
+        for (int i_episode = 0; i_episode < 5000; i_episode++) {
+            env.reset(&obs);
+            Real tot_reward = 0;
+            while (true) {
+                agent.sample(obs, &action);
+                env.step(action, &next_obs, &reward, &done);
+                agent.store(obs, action, reward, next_obs, done);
+                tot_reward += reward;
+                if (done) {
+                    auto loss = agent.learn();
+                    if (i_episode % 50 == 0) {
+                        std::cout << "episode: " << i_episode << ", loss: " << loss << ", reward: " << tot_reward
+                                  << std::endl;
+                    }
+                    tot_reward = 0;
+                    break;
+                }
+                obs = next_obs;
+            }
+        }
+        agent.save_model(model_name.str());
+    }
+
+    test(env, agent, 100, true);
+
     env.close();
 }

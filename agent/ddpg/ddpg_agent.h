@@ -140,6 +140,22 @@ public:
         return loss_value;
     }
 
+    void save_model(const string& file_name) override
+    {
+        this->actor.save(file_name, "/ddpg_actor", false);
+        this->critic.save(file_name, "/ddpg_critic", true);
+        this->actor_target.save(file_name, "/ddpg_actor_target", true);
+        this->critic_target.save(file_name, "/ddpg_critic_target", true);
+    }
+
+    void load_model(const string& file_name) override
+    {
+        this->actor.load(file_name, "/ddpg_actor");
+        this->critic.load(file_name, "/ddpg_critic");
+        this->actor_target.load(file_name, "/ddpg_actor_target");
+        this->critic_target.load(file_name, "/ddpg_critic_target");
+    }
+
 private:
     Int obs_dim;  // dimension of observation space
     Int act_dim;  // dimension of action space

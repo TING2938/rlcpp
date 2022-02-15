@@ -21,7 +21,7 @@ class DQN_PrioritizedReply_Agent : public Agent
 public:
     DQN_PrioritizedReply_Agent(const std::vector<dynet::Layer>& layers,
                                Int max_memory_size,
-                               bool use_double_dqn,
+                               bool use_double,
                                Int batch_size,
                                Int update_target_steps = 500,
                                Real gamma              = 0.99,
@@ -30,8 +30,8 @@ public:
         : trainer(network.model)
     {
         this->network.build_model(layers);
-        this->use_double_dqn = use_double_dqn;
-        if (this->use_double_dqn) {
+        this->use_double = use_double;
+        if (this->use_double) {
             this->target_network.build_model(layers);
             this->target_network.update_weights_from(this->network);
             this->update_target_steps = update_target_steps;
@@ -94,7 +94,7 @@ public:
         unsigned batch_size = this->batch_reward.size();
 
         Vecf batch_target_Q;
-        if (this->use_double_dqn) {
+        if (this->use_double) {
             batch_target_Q = this->target_network.predict(this->batch_next_state);
         } else {
             batch_target_Q = this->network.predict(this->batch_next_state);
@@ -125,10 +125,26 @@ public:
         this->beta    = std::min(this->beta + this->beta_increase, 1.0f);
 
         this->learn_step += 1;
-        if (this->use_double_dqn && (this->learn_step % this->update_target_steps == 0)) {
+        if (this->use_double && (this->learn_step % this->update_target_steps == 0)) {
             this->target_network.update_weights_from(this->network);
         }
         return loss_value;
+    }
+
+    void save_model(const string& file_name) override
+    {
+        this->network.save(file_name, "/dqn_network", false);
+        if (this->use_double) {
+            this->target_network.save(file_name, "/dqn_target_network", true);
+        }
+    }
+
+    void load_model(const string& file_name) override
+    {
+        this->network.load(file_name, "/dqn_network");
+        if (this->use_double) {
+            this->target_network.load(file_name, "/dqn_target_network");
+        }
     }
 
 public:
@@ -151,7 +167,7 @@ private:
 
     Dynet_Network network;
     Dynet_Network target_network;
-    bool use_double_dqn;
+    bool use_double;
     dynet::AdamTrainer trainer;
 
     PrioritizedReply memory;

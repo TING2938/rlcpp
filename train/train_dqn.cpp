@@ -1,6 +1,8 @@
 #define RLCPP_STATE_TYPE 1
 #define RLCPP_ACTION_TYPE 0
 
+#include <sstream>
+
 #include "env/grpc_gym/gym_env.h"
 #include "env/gym_cpp/gymcpp.h"
 
@@ -18,9 +20,10 @@ int main(int argc, char** argv)
     int env_id                = 1;
     Int max_reply_memory_size = 50000;
     Int batch_size;
-    bool use_double_dqn      = false;
+    bool use_double          = false;
     bool use_prioritized     = false;
     std::string dynet_memory = "1";
+    std::string method       = "train";  // train/test
     // ================================= //
     // get options from commandline
     itp::Getopt getopt(argc, argv, "Train RL with DQN algorithm (dynet nn lib)");
@@ -28,8 +31,9 @@ int main(int argc, char** argv)
     getopt(env_id, "-id", false,
            "env id for train."
            "\n0: CartPole-v1, 1: Acrobot-v1, 2: MountainCar-v0\n");
-    getopt(use_double_dqn, "-ddqn", false, "whether to use double dqn\n");
+    getopt(use_double, "-ddqn", false, "whether to use double dqn\n");
     getopt(use_prioritized, "-prioritized", false, "whether to use prioitized memory reply\n");
+    getopt(method, "-method", false, "set to train or test model\n");
     getopt(dynet_memory, "-dynet_mem", false,
            "Memory used for dynet (MB).\n"
            "or set as FOR,BACK,PARAM,SCRATCH\n"
@@ -68,18 +72,30 @@ int main(int argc, char** argv)
 
     Agent* agent;
     if (use_prioritized) {
-        agent = new DQN_PrioritizedReply_Agent(layers, max_reply_memory_size, use_double_dqn, batch_size, 500, 0.99, 1,
-                                               5e-5);
-    } else {
         agent =
-            new DQN_RandomReply_Agent(layers, max_reply_memory_size, use_double_dqn, batch_size, 500, 0.99, 1, 5e-5);
+            new DQN_PrioritizedReply_Agent(layers, max_reply_memory_size, use_double, batch_size, 500, 0.99, 1, 5e-5);
+    } else {
+        agent = new DQN_RandomReply_Agent(layers, max_reply_memory_size, use_double, batch_size, 500, 0.99, 1, 5e-5);
     }
 
-    // for train
-    if (env_id == 0)
-        train_pipeline_conservative(env, *agent, score_thresholds[env_id], 500, 100, 1000);
-    if (env_id == 1 || env_id == 2) {
-        train_pipeline_progressive(env, *agent, score_thresholds[env_id], 2000000);
+    std::stringstream model_name;
+    model_name << "DQN-" << ENVs[env_id] << "_"
+               << "use_double-" << use_double << "_network-" << layers << ".params";
+    std::cout << "model name: " << model_name.str() << std::endl;
+
+    try {
+        agent->load_model(model_name.str());
+    } catch (const std::exception& e) {
+        std::cerr << e.what() << '\n';
+    }
+
+    if (method == "train") {
+        // for train
+        if (env_id == 0)
+            train_pipeline_conservative(env, *agent, score_thresholds[env_id], model_name.str(), 500, 100, 1000);
+        if (env_id == 1 || env_id == 2) {
+            train_pipeline_progressive(env, *agent, score_thresholds[env_id], model_name.str(), 2000000);
+        }
     }
 
     // for test

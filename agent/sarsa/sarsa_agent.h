@@ -5,6 +5,9 @@
 #define RLCPP_ACTION_TYPE 0
 
 #include <algorithm>
+#include <fstream>
+#include <iostream>
+#include <sstream>
 #include "agent/agent.h"
 #include "tools/random_tools.h"
 
@@ -68,6 +71,46 @@ public:
             target_Q = reward + this->gamma * this->Q[next_obs][next_action];
         }
         this->Q[obs][action] += this->learning_rate * (target_Q - predict_Q);
+    }
+
+    void save_model(const string& file_name) override
+    {
+        std::ofstream fid(file_name);
+        fid << "# Sarsa Algorithm, obs_n * act_n: " << '\n';
+        fid << "# " << this->obs_n << " " << this->act_n << '\n';
+        for (Int i = 0; i < this->obs_n; i++) {
+            for (Int j = 0; j < this->act_n; j++) {
+                fid << this->Q[i][j] << '\t';
+            }
+            fid << '\n';
+        }
+        fid.close();
+    }
+
+    void load_model(const string& file_name) override
+    {
+        std::ifstream fid(file_name);
+        if (!fid) {
+            std::cerr << "Could not read model from " << file_name << std::endl;
+            return;
+        }
+        std::string line, tmp;
+        Int tmp_int1, tmp_int2;
+        std::getline(fid, line);
+        std::getline(fid, line);
+        std::stringstream ss(line);
+        ss >> tmp >> tmp_int1 >> tmp_int2;
+        if ((tmp_int1 != this->obs_n) || (tmp_int2 != this->act_n)) {
+            std::cerr << "model not match" << std::endl;
+            return;
+        }
+
+        for (Int i = 0; i < this->obs_n; i++) {
+            for (Int j = 0; j < this->act_n; j++) {
+                fid >> this->Q[i][j];
+            }
+        }
+        fid.close();
     }
 
 private:

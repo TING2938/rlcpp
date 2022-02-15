@@ -35,6 +35,7 @@ inline Action scale_action(const Action& action, const Vecf& scale_a, const Vecf
 void train_pipeline_progressive(Env& env,
                                 Agent& agent,
                                 Real score_threshold,
+                                const std::string& model_name,
                                 Int n_episode,
                                 const Vecf& scale_action_a = {},
                                 const Vecf& scale_action_b = {},
@@ -77,15 +78,19 @@ void train_pipeline_progressive(Env& env,
             printf("100 games mean reward: %f\n", score);
             printf("100 games mean loss: %f\n", losses.mean());
             printf("===========================\n\n");
-            if (score >= score_threshold)
+            if (score >= score_threshold) {
+                agent.save_model(model_name);
                 break;
+            }
         }
     }
+    agent.save_model(model_name);
 }
 
 void train_pipeline_conservative(Env& env,
                                  Agent& agent,
                                  Real score_threshold,
+                                 const std::string& model_name,
                                  Int n_epoch                = 500,
                                  Int n_rollout              = 100,
                                  Int n_train                = 1000,
@@ -135,10 +140,13 @@ void train_pipeline_conservative(Env& env,
                 printf("Average training loss: %f\n", mean_loss);
             }
             printf("===========================\n\n");
-            if (early_stop && mean_reward >= score_threshold)
+            if (early_stop && mean_reward >= score_threshold) {
+                agent.save_model(model_name);
                 break;
+            }
         }
     }
+    agent.save_model(model_name);
 }
 
 void test(Env& env,

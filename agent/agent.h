@@ -53,6 +53,10 @@ struct Agent
      */
     virtual Real learn() = 0;
 
+    virtual void save_model(const string& file_name) = 0;
+
+    virtual void load_model(const string& file_name) = 0;
+
 };  // !sturct Agent
 
 }  // namespace rlcpp

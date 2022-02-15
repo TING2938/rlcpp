@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <ostream>
 #include <sstream>
 
 namespace dynet
@@ -276,7 +277,56 @@ private:
                 break;
         }
     }
+
+    friend std::ostream& operator<<(std::ostream& os, const MLP& mlp);
 };
+
+inline std::string activate_str(Activation f)
+{
+    switch (f) {
+        case LINEAR:
+            return "LINEAR";
+            break;
+        case RELU:
+            return "RELU";
+            break;
+        case SIGMOID:
+            return "LOGISTIC";
+            break;
+        case TANH:
+            return "TANH";
+            break;
+        case SOFTMAX:
+            return "SOFTMAX";
+            break;
+        default:
+            throw invalid_argument("Unknown activation function");
+            break;
+    }
+}
+
+std::ostream& operator<<(std::ostream& os, const Layer& layer)
+{
+    os << layer.input_dim << "-" << layer.output_dim << "-" << layer.dropout_rate << "-"
+       << activate_str(layer.activation);
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const std::vector<Layer>& layers)
+{
+    if (layers.empty())
+        return os;
+    os << layers.front();
+    for (size_t i = 1; i < layers.size(); i++) {
+        os << "_" << layers[i];
+    }
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const MLP& mlp)
+{
+    return os << mlp.layers;
+}
 
 }  // namespace dynet
 #endif
