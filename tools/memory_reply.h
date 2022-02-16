@@ -6,6 +6,7 @@
 #include "tools/random_tools.h"
 #include "tools/reduce_tree.h"
 #include "tools/ring_vector.h"
+#include "tools/utility.hpp"
 #include "tools/vector_tools.h"
 
 namespace rlcpp
@@ -69,6 +70,9 @@ public:
             batch_done[i]       = tmp.done;
         }
     }
+
+    friend std::ostream& operator<<(std::ostream& os, const RandomReply& reply);
+    friend std::istream& operator>>(std::istream& is, RandomReply& reply);
 };
 
 class PrioritizedReply
@@ -174,6 +178,116 @@ private:
     Real max_value_upper;
     bool bFull;
 };
+
+
+std::ostream& operator<<(std::ostream& os, const RandomReply& reply)
+{
+    os << "# random_memory_reply_data, total_size: " << reply.size() << " saved_time: " << rlcpp::localTime() << '\n'
+       << "# state_type: " << RLCPP_STATE_TYPE << " state_length: " << state_len(reply.memory.front().state) << '\n'
+       << "# action_type: " << RLCPP_ACTION_TYPE << " action_length: " << action_len(reply.memory.front().action)
+       << '\n'
+       << "# state \t next_state \t action \t reward \t done\n";
+
+    for (size_t i = 0; i < reply.size(); i++) {
+        auto& trans = reply.memory[i];
+#if RLCPP_STATE_TYPE == 0
+        os << trans.state << '\t' << trans.next_state << '\t';
+#elif RLCPP_STATE_TYPE == 1
+        for (auto&& s : trans.state)
+            os << s << ' ';
+        os << '\t';
+        for (auto&& ns : trans.next_state)
+            os << ns << ' ';
+        os << '\t';
+#endif
+#if RLCPP_ACTION_TYPE == 0
+        os << trans.action << '\t';
+#elif RLCPP_ACTION_TYPE == 1
+        for (auto&& a : trans.action)
+            os << a << ' ';
+        os << '\t';
+#endif
+        os << trans.reward << '\t' << trans.done << '\n';
+    }
+    return os;
+}
+
+std::istream& operator>>(std::istream& is, RandomReply& reply)
+{
+    std::string tmp, line;
+    std::stringstream ss;
+    size_t total_size;
+    int state_type;
+    int action_type;
+    int state_length;
+    int action_length;
+
+    // #1
+    std::getline(is, line);
+    ss.str(line);
+    ss >> tmp >> tmp >> tmp >> total_size;
+    ss.clear();
+    if (total_size >= reply.memory.size()) {
+        reply.memory.resize(total_size);
+        reply.bFull = true;
+        reply.idx   = 0;
+    } else {
+        reply.bFull = false;
+        reply.idx   = total_size;
+    }
+
+    // #2
+    std::getline(is, line);
+    ss.str(line);
+    ss >> tmp >> tmp >> state_type >> tmp >> state_length;
+    ss.clear();
+    assert(state_type = RLCPP_STATE_TYPE);
+
+    // #3
+    std::getline(is, line);
+    ss.str(line);
+    ss >> tmp >> tmp >> action_type >> tmp >> action_length;
+    ss.clear();
+    assert(action_type = RLCPP_ACTION_TYPE);
+
+    // #4
+    std::getline(is, line);
+
+    // # loop for next line
+    for (size_t i = 0; i < total_size; i++) {
+        std::getline(is, line);
+        ss.str(line);
+        auto& trans = reply.memory[i];
+
+#if RLCPP_STATE_TYPE == 0
+        ss >> trans.state >> trans.next_state;
+#elif RLCPP_STATE_TYPE == 1
+        trans.state.resize(state_length);
+        trans.next_state.resize(state_length);
+        for (int m = 0; m < state_length; m++) {
+            ss >> trans.state[m];
+        }
+        for (int m = 0; m < state_length; m++) {
+            ss >> trans.next_state[m];
+        }
+#endif
+
+#if RLCPP_ACTION_TYPE == 0
+        ss >> trans.action;
+#elif RLCPP_ACTION_TYPE == 1
+        trans.action.resize(action_length);
+        for (int m = 0; m < action_length; m++) {
+            ss >> trans.action[m];
+        }
+#endif
+
+        ss >> trans.reward >> trans.done;
+        ss.clear();
+    }
+    return is;
+}
+
+
 }  // namespace rlcpp
 
 #endif  // !__RL_RANDOM_REPLY_H__

@@ -26,6 +26,25 @@ using Action = Int;
 using Action = Vecf;
 #endif
 
+Int state_len(const State& state)
+{
+#if RLCPP_STATE_TYPE == 0
+    return -1;
+#elif RLCPP_STATE_TYPE == 1
+    return state.size();
+#endif
+}
+
+Int action_len(const Action& action)
+{
+#if RLCPP_ACTION_TYPE == 0
+    return -1;
+#elif RLCPP_ACTION_TYPE == 1
+    return action.size();
+#endif
+}
+
+
 struct Space
 {
     Int n;           // num. of action if type is `Discrete`

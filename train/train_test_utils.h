@@ -104,9 +104,12 @@ void train_pipeline_conservative(Env& env,
     auto action   = env.action_space().getEmptyAction();
     Real rwd;
     bool done;
+    Vecf rewards, losses;
 
     for (int i_epoch = 0; i_epoch < n_epoch; i_epoch++) {
-        Vecf rewards, losses;
+        rewards.clear();
+        losses.clear();
+
         for (int rollout = 0; rollout < n_rollout; rollout++) {
             Real reward = 0.0;
             env.reset(&obs);
