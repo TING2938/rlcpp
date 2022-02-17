@@ -241,14 +241,14 @@ std::istream& operator>>(std::istream& is, RandomReply& reply)
     ss.str(line);
     ss >> tmp >> tmp >> state_type >> tmp >> state_length;
     ss.clear();
-    assert(state_type = RLCPP_STATE_TYPE);
+    assert(state_type == RLCPP_STATE_TYPE);
 
     // #3
     std::getline(is, line);
     ss.str(line);
     ss >> tmp >> tmp >> action_type >> tmp >> action_length;
     ss.clear();
-    assert(action_type = RLCPP_ACTION_TYPE);
+    assert(action_type == RLCPP_ACTION_TYPE);
 
     // #4
     std::getline(is, line);
