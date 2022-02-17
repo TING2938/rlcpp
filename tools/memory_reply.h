@@ -71,6 +71,11 @@ public:
         }
     }
 
+    bool is_fresh()
+    {
+        return this->idx == 0 && this->bFull;
+    }
+
     friend std::ostream& operator<<(std::ostream& os, const RandomReply& reply);
     friend std::istream& operator>>(std::istream& is, RandomReply& reply);
 };
