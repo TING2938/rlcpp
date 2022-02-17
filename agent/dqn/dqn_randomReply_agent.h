@@ -139,6 +139,11 @@ public:
         }
     }
 
+    RandomReply& memory_reply()
+    {
+        return this->memory;
+    }
+
 public:
     Real epsilon;
 
