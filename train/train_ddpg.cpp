@@ -88,7 +88,7 @@ int main(int argc, char** argv)
         if (env_id == 1)
             train_pipeline_conservative(env, agent, 1500, model_name.str(), 5000, 100, 100, bound_a, bound_b);
         if (env_id == 0) {
-            train_pipeline_progressive(env, agent, -200, model_name.str(), 5000, bound_a, bound_b);
+            train_pipeline_progressive(env, agent, -180, model_name.str(), 5000, bound_a, bound_b);
         }
     }
 

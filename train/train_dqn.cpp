@@ -67,8 +67,10 @@ int main(int argc, char** argv)
     assert(!obs_space.bDiscrete);
     printf("action space: %d, obs_space: %d\n", action_space.n, obs_space.shape.front());
 
-    std::vector<dynet::Layer> layers = {dynet::Layer(obs_space.shape.front(), 128, dynet::RELU, /* dropout_rate */ 0.0),
-                                        dynet::Layer(128, action_space.n, dynet::LINEAR, /* dropout_rate */ 0.0)};
+    std::vector<dynet::Layer> layers = {
+        dynet::Layer(obs_space.shape.front(), 128, dynet::RELU, /* dropout_rate */ 0.0),
+        dynet::Layer(128, action_space.n, dynet::LINEAR, /* dropout_rate */ 0.0),
+    };
 
     Agent* agent;
     if (use_prioritized) {
@@ -94,7 +96,7 @@ int main(int argc, char** argv)
         if (env_id == 0)
             train_pipeline_conservative(env, *agent, score_thresholds[env_id], model_name.str(), 500, 100, 1000);
         if (env_id == 1 || env_id == 2) {
-            train_pipeline_progressive(env, *agent, score_thresholds[env_id], model_name.str(), 2000000);
+            train_pipeline_progressive(env, *agent, score_thresholds[env_id], model_name.str(), 2000);
         }
     }
 
