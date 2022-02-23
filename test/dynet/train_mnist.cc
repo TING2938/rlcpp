@@ -99,8 +99,7 @@ int main(int argc, char** argv)
             // Get negative log likelihood on batch
             Expression loss_expr = nn.get_nll(x_batch, cur_labels, cg);
             // Get scalar error for monitoring
-            auto adfdf = cg.forward(loss_expr);
-            loss += as_scalar(adfdf);
+            loss += as_scalar(cg.forward(loss_expr));
             // Increment number of samples processed
             num_samples += bsize;
             // Compute gradient with backward pass
