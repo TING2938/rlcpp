@@ -43,5 +43,8 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 add_subdirectory(train)
-add_subdirectory(test)
 
+option(BUILD_TEST "whether to build the test progrom" ON)
+if(BUILD_TEDT)
+    add_subdirectory(test)
+endif()
