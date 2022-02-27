@@ -134,8 +134,8 @@ public:
 
         this->noise_stddev = std::max(this->noise_stddev - this->noise_stddev_decrease, this->noise_stddev_lower);
 
-        this->actor_target.update_weights_from(this->actor, true, 0.1);
-        this->critic_target.update_weights_from(this->critic, true, 0.1);
+        this->actor_target.update_weights_from(this->actor, 0.1);
+        this->critic_target.update_weights_from(this->critic, 0.1);
 
         return loss_value;
     }

@@ -45,6 +45,6 @@ endif()
 add_subdirectory(train)
 
 option(BUILD_TEST "whether to build the test progrom" ON)
-if(BUILD_TEDT)
+if(BUILD_TEST)
     add_subdirectory(test)
 endif()
