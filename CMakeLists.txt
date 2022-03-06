@@ -15,6 +15,9 @@ set(DYNET_ROOT "/usr/local" CACHE PATH "the dynet installed prefix")
 include_directories(${DYNET_ROOT}/include)
 link_directories(${DYNET_ROOT}/lib)
 
+# for spdlog
+include_directories(${PROJECT_SOURCE_DIR}/third_party/spdlog)
+
 set(PUBLIC_LINK_LIB dynet Threads::Threads ${Python3_LIBRARIES})
 
 # whether to use grpc
