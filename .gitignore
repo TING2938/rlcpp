@@ -9,5 +9,4 @@ build/
 draft/
 *.a
 *.out
-core.*
 test/dynet2pytorch/data/*
