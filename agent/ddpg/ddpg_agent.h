@@ -156,6 +156,11 @@ public:
         this->critic_target.load(file_name, "/ddpg_critic_target");
     }
 
+    RandomReply& memory_reply()
+    {
+        return this->memory;
+    }
+
 private:
     Int obs_dim;  // dimension of observation space
     Int act_dim;  // dimension of action space
