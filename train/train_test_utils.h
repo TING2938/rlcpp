@@ -65,6 +65,9 @@ void train_pipeline_progressive(Env& env,
                 auto loss = agent.learn();
                 losses.store(loss);
             }
+            if (rewards.mean() > 90 && (t % 40 == 0)) {
+                env.render();
+            }
             if (done)
                 break;
             obs = next_obs;
@@ -183,6 +186,7 @@ void test(Env& env,
                 break;
             }
         }
+        // printf("the score is %f\n", score);
     }
 }
 

@@ -1,6 +1,9 @@
 #ifndef __RLCPP_RINGVECTOR_H__
 #define __RLCPP_RINGVECTOR_H__
 
+#include "common/rl_config.h"
+#include "tools/vector_tools.h"
+
 namespace rlcpp
 {
 template <typename T>
@@ -62,6 +65,24 @@ public:
         } else {
             return std::accumulate(memory.begin(), memory.begin() + this->idx, 0.0f);
         }
+    }
+
+    std::vector<T> lined_vector() const
+    {
+        std::vector<T> ret(this->size());
+        if (!this->bFull) {
+            std::copy(this->memory.begin(), this->memory.begin() + this->idx, ret.begin());
+        } else {
+            std::copy(this->memory.begin() + this->idx, this->memory.end(), ret.begin());
+            std::copy(this->memory.begin(), this->memory.begin() + this->idx,
+                      ret.begin() + this->memory.size() - this->idx);
+        }
+        return ret;
+    }
+
+    std::vector<T>& data()
+    {
+        return this->memory;
     }
 
 protected:
