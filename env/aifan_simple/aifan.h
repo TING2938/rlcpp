@@ -2,11 +2,34 @@
 #define __AIFAN_SIMPLE_H__
 
 #include "env/env.h"
-#include "matplotlibcpp.h"
+#include "matplotlib.hpp"
 #include "tools/random_tools.h"
 #include "tools/ring_vector.h"
 
-namespace plt = matplotlibcpp;
+class SinGen
+{
+public:
+    void init(double min, double max, double T)
+    {
+        this->min = min;
+        this->max = max;
+        this->T   = T;
+        this->k   = 0;
+    }
+    /**
+     * @brief return (max-min)/2 * sin(2pi/T*k) + (max+min)/2
+     */
+    double operator()()
+    {
+        return std::sin(2 * M_PI / this->T * this->k++) * (this->max - this->min) / 2.0 + (this->max + this->min) / 2.0;
+    }
+
+private:
+    double min;
+    double max;
+    double T;
+    size_t k;
+};
 
 namespace rlcpp
 {
@@ -16,7 +39,7 @@ public:
     void make(const string& gameName)
     {
         this->action_space_.bDiscrete = true;
-        this->action_space_.n         = 20;
+        this->action_space_.n         = 100;
         this->obs_space_.bDiscrete    = false;
         this->obs_space_.shape        = {1};
 
@@ -28,9 +51,15 @@ public:
 
         this->max_episode_steps = 100;
 
-        this->target_temp = 60;
+        this->target_temp = 50;
 
         this->memory_temp.init(100);
+        this->memory_P.init(100);
+        this->memory_Nx.init(100);
+        this->singen.init(60, 130, 10);
+
+
+        this->ax = std::get<1>(plt.subplots(3, 1, {15, 8}));
     }
 
     Space action_space() const
@@ -48,35 +77,49 @@ public:
         this->FanNx  = this->_Action2Nx(action);
         auto u       = this->_Nx2U(this->FanNx, 200);
         auto steps   = 4 / 0.04;
-        this->BrdPwr = rlcpp::randf(30., 150.);
+        this->BrdPwr = this->singen() + rlcpp::randf(-5., 5.);
         this->FanPwr = this->_Nx2FanPwr(this->FanNx);
         this->SensorTemp =
             this->_get_cpu_temp(steps, this->SensorTemp, this->BrdPwr, this->EnvTemp, u, 0.187572, 0.05, 0.618);
 
         this->memory_temp.store(this->SensorTemp);
+        this->memory_Nx.store(this->FanNx);
+        this->memory_P.store(this->BrdPwr);
         // printf("the temp is %f\n", this->SensorTemp);
 
         this->_fillState(next_obs);
 
-        if (this->SensorTemp >= 80) {
-            *reward = -100;
-            *done   = true;
-            return;
-        }
-
+        /*
+            if (this->SensorTemp >= 80) {
+                *reward = -200;
+                *done   = false;
+                return;
+            }
+        */
 
         //*reward = -(this->SensorTemp - (this->target_temp - 20)) * (this->SensorTemp - (this->target_temp + 20)) -
         // 399; *done   = false;
-
+        if (std::abs(this->SensorTemp - this->target_temp) < 2.1) {
+            *reward = 1.0;
+            *done   = false;
+        } else if (std::abs(this->SensorTemp - this->target_temp) < 10.1) {
+            *reward = 0.0;
+            *done   = false;
+        } else {
+            *reward = -1.0;
+            *done   = false;
+        }
+        /*
         if (this->SensorTemp < this->target_temp) {
-            *reward = -(this->target_temp - this->SensorTemp) / (this->target_temp - this->EnvTemp) / 2.0 + 1.0;
+            *reward = -(this->target_temp - this->SensorTemp) / (this->target_temp - this->EnvTemp) / 24.0 + 2.0;
             *done   = false;
             return;
         } else {
-            *reward = -(this->SensorTemp - this->target_temp) / (80 - this->target_temp) / 2.0 + 1.0;
+            *reward = -(this->SensorTemp - this->target_temp) / (80 - this->target_temp) / 24.0 + 2.0;
             *done   = false;
             return;
         }
+        */
     }
 
     void reset(State* obs)
@@ -90,18 +133,29 @@ public:
         this->_fillState(obs);
     }
 
-    void close()
-    {
-        plt::detail::_interpreter::kill();
-    }
+    void close() {}
 
     void render()
     {
-        plt::clf();
-        plt::plot(this->memory_temp.lined_vector(), "--o");
-        plt::plot(std::vector<Real>(this->memory_temp.size(), this->target_temp), ":r");
-        plt::ylim(this->target_temp - 30, this->target_temp + 30);
-        plt::pause(0.01);
+        for (int i = 0; i < 3; i++) {
+            ax[i].cla();
+        }
+
+        ax[0].plot(this->memory_temp.lined_vector(), "--o");
+        ax[0].axhline(this->target_temp, {{"c", "r"}, {"ls", ":"}});
+        ax[0].set_ylim(this->target_temp - 30, this->target_temp + 30);
+        ax[0].set_ylabel("Sensor Temp");
+
+        ax[1].plot(this->memory_P.lined_vector(), "--or");
+        ax[1].set_ylim(30, 150);
+        ax[1].set_ylabel("BrdPwr");
+
+        ax[2].plot(this->memory_Nx.lined_vector(), "--ob");
+        ax[2].set_ylim(0, 200);
+        // ax[2].set_yticks({20, 40, 60, 80, 100});
+        ax[2].set_ylabel("Nx");
+
+        plt.pause(0.01);
     }
 
 private:
@@ -119,15 +173,13 @@ private:
 
     Int _Action2Nx(const Action& action)
     {
-        if (action < 19)
-            return action * 4 + 20;
-        else
-            return 100;
+        return action * 2;
     }
 
     Real _Nx2U(Int Nx, Real Umax = 100)
     {
-        return Umax * std::pow(Nx / 100.0, 0.7);
+        // return Umax * std::pow(Nx / 100.0, 0.7);
+        return Umax * (Nx / 100.0);
     }
 
     Real _Nx2FanPwr(Int Nx)
@@ -137,10 +189,10 @@ private:
 
     void _fillState(State* obs)
     {
-        (*obs)[0] = this->EnvTemp - 32;
+        // (*obs)[0] = this->EnvTemp - 32;
         // (*obs)[0] = (this->FanNx - 60) / 23.0;
         // (*obs)[0] = (this->FanPwr - 215.55) / 147.63;
-        // (*obs)[0] = this->BrdPwr;  // (this->BrdPwr - 90) / 35.0;
+        (*obs)[0] = this->BrdPwr;  // (this->BrdPwr - 90) / 35.0;
         // (*obs)[0] = (this->SensorTemp - 60) / 10.0;
     }
 
@@ -156,7 +208,11 @@ private:
 
     Real target_temp;
 
-    RingVector<Real> memory_temp;
+    SinGen singen;
+
+    matplotlibcpp::PLT plt;
+    matplotlibcpp::detail::Axes ax;
+    RingVector<Real> memory_temp, memory_P, memory_Nx;
 };
 }  // namespace rlcpp
 

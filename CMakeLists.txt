@@ -17,7 +17,10 @@ link_directories(${DYNET_ROOT}/lib)
 
 # for spdlog
 include_directories(${PROJECT_SOURCE_DIR}/third_party/spdlog)
-include_directories(${PROJECT_SOURCE_DIR}/third_party/matplotlib-cpp)
+
+# for matplotlibcpp
+set(MATPLOTLIBCPP_ROOT "${PROJECT_SOURCE_DIR}/../matplotlibcpp" CACHE PATH "the matplotlibcpp source dir")
+include_directories(${MATPLOTLIBCPP_ROOT}/include)
 
 set(PUBLIC_LINK_LIB dynet Threads::Threads ${Python3_LIBRARIES})
 

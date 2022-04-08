@@ -44,7 +44,7 @@ int main(int argc, char** argv)
     dynet::initialize(dynetParams);
     rlcpp::set_rand_seed();
 
-    batch_size = 256;
+    batch_size = 32;
 
     AIFanSimple env;
     env.make("aifan");
@@ -56,8 +56,8 @@ int main(int argc, char** argv)
     printf("action space: %d, obs_space: %d\n", action_space.n, obs_space.shape.front());
 
     std::vector<dynet::Layer> layers = {
-        dynet::Layer(obs_space.shape.front(), 128, dynet::RELU, /* dropout_rate */ 0.0),
-        dynet::Layer(128, action_space.n, dynet::LINEAR, /* dropout_rate */ 0.0),
+        dynet::Layer(obs_space.shape.front(), 256, dynet::RELU, /* dropout_rate */ 0.0),
+        dynet::Layer(256, action_space.n, dynet::LINEAR, /* dropout_rate */ 0.0),
     };
 
     Agent* agent;
@@ -85,7 +85,7 @@ int main(int argc, char** argv)
         // for train
         // train_pipeline_conservative(env, *agent, 1000, model_name.str(), 500, 100, 1000);
         // if (env_id == 1 || env_id == 2) {
-        train_pipeline_progressive(env, *agent, 190, model_name.str(), 2000000);
+        train_pipeline_progressive(env, *agent, 800, model_name.str(), 2000000);
     }
 
     // for test

@@ -65,7 +65,7 @@ void train_pipeline_progressive(Env& env,
                 auto loss = agent.learn();
                 losses.store(loss);
             }
-            if (rewards.mean() > 90 && (t % 40 == 0)) {
+            if (rewards.mean() > 85 && (t % 10 == 0)) {
                 env.render();
             }
             if (done)
