@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 14)
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
-find_package(Python3 COMPONENTS Interpreter Development)
+find_package(Python3 COMPONENTS NumPy Interpreter Development)
 
 include_directories(${Python3_INCLUDE_DIRS})
 include_directories(${PROJECT_SOURCE_DIR})
@@ -22,7 +22,7 @@ include_directories(${PROJECT_SOURCE_DIR}/third_party/spdlog)
 set(MATPLOTLIBCPP_ROOT "${PROJECT_SOURCE_DIR}/../matplotlibcpp" CACHE PATH "the matplotlibcpp source dir")
 include_directories(${MATPLOTLIBCPP_ROOT}/include)
 
-set(PUBLIC_LINK_LIB dynet Threads::Threads ${Python3_LIBRARIES})
+set(PUBLIC_LINK_LIB dynet Threads::Threads ${Python3_LIBRARIES} Python3::NumPy)
 
 # whether to use grpc
 option(USE_GRPC "use grpc " OFF)
