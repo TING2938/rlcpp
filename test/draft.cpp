@@ -1,6 +1,5 @@
 #define SPDLOG_HEADER_ONLY
 #define _USE_MATH_DEFINES
-#include "matplotlib.hpp"
 #include "spdlog/fmt/ostr.h"  // must be included
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/spdlog.h"
@@ -51,6 +50,25 @@ void ring_vector_example()
 
 int main()
 {
+    std::vector<int> vec(10);
+    std::iota(vec.begin(), vec.end(), 1);
+
+    std::vector<int> vec2 = vec;
+    std::random_shuffle(vec.begin(), vec.end());
+    fmt::print("vec: {}\n", vec);
+
+    fmt::print("vec2: {}\n", vec2);
+    std::random_shuffle(vec2.begin(), vec2.end());
+    fmt::print("vec22: {}\n", vec2);
+
+    std::vector<int> ind = {2, 1, 5, 4, 3};
+
+    std::vector<int> out;
+
+    rlcpp::gather(vec, &out, ind.begin(), ind.end());
+
+    fmt::print("out: {}\n", rlcpp::gather(vec, {4, 1, 3}));
+
     // custom_class_example();
     // plt_example();
     // plt_subplot();

@@ -1,10 +1,13 @@
 #ifndef __AIFAN_SIMPLE_H__
 #define __AIFAN_SIMPLE_H__
 
+#include <pybind11/embed.h>
 #include "env/env.h"
-#include "matplotlib.hpp"
 #include "tools/random_tools.h"
 #include "tools/ring_vector.h"
+
+namespace py = pybind11;
+using namespace pybind11::literals;
 
 class SinGen
 {
@@ -58,8 +61,8 @@ public:
         this->memory_Nx.init(100);
         this->singen.init(60, 130, 10);
 
-
-        this->ax = std::get<1>(plt.subplots(3, 1, {15, 8}));
+        auto plt = py::module::import("matplotlib.pyplot");
+        this->ax = plt.attr("subplots")(3, 1, "figsize"_a = py::make_tuple(15, 8));
     }
 
     Space action_space() const
@@ -138,24 +141,24 @@ public:
     void render()
     {
         for (int i = 0; i < 3; i++) {
-            ax[i].cla();
+            ax[i].attr("cla")();
         }
 
-        ax[0].plot(this->memory_temp.lined_vector(), "--o");
-        ax[0].axhline(this->target_temp, {{"c", "r"}, {"ls", ":"}});
-        ax[0].set_ylim(this->target_temp - 30, this->target_temp + 30);
-        ax[0].set_ylabel("Sensor Temp");
+        ax[0].attr("plot")(this->memory_temp.lined_vector(), "--o");
+        ax[0].attr("axhline")(this->target_temp, "color"_a = "r", "ls"_a = ":");
+        ax[0].attr("set_ylim")(py::make_tuple(this->target_temp - 30, this->target_temp + 30));
+        ax[0].attr("set_ylabel")("Sensor Temp");
 
-        ax[1].plot(this->memory_P.lined_vector(), "--or");
-        ax[1].set_ylim(30, 150);
-        ax[1].set_ylabel("BrdPwr");
+        ax[1].attr("plot")(this->memory_P.lined_vector(), "--or");
+        ax[1].attr("set_ylim")(py::make_tuple(30, 150));
+        ax[1].attr("set_ylabel")("BrdPwr");
 
-        ax[2].plot(this->memory_Nx.lined_vector(), "--ob");
-        ax[2].set_ylim(0, 200);
+        ax[2].attr("plot")(this->memory_Nx.lined_vector(), "--ob");
+        ax[2].attr("set_ylim")(py::make_tuple(0, 200));
         // ax[2].set_yticks({20, 40, 60, 80, 100});
-        ax[2].set_ylabel("Nx");
+        ax[2].attr("set_ylabel")("Nx");
 
-        plt.pause(0.01);
+        plt.attr("pause")(0.01);
     }
 
 private:
@@ -210,8 +213,9 @@ private:
 
     SinGen singen;
 
-    matplotlibcpp::PLT plt;
-    matplotlibcpp::detail::Axes ax;
+    py::module_ plt;
+    py::tuple ax;
+
     RingVector<Real> memory_temp, memory_P, memory_Nx;
 };
 }  // namespace rlcpp

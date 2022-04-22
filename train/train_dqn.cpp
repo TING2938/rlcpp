@@ -16,6 +16,7 @@
 
 int main(int argc, char** argv)
 {
+    py::scoped_interpreter guard;
     // ================================= //
     int env_id                = 1;
     Int max_reply_memory_size = 50000;

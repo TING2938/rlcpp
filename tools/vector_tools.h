@@ -300,6 +300,51 @@ inline std::vector<T> scale(const std::vector<T>& vec, const std::vector<T>& a, 
     return ret;
 }
 
+template <typename T, typename Iter>
+inline void gather(const std::vector<T>& vec, std::vector<T>* out, Iter beg_ind, Iter end_ind)
+{
+    out->clear();
+    out->reserve(end_ind - beg_ind);
+    for (auto it = beg_ind; it != end_ind; it++) {
+        out->push_back(vec.at(*it));
+    }
+}
+
+template <typename T, typename S = size_t>
+inline void gather(const std::vector<T>& vec, std::vector<T>* out, const std::vector<S>& ind)
+{
+    gather(vec, out, ind.begin(), ind.end());
+}
+
+template <typename T, typename S = size_t>
+inline std::vector<T> gather(const std::vector<T>& vec, const std::vector<S>& ind)
+{
+    std::vector<T> out;
+    gather(vec, &out, ind.begin(), ind.end());
+    return out;
+}
+
+template <typename T, typename Iter>
+inline std::vector<T> gather(const std::vector<T>& vec, Iter beg_ind, Iter end_ind)
+{
+    std::vector<T> out;
+    gather(vec, &out, beg_ind, end_ind);
+    return out;
+}
+
+template <typename T>
+inline std::vector<T> flatten(const std::vector<std::vector<T>>& mat)
+{
+    auto nrow = mat.size();
+    auto ncol = mat[0].size();
+    std::vector<T> ret(nrow * ncol);
+    for (int i = 0; i < nrow; i++) {
+        for (int j = 0; j < ncol; j++) {
+            ret[i * ncol + j] = mat[i][j];
+        }
+    }
+    return ret;
+}
 /**
  * the operator namespace for rlcpp
  */

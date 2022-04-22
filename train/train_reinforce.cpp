@@ -13,6 +13,7 @@
 
 int main(int argc, char** argv)
 {
+    py::scoped_interpreter guard;
     // ================================= //
     int env_id               = 0;
     rlcpp::Real gamma        = 0.99;

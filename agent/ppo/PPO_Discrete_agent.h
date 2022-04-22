@@ -31,18 +31,36 @@ public:
     std::vector<State> states;
     std::vector<Action> actions;
     Vecf probs;
-    Vecf values;
     Vecf rewards;
     Vecf dones;
+    Int batch_size;
+
+    std::vector<Veci> sample()
+    {
+        std::vector<Veci> ret(this->states.size() / this->batch_size, Veci(this->batch_size));
+        Veci ind(this->states.size());
+        std::iota(ind.begin(), ind.end(), 0);
+        std::random_shuffle(ind.begin(), ind.end());
+        for (Int i = 0; i < ret.size(); i++) {
+            for (Int j = 0; j < this->batch_size; j++) {
+                ret[i][j] = ind[i * batch_size + j];
+            }
+        }
+        return ret;
+    }
 
     void clear()
     {
         this->states.clear();
         this->actions.clear();
         this->probs.clear();
-        this->values.clear();
         this->rewards.clear();
         this->dones.clear();
+    }
+
+    size_t size()
+    {
+        return this->states.size();
     }
 };
 
@@ -62,11 +80,14 @@ public:
         this->actor.build_model(actor_layers);
         this->critic.build_model(critic_layers);
 
-        this->trainer_actor.learning_rate  = 5e-4;
-        this->trainer_critic.learning_rate = 5e-4;
+        this->trainer_actor.learning_rate  = 3e-4;
+        this->trainer_critic.learning_rate = 3e-4;
 
         this->obs_dim = actor_layers.front().input_dim;
         this->act_n   = actor_layers.back().output_dim;
+
+        this->memory.batch_size = 32;
+        this->policy_clip       = 0.2;
 
         this->gamma = gamma;
 
@@ -79,7 +100,6 @@ public:
         auto act_prob = this->actor.predict(obs);
         *action       = random_choise(this->act_n, act_prob);
         this->memory.probs.push_back(act_prob[*action]);
-        this->memory.values.push_back(this->critic.predict(obs).front());
     }
 
     // 根据输入观测值，预测下一步动作
@@ -99,71 +119,82 @@ public:
 
     Real learn() override
     {
-        Real loss_value = 0.0f;
-        Real td_error   = 0.0f;
-
-        this->calc_norm_rewards();
-        auto advantage = this->memory.rewards - this->memory.values;
-
-        dynet::ComputationGraph cg;
-
-        // for critic update
-        {
-            auto state_expr      = dynet::input(cg, {unsigned(this->obs_dim)}, this->trans.state);
-            auto next_state_expr = dynet::input(cg, {unsigned(this->obs_dim)}, this->trans.next_state);
-            auto v_expr          = this->critic.nn.run(state_expr, cg);
-            auto next_v_expr     = this->critic.nn.run(next_state_expr, cg);
-            auto td_error_expr   = this->trans.reward + next_v_expr * this->gamma * (1 - this->trans.done) - v_expr;
-            td_error             = dynet::as_scalar(cg.forward(td_error_expr));
-            auto loss_expr       = dynet::square(td_error_expr);
-            loss_value += dynet::as_scalar(cg.forward(loss_expr));
-            cg.backward(loss_expr);
-            this->trainer_critic.update();
+        Vecf Rs(this->memory.rewards.size(), 0);
+        Real R = 0.0;
+        for (int t = Rs.size() - 1; t >= 0; t--) {
+            R     = this->memory.rewards[t] + this->gamma * R * (1 - this->memory.dones[t]);
+            Rs[t] = R;
         }
 
-        // for actor update
-        {
-            cg.clear();
-            auto state_expr    = dynet::input(cg, {unsigned(this->obs_dim)}, this->trans.state);
-            auto prob_expr     = this->actor.nn.run(state_expr, cg);
-            auto log_prob_expr = -dynet::log(dynet::pick(prob_expr, this->trans.action));
-            auto loss_expr     = log_prob_expr * td_error;
-            loss_value += dynet::as_scalar(cg.forward(loss_expr));
-            cg.backward(loss_expr);
-            this->trainer_actor.update();
-        }
+        dynet::Dim reward_dynet_dim({1}, this->memory.batch_size);
+        dynet::Dim state_dynet_dim({unsigned(this->obs_dim)}, this->memory.batch_size);
 
-        return loss_value;
+        Real total_loss = 0.0;
+
+        int n_epochs = std::round(10.0 * this->memory.size() / this->memory.batch_size);
+        for (int epoch = 0; epoch < n_epochs; epoch++) {
+            auto batches = this->memory.sample();
+            for (auto&& batch : batches) {
+                auto states    = rlcpp::flatten(rlcpp::gather(this->memory.states, batch));
+                auto actions   = rlcpp::gather(this->memory.actions, batch);
+                auto old_probs = rlcpp::gather(this->memory.probs, batch);
+                auto v_target  = rlcpp::gather(Rs, batch);
+
+                dynet::ComputationGraph cg;
+                {
+                    auto states_expr         = dynet::input(cg, state_dynet_dim, states);
+                    auto critic_value_expr   = this->critic.nn.run(states_expr, cg);
+                    auto dist_expr           = this->actor.nn.run(states_expr, cg);
+                    auto new_probs_expr      = dynet::pick(dist_expr, {actions.begin(), actions.end()});
+                    auto v_target_expr       = dynet::input(cg, reward_dynet_dim, v_target);
+                    auto advs_expr           = v_target_expr - critic_value_expr;
+                    auto old_probs_expr      = dynet::input(cg, reward_dynet_dim, old_probs);
+                    auto prob_ratio_expr     = new_probs_expr / old_probs_expr;
+                    auto weighted_probs_expr = dynet::cmult(advs_expr, prob_ratio_expr);
+                    auto cliped_prob_ratio_expr =
+                        dynet::clip(prob_ratio_expr, 1 - this->policy_clip, 1 + this->policy_clip, cg);
+                    auto weighted_clipped_probs_expr = dynet::cmult(cliped_prob_ratio_expr, advs_expr);
+                    auto actor_loss_expr =
+                        -dynet::mean_batches(dynet::min(weighted_probs_expr, weighted_clipped_probs_expr));
+                    total_loss += dynet::as_scalar(cg.forward(actor_loss_expr));
+
+                    if (0) {
+                        std::cout << "dist_expr: " << dynet::as_vector(dist_expr.value()) << std::endl;
+                        std::cout << "prob_ratio:             " << dynet::as_vector(prob_ratio_expr.value())
+                                  << std::endl;
+                        std::cout << "cliped_prob_ratio_expr: " << dynet::as_vector(cliped_prob_ratio_expr.value())
+                                  << std::endl;
+                    }
+                    cg.backward(actor_loss_expr);
+                    this->trainer_actor.update();
+
+                    auto critic_loss_expr =
+                        dynet::mean_batches(dynet::squared_distance(v_target_expr, critic_value_expr));
+                    total_loss += dynet::as_scalar(cg.forward(critic_loss_expr));
+                    cg.backward(critic_loss_expr);
+                    this->trainer_critic.update();
+                }
+            }
+        }
+        this->memory.clear();
+        return total_loss;
     }
 
     void save_model(const string& file_name) override
     {
-        this->actor.save(file_name, "/ac_actor_network", false);
-        this->critic.save(file_name, "/ac_critic_network", true);
+        this->actor.save(file_name, "/ppo_actor_network", false);
+        this->critic.save(file_name, "/ppo_critic_network", true);
     }
 
     void load_model(const string& file_name) override
     {
-        this->actor.load(file_name, "/ac_actor_network");
-        this->critic.load(file_name, "/ac_critic_network");
+        this->actor.load(file_name, "/ppo_actor_network");
+        this->critic.load(file_name, "/ppo_critic_network");
     }
 
-private:
-    Vecf calc_advantage()
+    PPORandomReply& buffer()
     {
-        Vecf advantage(this->memory.rewards.size(), 0);
-        for (int t = 0; t < advantage.size() - 1; t++) {
-            Real discount = 1.0;
-            Real a_t      = 0.0;
-            for (int k = t; k < advantage.size() - 1; k++) {
-                a_t += discount * (this->memory.rewards[k] +
-                                   this->gamma * this->memory.values[k + 1] * (1 - this->memory.dones[k]) -
-                                   this->memory.values[k]);
-                discount *= (this->gamma * 0.95);
-            }
-            advantage[t] = a_t;
-        }
-        return advantage;
+        return this->memory;
     }
 
 private:
@@ -176,6 +207,7 @@ private:
     // input: state, output: probability of each action
     Dynet_Network actor;   // state -> prob. of action
     Dynet_Network critic;  // V function (state -> V)
+    Real policy_clip;
 
     PPORandomReply memory;
 

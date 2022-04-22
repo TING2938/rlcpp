@@ -63,6 +63,7 @@ void test_episode(Env& env,
 
 int main(int argc, char** argv)
 {
+    py::scoped_interpreter guard;
     Real learning_rate            = 0.1;
     Real gamma                    = 0.9;
     Real e_greed                  = 0.1;

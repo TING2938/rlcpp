@@ -74,4 +74,17 @@ std::ostream& operator<<(std::ostream& os, const Dynet_Network& network)
 
 }  // namespace rlcpp
 
+namespace dynet
+{
+inline Expression clip(const Expression& expr,
+                       float low,
+                       float up,
+                       ComputationGraph& g,
+                       Device* device = dynet::default_device)
+{
+    auto dim = expr.dim();
+    return dynet::max(dynet::min(expr, dynet::constant(g, dim, up, device)), dynet::constant(g, dim, low, device));
+}
+}  // namespace dynet
+
 #endif  // !__DYNET_NETWORK_H__

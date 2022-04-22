@@ -10,6 +10,7 @@ using namespace rlcpp;
 int main()
 {
     rlcpp::set_rand_seed();
+    py::scoped_interpreter guard;
 
     Gym_cpp env;
     // CliffWalking-v0

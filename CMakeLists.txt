@@ -1,14 +1,11 @@
-project(rlcpp)
 cmake_minimum_required(VERSION 3.2)
+
+project(rlcpp)
 
 set(CMAKE_CXX_STANDARD 14)
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
-find_package(Python3 COMPONENTS NumPy Interpreter Development)
-
-include_directories(${Python3_INCLUDE_DIRS})
-include_directories(${PROJECT_SOURCE_DIR})
 
 ## for dynet
 set(DYNET_ROOT "/usr/local" CACHE PATH "the dynet installed prefix")
@@ -18,18 +15,20 @@ link_directories(${DYNET_ROOT}/lib)
 # for spdlog
 include_directories(${PROJECT_SOURCE_DIR}/third_party/spdlog)
 
-# for matplotlibcpp
-set(MATPLOTLIBCPP_ROOT "${PROJECT_SOURCE_DIR}/../matplotlibcpp" CACHE PATH "the matplotlibcpp source dir")
-include_directories(${MATPLOTLIBCPP_ROOT}/include)
+# for pybind11
+add_subdirectory(third_party/pybind11)
 
-set(PUBLIC_LINK_LIB dynet Threads::Threads ${Python3_LIBRARIES} Python3::NumPy)
+include_directories(${PROJECT_SOURCE_DIR})
+set(PUBLIC_LINK_LIB dynet Threads::Threads pybind11::embed)
 
 # whether to use grpc
 option(USE_GRPC "use grpc " OFF)
 if(USE_GRPC)
     find_package(Protobuf REQUIRED)
     find_package(gRPC REQUIRED)
-
+    include_directories(${GRPC_INCLUDE_DIRS})
+    include_directories(${PROTOBUF_INCLUDE_DIRS})
+    
     ####### change this dir to proto src dir #######
     set(PROTO_SRC_DIR ${PROJECT_SOURCE_DIR}/env/grpc_gym/proto_out)
     include_directories(${PROTO_SRC_DIR})

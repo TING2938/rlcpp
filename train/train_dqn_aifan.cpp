@@ -15,6 +15,7 @@
 
 int main(int argc, char** argv)
 {
+    py::scoped_interpreter guard;
     // ================================= //
     Int max_reply_memory_size = 50000;
     Int batch_size;

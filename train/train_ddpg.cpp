@@ -14,6 +14,7 @@ using namespace rlcpp::opt;
 
 int main(int argc, char** argv)
 {
+    py::scoped_interpreter guard;
     // ================================= //
     int env_id                = 0;
     Int max_reply_memory_size = 1e6;
