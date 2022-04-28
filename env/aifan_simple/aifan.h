@@ -36,7 +36,7 @@ private:
 
 namespace rlcpp
 {
-class AIFanSimple : public Env
+class __attribute__((visibility("hidden"))) AIFanSimple : public Env
 {
 public:
     void make(const string& gameName)
