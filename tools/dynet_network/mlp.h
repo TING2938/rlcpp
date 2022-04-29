@@ -32,12 +32,13 @@ using std::vector;
  */
 enum Activation
 {
-    SIGMOID, /**< `SIGMOID` : Sigmoid function \f$x\longrightarrow \frac {1} {1+e^{-x}}\f$ */
-    TANH,    /**< `TANH` : Tanh function \f$x\longrightarrow \frac {1-e^{-2x}} {1+e^{-2x}}\f$ */
-    RELU,    /**< `RELU` : Rectified linear unit \f$x\longrightarrow \max(0,x)\f$ */
-    LINEAR,  /**< `LINEAR` : Identity function \f$x\longrightarrow x\f$ */
-    SOFTMAX  /**< `SOFTMAX` : Softmax function \f$\textbf{x}=(x_i)_{i=1,\dots,n}\longrightarrow \frac
-                {e^{x_i}}{\sum_{j=1}^n e^{x_j} })_{i=1,\dots,n}\f$ */
+    SIGMOID,  /**< `SIGMOID` : Sigmoid function \f$x\longrightarrow \frac {1} {1+e^{-x}}\f$ */
+    TANH,     /**< `TANH` : Tanh function \f$x\longrightarrow \frac {1-e^{-2x}} {1+e^{-2x}}\f$ */
+    RELU,     /**< `RELU` : Rectified linear unit \f$x\longrightarrow \max(0,x)\f$ */
+    LINEAR,   /**< `LINEAR` : Identity function \f$x\longrightarrow x\f$ */
+    SOFTMAX,  /**< `SOFTMAX` : Softmax function \f$\textbf{x}=(x_i)_{i=1,\dots,n}\longrightarrow \frac
+                 {e^{x_i}}{\sum_{j=1}^n e^{x_j} })_{i=1,\dots,n}\f$ */
+    SOFTPLUS, /** `SOFTPLUS` : softplus(x) = log(exp(x) + 1) */
 };
 
 /**
@@ -272,6 +273,9 @@ private:
             case SOFTMAX:
                 return softmax(h);
                 break;
+            case SOFTPLUS:
+                return log(exp(h) + 1);
+                break;
             default:
                 throw invalid_argument("Unknown activation function");
                 break;
@@ -298,6 +302,9 @@ inline std::string activate_str(Activation f)
             break;
         case SOFTMAX:
             return "SOFTMAX";
+            break;
+        case SOFTPLUS:
+            return "SOFTPLUS";
             break;
         default:
             throw invalid_argument("Unknown activation function");

@@ -62,6 +62,10 @@ int main(int argc, char** argv)
 
     // Static declaration of the computation graph.
     ComputationGraph cg;
+
+    auto dist = dynet::random_normal(cg, {2}, 15, 1);
+    std::cout << cg.forward(dist) << std::endl;
+
     Expression a = parameter(cg, p_a);
     Expression b = parameter(cg, p_b);
 
@@ -75,7 +79,7 @@ int main(int argc, char** argv)
     Expression loss_expr = squared_distance(y_pred, y);
 
     // Show the computation graph, just for fun.
-    cg.print_graphviz();
+    // cg.print_graphviz();
 
     // Train the parameters.
     for (unsigned iter = 0; iter < ITERATIONS; ++iter) {
@@ -88,7 +92,7 @@ int main(int argc, char** argv)
             trainer.update();
         }
         loss /= ntrain;
-        cerr << "E = " << loss << endl;
+        // cerr << "E = " << loss << endl;
     }
 
     auto aaa = as_scalar(a.value());

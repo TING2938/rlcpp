@@ -1,25 +1,29 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import torch
+import math
 
-P = np.linspace(60, 130)
+torch.manual_seed(22)
 
-k2 = 0.187572
-Gamma = 0.618
-Target = 60
-T_env = 32
+mu = 10
+sigma = 100
 
-u = (P / (k2 * (Target - T_env))) ** (1/Gamma)
-Nx = u/2.0
-action = Nx.copy()
+# dist = torch.distributions.Normal(mu, sigma)
+dist = torch.distributions.Normal(0, 1)
 
-for i, v in enumerate(Nx):
-    if v >= 100:
-        action[i] = 19
-    elif v <= 20:
-        action[i] = 0
-    else:
-        action[i] = int((v - 20) / 4.0)
 
-plt.plot(P, action, "o--")
+x = dist.sample((10,))
+prob = dist.log_prob(x)
 
+# prob1 = -(x - mu)**2 / (2*sigma**2) - math.log(math.sqrt(2*math.pi) * sigma)
+prob2 = -x**2 / 2 - math.log(math.sqrt(2*math.pi) * sigma)
+
+print("prob = ", prob)
+print("prob2 = ", prob2)
+
+# x = x * sigma + mu
+
+
+plt.plot(x)
 plt.show()
+print(x)
