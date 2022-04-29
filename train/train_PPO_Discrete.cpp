@@ -81,12 +81,13 @@ void train_pipeline_progressive(Env& env,
 
 int main(int argc, char** argv)
 {
-    py::scoped_interpreter guard;
+    py::scoped_interpreter guard{};
 
     // ================================= //
     int env_id               = 0;
     std::string dynet_memory = "1";
     std::string method       = "train";  // train/test
+    unsigned int seed        = 321134;
     // ================================= //
     // get options from commandline
     itp::Getopt getopt(argc, argv, "Train RL with DQN algorithm (dynet nn lib)");
@@ -95,6 +96,7 @@ int main(int argc, char** argv)
            "env id for train."
            "\n0: CartPole-v1, 1: Acrobot-v1, 2: MountainCar-v0\n");
     getopt(method, "-method", false, "set to train or test model\n");
+    getopt(seed, "-seed", false, "random seed to be set");
     getopt(dynet_memory, "-dynet_mem", false,
            "Memory used for dynet (MB).\n"
            "or set as FOR,BACK,PARAM,SCRATCH\n"
@@ -102,19 +104,23 @@ int main(int argc, char** argv)
            "by using comma separated variables");
 
     getopt.finish();
-
+    if (seed == 0) {
+        seed = time(nullptr);
+    }
     // ================================= //
     // for dynet command line options
     dynet::DynetParams dynetParams;
+    dynetParams.random_seed = seed;
     if (!dynet_memory.empty())
         dynetParams.mem_descriptor = dynet_memory;
     dynet::initialize(dynetParams);
-    rlcpp::set_rand_seed();
+    rlcpp::set_rand_seed(seed);
 
     std::vector<std::string> ENVs     = {"CartPole-v1", "Acrobot-v1", "MountainCar-v0"};
     std::vector<Int> score_thresholds = {499, -100, -100};
     Gym_cpp env;
     env.make(ENVs[env_id]);
+    env.env.attr("seed")(seed);
 
     auto action_space = env.action_space();
     auto obs_space    = env.obs_space();

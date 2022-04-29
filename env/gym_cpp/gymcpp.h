@@ -85,7 +85,6 @@ public:
         this->env.attr("render")();
     }
 
-private:
     py::object env;
 };  // !class PyGym
 }  // namespace rlcpp

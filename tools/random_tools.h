@@ -20,9 +20,9 @@ namespace rlcpp
 /**
  * @brief Set the rand seed
  */
-void set_rand_seed()
+void set_rand_seed(unsigned int __seed = time(nullptr))
 {
-    srand(time(nullptr));
+    srand(__seed);
 }
 
 /**
