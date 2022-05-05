@@ -12,9 +12,13 @@
 #ifndef __RLCPP_TRAIN_TEST_UTILS_H__
 #define __RLCPP_TRAIN_TEST_UTILS_H__
 
+#include <pybind11/embed.h>
+#include <pybind11/stl.h>
 #include "agent/agent.h"
 #include "env/env.h"
 #include "tools/ring_vector.h"
+
+namespace plt = pybind11;
 
 using namespace rlcpp;
 using std::vector;
@@ -42,15 +46,20 @@ void train_pipeline_progressive(Env& env,
                                 Int learn_start            = 100,
                                 Int print_every            = 10)
 {
+    auto seaborn = py::module_::import("seaborn");
+    auto plt     = py::module_::import("matplotlib.pyplot");
+    seaborn.attr("set")();
+
     auto obs      = env.obs_space().getEmptyObs();
     auto next_obs = env.obs_space().getEmptyObs();
     auto action   = env.action_space().getEmptyAction();
     Real rwd;
     bool done;
 
-    RingVector<Real> rewards, losses;
+    RingVector<Real> rewards, losses, mean_rewards;
     rewards.init(100);
     losses.init(100);
+    mean_rewards.init(200);
 
     for (int i_episode = 0; i_episode < n_episode; i_episode++) {
         Real reward = 0.0;
@@ -76,6 +85,13 @@ void train_pipeline_progressive(Env& env,
 
         if (i_episode % print_every == 0) {
             auto score = rewards.mean();
+            mean_rewards.store(score);
+            plt.attr("clf")();
+            plt.attr("plot")(mean_rewards.lined_vector(), "-o");
+            plt.attr("ylabel")("Rewards");
+            // plt.attr("ylim")(py::make_tuple(0, 500));
+            plt.attr("pause")(0.1);
+
             printf("===========================\n");
             printf("i_eposide: %d\n", i_episode);
             printf("100 games mean reward: %f\n", score);
@@ -102,12 +118,19 @@ void train_pipeline_conservative(Env& env,
                                  Int learn_start            = 0,
                                  bool early_stop            = true)
 {
+    auto seaborn = py::module_::import("seaborn");
+    auto plt     = py::module_::import("matplotlib.pyplot");
+    seaborn.attr("set")();
+
     auto obs      = env.obs_space().getEmptyObs();
     auto next_obs = env.obs_space().getEmptyObs();
     auto action   = env.action_space().getEmptyAction();
     Real rwd;
     bool done;
     Vecf rewards, losses;
+
+    RingVector<Real> mean_rewards;
+    mean_rewards.init(200);
 
     for (int i_epoch = 0; i_epoch < n_epoch; i_epoch++) {
         rewards.clear();
@@ -138,6 +161,14 @@ void train_pipeline_conservative(Env& env,
 
         if (i_epoch % 1 == 0) {
             auto mean_reward = mean(rewards);
+
+            mean_rewards.store(mean_reward);
+            plt.attr("clf")();
+            plt.attr("plot")(mean_rewards.lined_vector(), "-o");
+            plt.attr("ylabel")("Rewards");
+            // plt.attr("ylim")(py::make_tuple(0, 500));
+            plt.attr("pause")(0.1);
+
             printf("===========================\n");
             printf("i_epoch: %d\n", i_epoch);
             printf("Average score of %d rollout games: %f\n", n_rollout, mean_reward);

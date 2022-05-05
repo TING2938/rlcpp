@@ -152,7 +152,7 @@ public:
                     auto prob_ratio_expr     = new_probs_expr / old_probs_expr;
                     auto weighted_probs_expr = dynet::cmult(advs_expr, prob_ratio_expr);
                     auto cliped_prob_ratio_expr =
-                        dynet::clip(prob_ratio_expr, 1 - this->policy_clip, 1 + this->policy_clip, cg);
+                        dynet::clip(prob_ratio_expr, 1 - this->policy_clip, 1 + this->policy_clip);
                     auto weighted_clipped_probs_expr = dynet::cmult(cliped_prob_ratio_expr, advs_expr);
                     auto actor_loss_expr =
                         -dynet::mean_batches(dynet::min(weighted_probs_expr, weighted_clipped_probs_expr));

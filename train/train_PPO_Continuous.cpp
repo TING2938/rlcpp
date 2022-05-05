@@ -14,8 +14,41 @@
 
 using namespace rlcpp;
 namespace py = pybind11;
+using namespace rlcpp::opt;
+
+void test(Env& env, Agent& agent, Int n_turns, bool render = false)
+{
+    printf("Ready to test\n");
+
+    auto obs      = env.obs_space().getEmptyObs();
+    auto next_obs = env.obs_space().getEmptyObs();
+    auto action   = env.action_space().getEmptyAction();
+    Real reward;
+    bool done;
+
+    for (int i = 0; i < n_turns; i++) {
+        Real score = 0.0;
+        env.reset(&obs);
+        for (int k = 0; k < env.max_episode_steps; k++) {
+            agent.predict(obs, &action);  // predict according to Q table
+            env.step(action, &obs, &reward, &done);
+            score += reward;
+            // printf("k: %d\n", k);
+            if (done) {
+                printf("k = %d, The score is %f\n", k, score);
+                break;
+            }
+            if (render) {
+                env.render();
+            }
+        }
+        // printf("the score is %f\n", score);
+    }
+}
+
 
 void train_pipeline_progressive(Env& env,
+                                Env& test_env,
                                 PPO_Discrete_Agent& agent,
                                 const std::string& model_name,
                                 Int n_episode,
@@ -24,6 +57,7 @@ void train_pipeline_progressive(Env& env,
     auto seaborn = py::module_::import("seaborn");
     auto plt     = py::module_::import("matplotlib.pyplot");
     seaborn.attr("set")();
+
 
     rlcpp::State obs;
     rlcpp::State next_obs;
@@ -45,14 +79,15 @@ void train_pipeline_progressive(Env& env,
         for (int t = 0; t < env.max_episode_steps; t++) {
             agent.sample(obs, &action);
             env.step(action, &next_obs, &rwd, &done);
-            agent.store(obs, action, rwd, next_obs, (t == env.max_episode_steps - 1) ? false : done);
+            agent.store(obs, action, done ? 0 : rwd, next_obs, (t == env.max_episode_steps - 1) ? false : done);
             reward += rwd;
             steps++;
+            if (steps % 2048 == 0) {
+                auto loss = agent.learn();
+                losses.store(loss);
+            }
             if (done) {
-                if (agent.buffer().size() >= 32) {
-                    auto loss = agent.learn();
-                    losses.store(loss);
-                }
+                // printf(" ==================== done t = %d, reward = %f\n", t, reward);
                 break;
             }
             obs = next_obs;
@@ -65,7 +100,7 @@ void train_pipeline_progressive(Env& env,
             plt.attr("clf")();
             plt.attr("plot")(mean_rewards.lined_vector(), "-o");
             plt.attr("ylabel")("Rewards");
-            plt.attr("ylim")(py::make_tuple(0, 500));
+            // plt.attr("ylim")(py::make_tuple(0, 500));
             plt.attr("pause")(0.1);
 
             printf("===========================\n");
@@ -73,6 +108,10 @@ void train_pipeline_progressive(Env& env,
             printf("100 games mean reward: %f\n", score);
             printf("100 games mean loss: %f\n", losses.mean());
             printf("===========================\n\n");
+        }
+
+        if (i_episode % 100 == 0) {
+            test(test_env, agent, 0, true);
         }
     }
     agent.save_model(model_name);
@@ -85,7 +124,7 @@ int main(int argc, char** argv)
 
     // ================================= //
     int env_id               = 0;
-    std::string dynet_memory = "1";
+    std::string dynet_memory = "512";
     std::string method       = "train";  // train/test
     unsigned int seed        = 321134;
     // ================================= //
@@ -107,6 +146,8 @@ int main(int argc, char** argv)
     if (seed == 0) {
         seed = time(nullptr);
     }
+
+    env_id = 0;
     // ================================= //
     // for dynet command line options
     dynet::DynetParams dynetParams;
@@ -116,28 +157,35 @@ int main(int argc, char** argv)
     dynet::initialize(dynetParams);
     rlcpp::set_rand_seed(seed);
 
-    std::vector<std::string> ENVs     = {"Pendulum-v1"};
-    std::vector<Int> score_thresholds = {499};
+    std::vector<std::string> ENVs = {"BipedalWalker-v3"};
+
     Gym_cpp env;
     env.make(ENVs[env_id]);
     env.env.attr("seed")(seed);
+
+    Gym_cpp test_env;
+    test_env.make(ENVs[env_id]);
 
     auto action_space = env.action_space();
     auto obs_space    = env.obs_space();
     assert(!action_space.bDiscrete);
     assert(!obs_space.bDiscrete);
-    printf("action space: %d, obs_space: %d\n", action_space.n, obs_space.shape.front());
+    auto action_dim = action_space.shape.front();
+    auto obs_dim    = obs_space.shape.front();
+    printf("action space: %d, obs_space: %d\n", action_dim, obs_dim);
 
-    int hidden                             = 128;
+    int hidden                             = 32;
     std::vector<dynet::Layer> actor_layers = {
-        dynet::Layer(obs_space.shape.front(), hidden, dynet::RELU, /* dropout_rate */ 0.0),
-        dynet::Layer(hidden, hidden, dynet::RELU, /* dropout_rate */ 0.0),
+        dynet::Layer(obs_dim, hidden, dynet::RELU, 0.0),
+        dynet::Layer(hidden, hidden, dynet::RELU, 0.0),
+        dynet::Layer(hidden, action_dim, dynet::TANH, 0.0),
     };
 
+    // get V function
     std::vector<dynet::Layer> critic_layers = {
-        dynet::Layer(obs_space.shape.front(), hidden, dynet::RELU, /* dropout_rate */ 0.0),
-        dynet::Layer(hidden, hidden, dynet::RELU, /* dropout_rate */ 0.0),
-        dynet::Layer(hidden, 1, dynet::LINEAR, /* dropout_rate */ 0.0),
+        dynet::Layer(obs_dim, hidden, dynet::RELU, 0.0),
+        dynet::Layer(hidden, hidden, dynet::RELU, 0.0),
+        dynet::Layer(hidden, 1, dynet::LINEAR, 0.0),
     };
 
     auto agent =
@@ -159,7 +207,7 @@ int main(int argc, char** argv)
 
     if (method == "train") {
         // for train
-        train_pipeline_progressive(env, *agent, model_name.str(), 5000);
+        train_pipeline_progressive(env, test_env, *agent, model_name.str(), 5000);
     }
 
     env.close();

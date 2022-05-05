@@ -76,15 +76,48 @@ std::ostream& operator<<(std::ostream& os, const Dynet_Network& network)
 
 namespace dynet
 {
-inline Expression clip(const Expression& expr,
-                       float low,
-                       float up,
-                       ComputationGraph& g,
-                       Device* device = dynet::default_device)
+inline Expression clip(const Expression& x, float low, float up, Device* device = dynet::default_device)
 {
-    auto dim = expr.dim();
-    return dynet::max(dynet::min(expr, dynet::constant(g, dim, up, device)), dynet::constant(g, dim, low, device));
+    auto dim = x.dim();
+    auto& g  = *x.pg;
+    return dynet::max(dynet::min(x, dynet::constant(g, dim, up, device)), dynet::constant(g, dim, low, device));
 }
+
+namespace distributions
+{
+
+/**
+ * @brief normal distribution expression
+ *
+ */
+struct Normal
+{
+    Normal(const dynet::Expression& mu, const dynet::Expression& logstd) : mu(mu), logstd(logstd) {}
+
+    dynet::Expression sample()
+    {
+        auto& g        = *this->mu.pg;
+        auto dist_expr = dynet::random_normal(g, mu.dim(), 0.0F, 1.0F);
+        return dynet::cmult(dist_expr, dynet::exp(this->logstd)) + this->mu;
+    }
+
+    dynet::Expression log_prob(const dynet::Expression& x)
+    {
+        constexpr float PI2 = 6.283185307179586;  // 2pi
+        auto& g             = *x.pg;
+        auto std_sq         = dynet::square(dynet::exp(this->logstd));
+        auto ret =
+            -dynet::square(x - this->mu) / (dynet::max(2 * std_sq, dynet::constant(g, this->logstd.dim(), 1e-4))) -
+            dynet::log(dynet::sqrt(PI2 * std_sq));
+        return ret;
+    }
+
+    dynet::Expression mu;
+    dynet::Expression logstd;
+};
+
+}  // namespace distributions
+
 }  // namespace dynet
 
 #endif  // !__DYNET_NETWORK_H__
