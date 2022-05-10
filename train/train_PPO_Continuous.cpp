@@ -111,7 +111,7 @@ void train_pipeline_progressive(Env& env,
         }
 
         if (i_episode % 100 == 0) {
-            test(test_env, agent, 0, true);
+            test(test_env, agent, 2, true);
         }
     }
     agent.save_model(model_name);
@@ -211,5 +211,6 @@ int main(int argc, char** argv)
     }
 
     env.close();
+    test_env.close();
     delete agent;
 }
