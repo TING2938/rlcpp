@@ -110,7 +110,7 @@ void train_pipeline_progressive(Env& env,
             printf("===========================\n\n");
         }
 
-        if (i_episode % 100 == 0) {
+        if (i_episode >= 1000 && i_episode % 100 == 0) {
             test(test_env, agent, 2, true);
         }
     }
@@ -143,6 +143,7 @@ int main(int argc, char** argv)
            "by using comma separated variables");
 
     getopt.finish();
+    seed = 1652232348;
     if (seed == 0) {
         seed = time(nullptr);
     }

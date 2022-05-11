@@ -36,17 +36,25 @@ int main(int argc, char** argv)
 
     getopt.finish();
 
+    env_id            = 0;
+    unsigned int seed = 1057046089;
+
     // ================================= //
     // for dynet command line options
     dynet::DynetParams dynetParams;
+    dynetParams.random_seed = seed;
     if (!dynet_memory.empty())
         dynetParams.mem_descriptor = dynet_memory;
     dynet::initialize(dynetParams);
-    rlcpp::set_rand_seed();
+    rlcpp::set_rand_seed(seed);
 
     vector<string> ENVs = {"CartPole-v1", "Acrobot-v1", "MountainCar-v0"};
-    Gym_cpp env;
+    Gym_cpp env, test_env;
     env.make(ENVs[env_id]);
+    env.env.attr("seed")(seed);
+
+    test_env.make(ENVs[env_id]);
+    test_env.env.attr("seed")(seed);
 
     auto action_space = env.action_space();
     auto obs_space    = env.obs_space();

@@ -15,6 +15,8 @@
 
 int main(int argc, char** argv)
 {
+    py::scoped_interpreter guard{};
+
     // ================================= //
     int env_id               = 0;
     std::string dynet_memory = "1";

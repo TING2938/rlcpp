@@ -15,7 +15,40 @@
 using namespace rlcpp;
 namespace py = pybind11;
 
+
+void test(Env& env, Agent& agent, Int n_turns, bool render = false)
+{
+    printf("Ready to test\n");
+
+    auto obs      = env.obs_space().getEmptyObs();
+    auto next_obs = env.obs_space().getEmptyObs();
+    auto action   = env.action_space().getEmptyAction();
+    Real reward;
+    bool done;
+
+    for (int i = 0; i < n_turns; i++) {
+        Real score = 0.0;
+        env.reset(&obs);
+        for (int k = 0; k < env.max_episode_steps; k++) {
+            agent.predict(obs, &action);  // predict according to Q table
+            env.step(action, &obs, &reward, &done);
+            score += reward;
+            // printf("k: %d\n", k);
+            if (done) {
+                printf("k = %d, The score is %f\n", k, score);
+                break;
+            }
+            if (render) {
+                env.render();
+            }
+        }
+        // printf("the score is %f\n", score);
+    }
+}
+
+
 void train_pipeline_progressive(Env& env,
+                                Env& test_env,
                                 PPO_Discrete_Agent& agent,
                                 const std::string& model_name,
                                 Int n_episode,
@@ -65,7 +98,7 @@ void train_pipeline_progressive(Env& env,
             plt.attr("clf")();
             plt.attr("plot")(mean_rewards.lined_vector(), "-o");
             plt.attr("ylabel")("Rewards");
-            plt.attr("ylim")(py::make_tuple(0, 500));
+            // plt.attr("ylim")(py::make_tuple(0, 500));
             plt.attr("pause")(0.1);
 
             printf("===========================\n");
@@ -73,6 +106,10 @@ void train_pipeline_progressive(Env& env,
             printf("100 games mean reward: %f\n", score);
             printf("100 games mean loss: %f\n", losses.mean());
             printf("===========================\n\n");
+        }
+
+        if (i_episode >= 100 && i_episode % 50 == 0) {
+            test(test_env, agent, 2, true);
         }
     }
     agent.save_model(model_name);
@@ -87,7 +124,7 @@ int main(int argc, char** argv)
     int env_id               = 0;
     std::string dynet_memory = "1";
     std::string method       = "train";  // train/test
-    unsigned int seed        = 321134;
+    unsigned int seed        = 0;
     // ================================= //
     // get options from commandline
     itp::Getopt getopt(argc, argv, "Train RL with DQN algorithm (dynet nn lib)");
@@ -104,6 +141,10 @@ int main(int argc, char** argv)
            "by using comma separated variables");
 
     getopt.finish();
+
+    env_id = 0;
+    seed   = 321134;
+
     if (seed == 0) {
         seed = time(nullptr);
     }
@@ -118,9 +159,11 @@ int main(int argc, char** argv)
 
     std::vector<std::string> ENVs     = {"CartPole-v1", "Acrobot-v1", "MountainCar-v0"};
     std::vector<Int> score_thresholds = {499, -100, -100};
-    Gym_cpp env;
+    Gym_cpp env, test_env;
     env.make(ENVs[env_id]);
     env.env.attr("seed")(seed);
+
+    test_env.make(ENVs[env_id]);
 
     auto action_space = env.action_space();
     auto obs_space    = env.obs_space();
@@ -159,7 +202,7 @@ int main(int argc, char** argv)
 
     if (method == "train") {
         // for train
-        train_pipeline_progressive(env, *agent, model_name.str(), 5000);
+        train_pipeline_progressive(env, test_env, *agent, model_name.str(), 5000);
     }
 
     env.close();
