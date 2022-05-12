@@ -11,7 +11,110 @@
 #include "tools/dynet_network/dynet_network.h"
 
 #include "tools/core_getopt.hpp"
-#include "train/train_test_utils.h"
+
+using namespace rlcpp;
+
+void train_pipeline_progressive(Env& env,
+                                Agent& agent,
+                                Real score_threshold,
+                                const std::string& model_name,
+                                Int n_episode,
+                                Int learn_start            = 100,
+                                Int print_every            = 10)
+{
+    auto seaborn = py::module_::import("seaborn");
+    auto plt     = py::module_::import("matplotlib.pyplot");
+    seaborn.attr("set")();
+
+    auto obs      = env.obs_space().getEmptyObs();
+    auto next_obs = env.obs_space().getEmptyObs();
+    auto action   = env.action_space().getEmptyAction();
+    Real rwd;
+    bool done;
+
+    RingVector<Real> rewards, losses, mean_rewards;
+    rewards.init(100);
+    losses.init(100);
+    mean_rewards.init(200);
+
+    for (int i_episode = 0; i_episode < n_episode; i_episode++) {
+        Real reward = 0.0;
+        env.reset(&obs);
+
+        for (int t = 0; t < env.max_episode_steps; t++) {
+            agent.sample(obs, &action);
+            env.step(action, &next_obs, &rwd, &done);
+            agent.store(obs, action, rwd, next_obs, (t == env.max_episode_steps - 1) ? false : done);
+            reward += rwd;
+            if (i_episode > learn_start) {
+                auto loss = agent.learn();
+                losses.store(loss);
+            }
+            if (rewards.mean() > 85 && (t % 10 == 0)) {
+                env.render();
+            }
+            if (done)
+                break;
+            obs = next_obs;
+        }
+        rewards.store(reward);
+
+        if (i_episode % print_every == 0) {
+            auto score = rewards.mean();
+            mean_rewards.store(score);
+            plt.attr("clf")();
+            plt.attr("plot")(mean_rewards.lined_vector(), "-o");
+            plt.attr("ylabel")("Rewards");
+            // plt.attr("ylim")(py::make_tuple(0, 500));
+            plt.attr("pause")(0.1);
+
+            printf("===========================\n");
+            printf("i_eposide: %d\n", i_episode);
+            printf("100 games mean reward: %f\n", score);
+            printf("100 games mean loss: %f\n", losses.mean());
+            printf("===========================\n\n");
+            if (score >= score_threshold) {
+                agent.save_model(model_name);
+                break;
+            }
+        }
+    }
+    agent.save_model(model_name);
+}
+
+void test(Env& env,
+          Agent& agent,
+          Int n_turns,
+          bool render                = false)
+{
+    printf("Ready to test, Press any key to coninue...\n");
+    getchar();
+
+    auto obs      = env.obs_space().getEmptyObs();
+    auto next_obs = env.obs_space().getEmptyObs();
+    auto action   = env.action_space().getEmptyAction();
+    Real reward;
+    bool done;
+
+    for (int i = 0; i < n_turns; i++) {
+        Real score = 0.0;
+        env.reset(&obs);
+        for (int k = 0; k < env.max_episode_steps; k++) {
+            agent.predict(obs, &action);  // predict according to Q table
+            env.step(action, &obs, &reward, &done);
+            if (render) {
+                env.render();
+            }
+            score += reward;
+            if (done) {
+                printf("The score is %f\n", score);
+                break;
+            }
+        }
+        // printf("the score is %f\n", score);
+    }
+}
+
 
 int main(int argc, char** argv)
 {

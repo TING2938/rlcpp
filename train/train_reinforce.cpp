@@ -9,7 +9,40 @@
 #include "tools/dynet_network/dynet_network.h"
 
 #include "tools/core_getopt.hpp"
-#include "train/train_test_utils.h"
+
+using namespace rlcpp;
+
+
+void test(Env& env, Agent& agent, Int n_turns, bool render = false)
+{
+    printf("Ready to test, Press any key to coninue...\n");
+    getchar();
+
+    auto obs      = env.obs_space().getEmptyObs();
+    auto next_obs = env.obs_space().getEmptyObs();
+    auto action   = env.action_space().getEmptyAction();
+    Real reward;
+    bool done;
+
+    for (int i = 0; i < n_turns; i++) {
+        Real score = 0.0;
+        env.reset(&obs);
+        for (int k = 0; k < env.max_episode_steps; k++) {
+            agent.predict(obs, &action);  // predict according to Q table
+            env.step(action, &obs, &reward, &done);
+            if (render) {
+                env.render();
+            }
+            score += reward;
+            if (done) {
+                printf("The score is %f\n", score);
+                break;
+            }
+        }
+        // printf("the score is %f\n", score);
+    }
+}
+
 
 int main(int argc, char** argv)
 {
@@ -18,6 +51,7 @@ int main(int argc, char** argv)
     int env_id               = 0;
     rlcpp::Real gamma        = 0.99;
     std::string dynet_memory = "1";
+    unsigned int seed        = 0;
     std::string method       = "train";  // train/test
     // ================================= //
     // get options from commandline
@@ -28,6 +62,7 @@ int main(int argc, char** argv)
            "\n0: CartPole-v1, 1: Acrobot-v1, 2: MountainCar-v0\n");
     getopt(gamma, "-gamma", false, "gamma for Gt");
     getopt(method, "-method", false, "set to train or test model\n");
+    getopt(seed, "-seed", false, "random seed to be set");
     getopt(dynet_memory, "-dynet_mem", false,
            "Memory used for dynet (MB).\n"
            "or set as FOR,BACK,PARAM,SCRATCH\n"
@@ -35,9 +70,6 @@ int main(int argc, char** argv)
            "by using comma separated variables");
 
     getopt.finish();
-
-    env_id            = 0;
-    unsigned int seed = 1057046089;
 
     // ================================= //
     // for dynet command line options
@@ -48,7 +80,7 @@ int main(int argc, char** argv)
     dynet::initialize(dynetParams);
     rlcpp::set_rand_seed(seed);
 
-    vector<string> ENVs = {"CartPole-v1", "Acrobot-v1", "MountainCar-v0"};
+    std::vector<std::string> ENVs = {"CartPole-v1", "Acrobot-v1", "MountainCar-v0"};
     Gym_cpp env, test_env;
     env.make(ENVs[env_id]);
     env.env.attr("seed")(seed);

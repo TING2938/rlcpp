@@ -142,9 +142,6 @@ int main(int argc, char** argv)
 
     getopt.finish();
 
-    env_id = 0;
-    seed   = 321134;
-
     if (seed == 0) {
         seed = time(nullptr);
     }

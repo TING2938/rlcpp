@@ -124,9 +124,9 @@ int main(int argc, char** argv)
 
     // ================================= //
     int env_id               = 0;
-    std::string dynet_memory = "512";
+    std::string dynet_memory = "1";
     std::string method       = "train";  // train/test
-    unsigned int seed        = 321134;
+    unsigned int seed        = 0;
     // ================================= //
     // get options from commandline
     itp::Getopt getopt(argc, argv, "Train RL with DQN algorithm (dynet nn lib)");
@@ -143,12 +143,11 @@ int main(int argc, char** argv)
            "by using comma separated variables");
 
     getopt.finish();
-    seed = 1652232348;
+
     if (seed == 0) {
         seed = time(nullptr);
     }
 
-    env_id = 0;
     // ================================= //
     // for dynet command line options
     dynet::DynetParams dynetParams;
