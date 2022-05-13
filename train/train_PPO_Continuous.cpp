@@ -17,7 +17,7 @@ namespace py = pybind11;
 using namespace py::literals;
 using namespace rlcpp::opt;
 
-void test(Env& env, Agent& agent, Int n_turns, bool render = false)
+Vecf test(Env& env, Agent& agent, Int n_turns, bool render = false)
 {
     printf("Ready to test\n");
 
@@ -26,6 +26,7 @@ void test(Env& env, Agent& agent, Int n_turns, bool render = false)
     auto action   = env.action_space().getEmptyAction();
     Real reward;
     bool done;
+    Vecf total_rewards(n_turns, 0);
 
     for (int i = 0; i < n_turns; i++) {
         Real score = 0.0;
@@ -43,8 +44,10 @@ void test(Env& env, Agent& agent, Int n_turns, bool render = false)
                 env.render();
             }
         }
+        total_rewards[i] = score;
         // printf("the score is %f\n", score);
     }
+    return total_rewards;
 }
 
 
@@ -59,14 +62,14 @@ void train_pipeline_progressive(Env& env,
     auto plt     = py::module_::import("matplotlib.pyplot");
     seaborn.attr("set")();
 
-
     rlcpp::State obs;
     rlcpp::State next_obs;
     rlcpp::Action action;
     Real rwd;
     bool done;
 
-    size_t steps = 0;
+    Real best_reward = -100000;
+    size_t steps     = 0;
 
     RingVector<Real> rewards, losses, mean_rewards;
     rewards.init(100);
@@ -111,13 +114,16 @@ void train_pipeline_progressive(Env& env,
             printf("===========================\n\n");
         }
 
-        if (i_episode >= 1000 && i_episode % 100 == 0) {
-            test(test_env, agent, 2, true);
+        if (i_episode >= 200 && i_episode % 100 == 0) {
+            auto test_rewards = rlcpp::mean(test(test_env, agent, 2, true));
+            if (test_rewards > best_reward) {
+                printf("Get BEST Reward! %f\n", test_rewards);
+                agent.save_model(rlcpp::build_reward_model_name(model_name, test_rewards));
+                best_reward = test_rewards;
+            }
         }
     }
-    agent.save_model(model_name);
 }
-
 
 int main(int argc, char** argv)
 {
@@ -190,26 +196,23 @@ int main(int argc, char** argv)
     };
 
     auto agent = new PPO_Continuous_Agent(actor_layers, critic_layers, obs_space.shape.front(),
-                                          action_space.shape.front(), 0.98);
+                                          action_space.shape.front(), 7, 64, 0.98, 0.95);
 
     std::stringstream model_name;
     model_name << "PPO-" << ENVs[env_id] << "_"
-               << "_actor-" << actor_layers << "_critic-" << critic_layers << ".params";
+               << "_actor-" << actor_layers << "_critic-" << critic_layers;
     std::cout << "model name: " << model_name.str() << std::endl;
 
-    /*
-        try {
-            agent->load_model(model_name.str());
-        } catch (const std::exception& e) {
-            std::cerr << e.what() << '\n';
-        }
-    */
-
-
-    if (method == "train") {
-        // for train
-        train_pipeline_progressive(env, test_env, *agent, model_name.str(), 50000);
+    try {
+        auto best_fnm = rlcpp::load_best_reward_model_name(model_name.str());
+        agent->load_model(best_fnm.first);
+        printf("load model file: %s\n", best_fnm.first.c_str());
+    } catch (const std::exception& e) {
+        std::cerr << e.what() << '\n';
     }
+
+    // for train
+    train_pipeline_progressive(env, test_env, *agent, model_name.str(), 50000);
 
     env.close();
     test_env.close();

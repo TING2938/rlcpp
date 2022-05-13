@@ -4,6 +4,7 @@
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/spdlog.h"
 #include "tools/ring_vector.h"
+#include "tools/utility.hpp"
 #include "tools/vector_tools.h"
 
 using namespace rlcpp::opt;
@@ -48,27 +49,24 @@ void ring_vector_example()
     fmt::print("[{}] the vec: {}\n", __LINE__, vec.lined_vector());
 }
 
+void fnm_match_test()
+{
+    std::string fnm = "/home/yeting/work/project/rlcpp/train/*.cpp";
+    auto ret        = rlcpp::file_match(fnm);
+    fmt::print("ret: {}\n", ret);
+}
+
+void reward_name_test()
+{
+    std::string fnm = "/home/yeting/work/project/rlcpp/build/reward_fnm_test/base";
+    auto ret        = rlcpp::load_best_reward_model_name(fnm);
+    fmt::print("ret: {} {}\n", ret.first, ret.second);
+}
+
 int main()
 {
-    std::vector<int> vec(10);
-    std::iota(vec.begin(), vec.end(), 1);
-
-    std::vector<int> vec2 = vec;
-    std::random_shuffle(vec.begin(), vec.end());
-    fmt::print("vec: {}\n", vec);
-
-    fmt::print("vec2: {}\n", vec2);
-    std::random_shuffle(vec2.begin(), vec2.end());
-    fmt::print("vec22: {}\n", vec2);
-
-    std::vector<int> ind = {2, 1, 5, 4, 3};
-
-    std::vector<int> out;
-
-    rlcpp::gather(vec, &out, ind.begin(), ind.end());
-
-    fmt::print("out: {}\n", rlcpp::gather(vec, {4, 1, 3}));
-
+    reward_name_test();
+    // fnm_match_test();
     // custom_class_example();
     // plt_example();
     // plt_subplot();
