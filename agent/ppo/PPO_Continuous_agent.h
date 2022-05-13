@@ -109,7 +109,7 @@ private:
 
 // observation space: continuous
 // action space: discrete
-class PPO_Discrete_Agent : public Agent
+class PPO_Continuous_Agent : public Agent
 {
     using Expression = dynet::Expression;
 
@@ -123,12 +123,12 @@ public:
      * @param act_dim
      * @param gamma
      */
-    PPO_Discrete_Agent(const std::vector<dynet::Layer>& actor_layers,
-                       const std::vector<dynet::Layer>& critic_layers,
-                       Int obs_dim,
-                       Int act_dim,
-                       Real gamma      = 0.99,
-                       Real gae_lambda = 0.95)
+    PPO_Continuous_Agent(const std::vector<dynet::Layer>& actor_layers,
+                         const std::vector<dynet::Layer>& critic_layers,
+                         Int obs_dim,
+                         Int act_dim,
+                         Real gamma      = 0.99,
+                         Real gae_lambda = 0.95)
         : actor(actor_layers, act_dim, 4e-4), critic(critic_layers, 1e-3)
     {
         this->obs_dim = obs_dim;

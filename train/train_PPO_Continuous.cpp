@@ -14,6 +14,7 @@
 
 using namespace rlcpp;
 namespace py = pybind11;
+using namespace py::literals;
 using namespace rlcpp::opt;
 
 void test(Env& env, Agent& agent, Int n_turns, bool render = false)
@@ -49,7 +50,7 @@ void test(Env& env, Agent& agent, Int n_turns, bool render = false)
 
 void train_pipeline_progressive(Env& env,
                                 Env& test_env,
-                                PPO_Discrete_Agent& agent,
+                                PPO_Continuous_Agent& agent,
                                 const std::string& model_name,
                                 Int n_episode,
                                 Int print_every = 10)
@@ -161,7 +162,7 @@ int main(int argc, char** argv)
 
     Gym_cpp env;
     env.make(ENVs[env_id]);
-    env.env.attr("seed")(seed);
+    env.env.attr("reset")("seed"_a = seed);
 
     Gym_cpp test_env;
     test_env.make(ENVs[env_id]);
@@ -188,8 +189,8 @@ int main(int argc, char** argv)
         dynet::Layer(hidden, 1, dynet::LINEAR, 0.0),
     };
 
-    auto agent =
-        new PPO_Discrete_Agent(actor_layers, critic_layers, obs_space.shape.front(), action_space.shape.front(), 0.98);
+    auto agent = new PPO_Continuous_Agent(actor_layers, critic_layers, obs_space.shape.front(),
+                                          action_space.shape.front(), 0.98);
 
     std::stringstream model_name;
     model_name << "PPO-" << ENVs[env_id] << "_"
@@ -207,7 +208,7 @@ int main(int argc, char** argv)
 
     if (method == "train") {
         // for train
-        train_pipeline_progressive(env, test_env, *agent, model_name.str(), 5000);
+        train_pipeline_progressive(env, test_env, *agent, model_name.str(), 50000);
     }
 
     env.close();
