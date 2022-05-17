@@ -238,7 +238,7 @@ inline T clip(const T& scalar, const T& low, const T& up)
         return up;
     }
     if (scalar < low) {
-        return low
+        return low;
     }
     return scalar;
 }
