@@ -230,6 +230,19 @@ inline std::vector<T> clip(const std::vector<T>& vec, const std::vector<T>& low,
     return ret;
 }
 
+template <typename T>
+inline T clip(const T& scalar, const T& low, const T& up)
+{
+    assert(low <= up);
+    if (scalar > up) {
+        return up;
+    }
+    if (scalar < low) {
+        return low
+    }
+    return scalar;
+}
+
 /**
  * @brief Do an elementwise linear transform of values a * vec + b
  *
