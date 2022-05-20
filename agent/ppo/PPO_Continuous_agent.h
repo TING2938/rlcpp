@@ -31,7 +31,7 @@ public:
     std::vector<State> states;
     std::vector<Action> actions;
     std::vector<State> new_states;
-    std::vector<Vecf> log_prob;
+    Vecf log_prob;
     Vecf value;
     Vecf adv;
     Vecf rewards;
@@ -141,16 +141,12 @@ public:
     void sample(const State& obs, Action* action) override
     {
         dynet::ComputationGraph cg;
-        auto obs_expr      = dynet::input(cg, {(unsigned)this->obs_dim}, obs);
-        auto mean_expr     = this->actor.get_mean(obs_expr, cg);
-        auto logstd_expr   = this->actor.get_logstd(cg);
-        auto pi            = dynet::distributions::Normal(mean_expr, logstd_expr);
-        auto action_expr   = dynet::clip(pi.sample(), -1, 1);
-        auto log_prob_expr = pi.log_prob(action_expr);  // {act_dim}
-        this->memory.log_prob.push_back(dynet::as_vector(cg.forward(log_prob_expr)));
-        *action         = dynet::as_vector(action_expr.value());
-        auto value_expr = this->critic.get_value(obs_expr, cg);
-        this->memory.value.push_back(dynet::as_scalar(cg.forward(value_expr)));
+        auto obs_expr    = dynet::input(cg, {(unsigned)this->obs_dim}, obs);
+        auto mean_expr   = this->actor.get_mean(obs_expr, cg);
+        auto logstd_expr = this->actor.get_logstd(cg);
+        auto pi          = dynet::distributions::Normal(mean_expr, logstd_expr);
+        auto action_expr = dynet::clip(pi.sample(), -1, 1);
+        *action          = dynet::as_vector(cg.forward(action_expr));
     }
 
     // 根据输入观测值，预测下一步动作
@@ -173,6 +169,7 @@ public:
 
     Real learn() override
     {
+        this->calculate_logprob_and_value();
         this->generalized_advantage_estimation();
 
         auto& old_log_policy = this->memory.log_prob;  // [act_dim, memory.size]
@@ -197,10 +194,10 @@ public:
                     this->memory.states.begin() + mb, this->memory.states.begin() + mb_end});  // [obs_dim, b]
                 Vecf minib_action         = rlcpp::flatten(std::vector<rlcpp::Action>{
                     this->memory.actions.begin() + mb, this->memory.actions.begin() + mb_end});  // [act_dim, b]
-                Vecf minib_old_log_policy = rlcpp::flatten(
-                    std::vector<Vecf>{old_log_policy.begin() + mb, old_log_policy.begin() + mb_end});  // [act_dim, b]
-                Vecf minib_adv     = {batch_adv.begin() + mb, batch_adv.begin() + mb_end};             // [1, b]
-                Vecf minib_rewards = {this->memory.rewards.begin() + mb,
+                Vecf minib_old_log_policy = {old_log_policy.begin() + mb * this->act_dim,
+                                             old_log_policy.begin() + mb_end * this->act_dim};     // [act_dim, b]
+                Vecf minib_adv            = {batch_adv.begin() + mb, batch_adv.begin() + mb_end};  // [1, b]
+                Vecf minib_rewards        = {this->memory.rewards.begin() + mb,
                                       this->memory.rewards.begin() + mb_end};  // [1, b]
 
                 dynet::ComputationGraph cg;
@@ -257,6 +254,23 @@ public:
     }
 
 private:
+    void calculate_logprob_and_value()
+    {
+        int minibsize = this->memory.size();
+        dynet::ComputationGraph cg;
+        auto obs_expr =
+            dynet::input(cg, dynet::Dim({(unsigned)this->obs_dim}, minibsize), rlcpp::flatten(this->memory.states));
+        auto action_expr =
+            dynet::input(cg, dynet::Dim({(unsigned)this->act_dim}, minibsize), rlcpp::flatten(this->memory.actions));
+        auto mean_expr        = this->actor.get_mean(obs_expr, cg);
+        auto logstd_expr      = this->actor.get_logstd(cg);
+        auto pi               = dynet::distributions::Normal(mean_expr, logstd_expr);
+        auto log_prob_expr    = pi.log_prob(action_expr);
+        auto value_expr       = this->critic.get_value(obs_expr, cg);
+        this->memory.log_prob = dynet::as_vector(cg.forward(log_prob_expr));
+        this->memory.value    = dynet::as_vector(cg.forward(value_expr));
+    }
+
     // Calculate the advantage diuscounted reward
     void generalized_advantage_estimation()
     {

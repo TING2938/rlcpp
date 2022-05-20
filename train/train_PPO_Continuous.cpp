@@ -114,7 +114,7 @@ void train_pipeline_progressive(Env& env,
             printf("===========================\n\n");
         }
 
-        if (i_episode >= 200 && i_episode % 100 == 0) {
+        if (i_episode >= 2000 && i_episode % 100 == 0) {
             auto test_rewards = rlcpp::mean(test(test_env, agent, 2, true));
             if (test_rewards > best_reward) {
                 printf("Get BEST Reward! %f\n", test_rewards);
