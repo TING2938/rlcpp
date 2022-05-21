@@ -4,22 +4,17 @@ project(rlcpp)
 
 set(CMAKE_CXX_STANDARD 14)
 
-set(THREADS_PREFER_PTHREAD_FLAG ON)
-find_package(Threads REQUIRED)
-
 ## for dynet
 set(DYNET_ROOT "/usr/local" CACHE PATH "the dynet installed prefix")
 include_directories(${DYNET_ROOT}/include)
 link_directories(${DYNET_ROOT}/lib)
 
-# for spdlog
-include_directories(${PROJECT_SOURCE_DIR}/third_party/spdlog)
-
-# for pybind11
+# for third_party
+add_subdirectory(third_party/spdlog)
 add_subdirectory(third_party/pybind11)
 
 include_directories(${PROJECT_SOURCE_DIR})
-set(PUBLIC_LINK_LIB dynet Threads::Threads pybind11::embed)
+set(PUBLIC_LINK_LIB dynet spdlog::spdlog_header_only pybind11::embed)
 
 # whether to use grpc
 option(USE_GRPC "use grpc " OFF)

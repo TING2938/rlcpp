@@ -1,15 +1,15 @@
-#define SPDLOG_HEADER_ONLY
-#define _USE_MATH_DEFINES
-#include "spdlog/fmt/ostr.h"  // must be included
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/spdlog.h"
+// add support for logging of std::vector
+#include "spdlog/fmt/ostr.h"  // must be included
+
 #include "tools/ring_vector.h"
 #include "tools/utility.hpp"
 #include "tools/vector_tools.h"
 
 using namespace rlcpp::opt;
 
-void custom_class_example()
+void spdlog_example()
 {
     std::vector<int> vec = {1, 3, 5, 67};
 
@@ -65,9 +65,9 @@ void reward_name_test()
 
 int main()
 {
-    reward_name_test();
+    // reward_name_test();
     // fnm_match_test();
-    // custom_class_example();
+    spdlog_example();
     // plt_example();
     // plt_subplot();
     // ring_vector_example();
