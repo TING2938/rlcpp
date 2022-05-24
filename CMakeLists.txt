@@ -26,6 +26,7 @@ target_include_directories(rlcpp INTERFACE ${CMAKE_CURRENT_LIST_DIR})
 
 ## for dynet
 set(DYNET_ROOT "/usr/local" CACHE PATH "the dynet installed prefix")
+message("-- DYNET_ROOT: ${DYNET_ROOT}")
 target_include_directories(rlcpp INTERFACE ${DYNET_ROOT}/include)   
 target_link_directories(rlcpp INTERFACE ${DYNET_ROOT}/lib)
 target_link_libraries(rlcpp INTERFACE dynet)
