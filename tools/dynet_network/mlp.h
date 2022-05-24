@@ -1,5 +1,4 @@
-#ifndef MLP_H
-#define MLP_H
+#pragma once
 
 /**
  * \file rnnlm-batch.h
@@ -329,4 +328,3 @@ std::ostream& operator<<(std::ostream& os, const MLP& mlp)
 }
 
 }  // namespace dynet
-#endif

@@ -9,8 +9,7 @@
  *
  */
 
-#ifndef __RL_ENV_H__
-#define __RL_ENV_H__
+#pragma once
 
 #include "common/rl_config.h"
 #include "common/state_action.h"
@@ -73,5 +72,3 @@ struct Env
     size_t max_episode_steps;
 };
 }  // namespace rlcpp
-
-#endif

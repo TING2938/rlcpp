@@ -2,8 +2,7 @@
  * http://blog.sina.com.cn/s/blog_628ba3e00101jll1.html
  */
 
-#ifndef __CORE_COLOR_HPP__
-#define __CORE_COLOR_HPP__
+#pragma once
 
 #include <iostream>
 #include <string>
@@ -54,5 +53,3 @@ inline void cursorPos(int x, int y)
 }
 }  // namespace color
 }  // namespace itp
-
-#endif  // !__CORE_COLOR_HPP__

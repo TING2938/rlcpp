@@ -1,5 +1,4 @@
-#ifndef __RLCPP_RINGVECTOR_H__
-#define __RLCPP_RINGVECTOR_H__
+#pragma once
 
 #include "common/rl_config.h"
 #include "tools/vector_tools.h"
@@ -91,5 +90,3 @@ protected:
     std::vector<T> memory;
 };
 }  // namespace rlcpp
-
-#endif  //!__RLCPP_RINGVECTOR_H__

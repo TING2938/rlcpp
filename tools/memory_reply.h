@@ -1,5 +1,4 @@
-#ifndef __RL_RANDOM_REPLY_H__
-#define __RL_RANDOM_REPLY_H__
+#pragma once
 
 #include <random>
 #include "common/state_action.h"
@@ -294,5 +293,3 @@ std::istream& operator>>(std::istream& is, RandomReply& reply)
 
 
 }  // namespace rlcpp
-
-#endif  // !__RL_RANDOM_REPLY_H__

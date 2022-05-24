@@ -9,8 +9,7 @@
  *
  */
 
-#ifndef __RL_RANDOM_TOOLS_H__
-#define __RL_RANDOM_TOOLS_H__
+#pragma once
 
 #include <cassert>
 #include "tools/vector_tools.h"
@@ -127,5 +126,3 @@ Veci random_choise(Int a, Int size, const Vecf& prob = {})
     return ret;
 }
 }  // namespace rlcpp
-
-#endif  // !__RL_RANDOM_TOOLS_H__

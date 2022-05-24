@@ -1,5 +1,4 @@
-#ifndef __CORE_GETOPT_H__
-#define __CORE_GETOPT_H__
+#pragma once
 
 #include <algorithm>
 #include <cstdio>
@@ -378,5 +377,3 @@ private:
 
 };  // class Getopt;
 }  // namespace itp
-
-#endif  // !__CORE_GETOPT_H__

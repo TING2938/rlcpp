@@ -1,5 +1,4 @@
-#ifndef __AIFAN_SIMPLE_H__
-#define __AIFAN_SIMPLE_H__
+#pragma once
 
 #include <pybind11/embed.h>
 #include "env/env.h"
@@ -219,6 +218,3 @@ private:
     RingVector<Real> memory_temp, memory_P, memory_Nx;
 };
 }  // namespace rlcpp
-
-
-#endif  // !__AIFAN_SIMPLE_H__

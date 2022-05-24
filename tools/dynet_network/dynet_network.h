@@ -1,5 +1,4 @@
-#ifndef __DYNET_NETWORK_H__
-#define __DYNET_NETWORK_H__
+#pragma once
 
 #include "dynet/io.h"
 #include "tools/dynet_network/mlp.h"
@@ -119,5 +118,3 @@ struct Normal
 }  // namespace distributions
 
 }  // namespace dynet
-
-#endif  // !__DYNET_NETWORK_H__

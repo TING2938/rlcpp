@@ -1,5 +1,4 @@
-#ifndef __GYM_ENV_H__
-#define __GYM_ENV_H__
+#pragma once
 
 #include <grpcpp/grpcpp.h>
 #include <cstdio>
@@ -113,5 +112,3 @@ private:
 };  // !class Gym_Env
 
 }  // namespace rlcpp
-
-#endif  // !__GYM_ENV_H__

@@ -1,5 +1,4 @@
-#ifndef __BASIC_AGENT_H__
-#define __BASIC_AGENT_H__
+#pragma once
 
 #define RLCPP_STATE_TYPE 0
 #define RLCPP_ACTION_TYPE 0
@@ -123,5 +122,3 @@ private:
 };  // !class Sarsa_agent
 
 }  // namespace rlcpp
-
-#endif  // !__BASIC_AGENT_H__

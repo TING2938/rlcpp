@@ -1,5 +1,4 @@
-#ifndef __RL_REDUCE_TREE_H__
-#define __RL_REDUCE_TREE_H__
+#pragma once
 
 #include <cstdio>
 #include "common/rl_config.h"
@@ -92,4 +91,3 @@ public:
     }
 };
 }  // namespace rlcpp
-#endif  // !__RL_REDUCE_TREE_H__

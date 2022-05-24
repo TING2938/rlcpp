@@ -1,5 +1,4 @@
-#ifndef __RL_STATE_ACTION_H__
-#define __RL_STATE_ACTION_H__
+#pragma once
 
 #include "common/rl_config.h"
 #include "tools/vector_tools.h"
@@ -73,5 +72,3 @@ struct Space
     }
 };
 }  // namespace rlcpp
-
-#endif  // !__RL_STATE_ACTION_H__

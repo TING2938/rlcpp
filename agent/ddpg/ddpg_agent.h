@@ -1,5 +1,4 @@
-#ifndef __RLCPP_DDPG_AGENT_H__
-#define __RLCPP_DDPG_AGENT_H__
+#pragma once
 
 #define RLCPP_STATE_TYPE 1
 #define RLCPP_ACTION_TYPE 1
@@ -188,5 +187,3 @@ private:
 };  // !class
 
 }  // namespace rlcpp
-
-#endif  // !__RLCPP_DDPG_AGENT_H__

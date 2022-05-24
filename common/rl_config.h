@@ -1,5 +1,4 @@
-#ifndef __RL_CONDIG_H__
-#define __RL_CONDIG_H__
+#pragma once
 
 #include <string>
 #include <vector>
@@ -17,5 +16,3 @@ using Vecf = std::vector<Real>;
 // print dynet Expression info, for debug
 #define DBG_VECTOR(expr) #expr << expr.dim() << ": " << dynet::as_vector(expr.value()) << "\n"
 #define DBG_SCALAR(expr) #expr ": [" << expr.dim() << "] " << dynet::as_scalar(expr.value()) << "\n"
-
-#endif  // !__RL_CONDIG_H__

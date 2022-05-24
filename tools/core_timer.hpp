@@ -1,7 +1,6 @@
 ﻿// https://github.com/99x/timercpp
 
-#ifndef _CORE_TIMER_H_
-#define _CORE_TIMER_H_
+#pragma once
 
 #include <atomic>
 #include <chrono>
@@ -120,5 +119,3 @@ public:
 };
 
 }  // namespace itp
-
-#endif  // _CORE_TIMER_H_

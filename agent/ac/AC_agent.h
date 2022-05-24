@@ -9,8 +9,7 @@
  *
  */
 
-#ifndef __RLCPP_AC_AGENT_H__
-#define __RLCPP_AC_AGENT_H__
+#pragma once
 
 #define RLCPP_STATE_TYPE 1
 #define RLCPP_ACTION_TYPE 0
@@ -138,5 +137,3 @@ private:
 };  // class AC_Agent
 
 }  // namespace rlcpp
-
-#endif  // !__RLCPP_AC_AGENT_H__

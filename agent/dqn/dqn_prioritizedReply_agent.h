@@ -1,5 +1,4 @@
-#ifndef __DQN_PrioritizedReply_Agent_AGENT_H__
-#define __BASIC_DOUBLE_DQN_DYNET_AGENT_H__
+#pragma once
 
 #define RLCPP_STATE_TYPE 1
 #define RLCPP_ACTION_TYPE 0
@@ -181,5 +180,3 @@ private:
 };  // !class Sarsa_agent
 
 }  // namespace rlcpp
-
-#endif  // !__BASIC_DOUBLE_DQN_DYNET_AGENT_H__

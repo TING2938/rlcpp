@@ -1,6 +1,4 @@
-#ifndef __RLCPP_UTILITY_HPP__
-#define __RLCPP_UTILITY_HPP__
-
+#pragma once
 
 #include <string.h>
 #include <ctime>
@@ -87,4 +85,3 @@ std::pair<std::string, float> load_best_reward_model_name(const std::string& bas
 }
 
 }  // namespace rlcpp
-#endif  // !__RLCPP_UTILITY_HPP__

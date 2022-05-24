@@ -1,5 +1,4 @@
-#ifndef __RLCPP_LOAD_DYNET_MODEL_HPP__
-#define __RLCPP_LOAD_DYNET_MODEL_HPP__
+#pragma once
 
 #include <torch/torch.h>
 
@@ -46,5 +45,3 @@ inline void load_from_dynet(torch::nn::Module& model, std::string fnm, std::stri
     fid.close();
 }
 }  // namespace rlcpp
-
-#endif  // !__RLCPP_LOAD_DYNET_MODEL_HPP__

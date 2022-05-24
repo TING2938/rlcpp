@@ -8,8 +8,7 @@
  * @copyright Copyright (c) 2022
  *
  */
-#ifndef __RLCPP_VECTOR_TOOLS_H__
-#define __RLCPP_VECTOR_TOOLS_H__
+#pragma once
 
 #include <algorithm>
 #include <cassert>
@@ -447,5 +446,3 @@ RLCPP_VEC_OP_NUM_INPLACE(%=)
 
 }  // namespace opt
 }  // namespace rlcpp
-
-#endif  // !__RLCPP_VECTOR_TOOLS_H__

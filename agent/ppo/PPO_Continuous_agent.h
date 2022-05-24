@@ -9,8 +9,7 @@
  *
  */
 
-#ifndef __RLCPP_PPO_Discrete_AGENT_H__
-#define __RLCPP_PPO_Discrete_AGENT_H__
+#pragma once
 
 #define RLCPP_STATE_TYPE 1
 #define RLCPP_ACTION_TYPE 1
@@ -319,5 +318,3 @@ private:
 };  // class AC_Agent
 
 }  // namespace rlcpp
-
-#endif  // !__RLCPP_PPO_Discrete_AGENT_H__

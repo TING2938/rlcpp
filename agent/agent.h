@@ -9,8 +9,7 @@
  *
  */
 
-#ifndef __RL_AGENT_H__
-#define __RL_AGENT_H__
+#pragma once
 
 #include "common/rl_config.h"
 #include "common/state_action.h"
@@ -60,5 +59,3 @@ struct Agent
 };  // !sturct Agent
 
 }  // namespace rlcpp
-
-#endif  // !__RL_AGENT_H__
