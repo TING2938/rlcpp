@@ -36,7 +36,12 @@ if (RLCPP_MASTER_PROJECT)
     add_subdirectory(third_party/spdlog)
     add_subdirectory(third_party/pybind11)
 
-    set(PUBLIC_LINK_LIB rlcpp::rlcpp spdlog::spdlog_header_only pybind11::embed)
+    # nlohmann_json
+    set(JSON_BuildTests OFF CACHE INTERNAL "")
+    set(JSON_Install OFF CACHE INTERNAL "")
+    add_subdirectory(third_party/json)
+
+    set(PUBLIC_LINK_LIB rlcpp::rlcpp spdlog::spdlog_header_only pybind11::embed nlohmann_json::nlohmann_json)
 
     # whether to use grpc
     option(USE_GRPC "use grpc " OFF)

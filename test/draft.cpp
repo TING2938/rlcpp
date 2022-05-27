@@ -3,11 +3,16 @@
 // add support for logging of std::vector
 #include "spdlog/fmt/ostr.h"  // must be included
 
+#include <fstream>
+#include <iostream>
+#include "nlohmann/json.hpp"
 #include "tools/ring_vector.h"
 #include "tools/utility.hpp"
 #include "tools/vector_tools.h"
 
 using namespace rlcpp::opt;
+
+using json = nlohmann::json;
 
 void spdlog_example()
 {
@@ -63,11 +68,47 @@ void reward_name_test()
     fmt::print("ret: {} {}\n", ret.first, ret.second);
 }
 
+void test_json()
+{
+    json j = {
+        {"pi", 3.14},
+        {"happy", true},
+        {"list", {1, 3, 6}},
+    };
+
+    std::cout << "j: " << j << std::endl;
+
+    auto j3 = json::parse(R"(
+    {
+        "happy": true,
+        "list": [
+            1,
+            3,
+            6
+        ],
+        "pi": 3.14
+    }
+    )");
+
+    auto list = j3["list"].get<std::vector<int>>();
+    for (auto&& l : list) {
+        fmt::print("{}\n", l);
+    }
+
+    std::ifstream fid("/home/yeting/work/project/SA_gRPC/configData/config.json");
+    json j4;
+    fid >> j4;
+
+    std::cout << "j4: " << j4.dump(4) << std::endl;
+    std::cout << j4["AI_application_list"] << std::endl;
+}
+
 int main()
 {
+    test_json();
     // reward_name_test();
     // fnm_match_test();
-    spdlog_example();
+    // spdlog_example();
     // plt_example();
     // plt_subplot();
     // ring_vector_example();
