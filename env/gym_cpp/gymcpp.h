@@ -23,11 +23,16 @@ public:
     {
         auto gym  = py::module::import("gym");
         this->env = gym.attr("make")(game_name);
-        auto mes  = this->env.attr("_max_episode_steps");
-        if (mes.is_none()) {
+        try {
+            auto mes = this->env.attr("_max_episode_steps");
+            if (mes.is_none()) {
+                this->max_episode_steps = -1;
+            } else {
+                this->max_episode_steps = py::cast<size_t>(mes);
+            }
+        } catch (const std::exception& e) {
+            std::cout << e.what() << std::endl;
             this->max_episode_steps = -1;
-        } else {
-            this->max_episode_steps = py::cast<size_t>(mes);
         }
     }
 

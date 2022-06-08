@@ -203,6 +203,8 @@ int main(int argc, char** argv)
     bool use_prioritized     = false;
     std::string dynet_memory = "1";
     std::string method       = "train";  // train/test
+    unsigned int seed        = 0;        // random seed
+
     // ================================= //
     // get options from commandline
     itp::Getopt getopt(argc, argv, "Train RL with DQN algorithm (dynet nn lib)");
@@ -213,6 +215,7 @@ int main(int argc, char** argv)
     getopt(use_double, "-ddqn", false, "whether to use double dqn\n");
     getopt(use_prioritized, "-prioritized", false, "whether to use prioitized memory reply\n");
     getopt(method, "-method", false, "set to train or test model\n");
+    getopt(seed, "-seed", false, "random seed to be set");
     getopt(dynet_memory, "-dynet_mem", false,
            "Memory used for dynet (MB).\n"
            "or set as FOR,BACK,PARAM,SCRATCH\n"
@@ -221,13 +224,18 @@ int main(int argc, char** argv)
 
     getopt.finish();
 
+    if (seed == 0) {
+        seed = time(nullptr);
+    }
+
     // ================================= //
     // for dynet command line options
     dynet::DynetParams dynetParams;
+    dynetParams.random_seed = seed;
     if (!dynet_memory.empty())
         dynetParams.mem_descriptor = dynet_memory;
     dynet::initialize(dynetParams);
-    rlcpp::set_rand_seed();
+    rlcpp::set_rand_seed(seed);
 
     if (env_id == 0) {
         batch_size = 256;
