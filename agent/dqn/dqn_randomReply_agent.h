@@ -103,14 +103,12 @@ public:
         }
 
         dynet::ComputationGraph cg;
-        Expression batch_state_expr =
-            dynet::input(cg, dynet::Dim({unsigned(this->obs_dim)}, batch_size), this->batch_state);
-        Expression batch_Q_expr = this->network.nn.run(batch_state_expr, cg);
-        Expression picked_values_expr =
-            dynet::pick(batch_Q_expr, {this->batch_action.begin(), this->batch_action.end()});
-        Expression target_values_expr = dynet::input(cg, dynet::Dim({1}, batch_size), target_values);
-        Expression loss = dynet::sum_batches(dynet::squared_distance(picked_values_expr, target_values_expr));
-        Real loss_value = dynet::as_scalar(cg.forward(loss));
+        auto batch_state_expr = dynet::input(cg, dynet::Dim({unsigned(this->obs_dim)}, batch_size), this->batch_state);
+        auto batch_Q_expr     = this->network.nn.run(batch_state_expr, cg);
+        auto picked_values_expr = dynet::pick(batch_Q_expr, {this->batch_action.begin(), this->batch_action.end()});
+        auto target_values_expr = dynet::input(cg, dynet::Dim({1}, batch_size), target_values);
+        auto loss               = dynet::sum_batches(dynet::squared_distance(picked_values_expr, target_values_expr));
+        Real loss_value         = dynet::as_scalar(cg.forward(loss));
         cg.backward(loss);
         this->trainer.update();
         this->epsilon = std::max(this->epsilon - this->epsilon_decrease, this->epsilon_lower);

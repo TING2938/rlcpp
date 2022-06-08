@@ -68,14 +68,14 @@ public:
     {
         this->calc_norm_rewards();
         dynet::ComputationGraph cg;
-        Expression op_state_expr =
+        auto op_state_expr =
             dynet::input(cg, dynet::Dim({unsigned(this->obs_dim)}, this->op_actions.size()), this->op_states);
-        Expression op_rewards_expr  = dynet::input(cg, dynet::Dim({1}, this->op_actions.size()), this->op_rewards);
-        Expression op_act_prob_expr = this->network.nn.run(op_state_expr, cg);
-        Expression op_picked_act_prob_expr = dynet::pick(op_act_prob_expr, this->op_actions);
-        Expression log_prob                = -dynet::log(op_picked_act_prob_expr);
-        Expression loss                    = dynet::mean_batches(dynet::cmult(log_prob, op_rewards_expr));
-        Real loss_value                    = dynet::as_scalar(cg.forward(loss));
+        auto op_rewards_expr         = dynet::input(cg, dynet::Dim({1}, this->op_actions.size()), this->op_rewards);
+        auto op_act_prob_expr        = this->network.nn.run(op_state_expr, cg);
+        auto op_picked_act_prob_expr = dynet::pick(op_act_prob_expr, this->op_actions);
+        auto log_prob                = -dynet::log(op_picked_act_prob_expr);
+        auto loss                    = dynet::mean_batches(dynet::cmult(log_prob, op_rewards_expr));
+        Real loss_value              = dynet::as_scalar(cg.forward(loss));
         cg.backward(loss);
         this->trainer.update();
         this->learn_step += 1;
