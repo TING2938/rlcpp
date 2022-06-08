@@ -26,7 +26,7 @@ target_include_directories(rlcpp INTERFACE ${CMAKE_CURRENT_LIST_DIR})
 
 ## for dynet
 set(DYNET_ROOT "/usr/local" CACHE PATH "the dynet installed prefix")
-message("-- DYNET_ROOT: ${DYNET_ROOT}")
+message(STATUS "DYNET_ROOT: ${DYNET_ROOT}")
 target_include_directories(rlcpp INTERFACE ${DYNET_ROOT}/include)   
 target_link_directories(rlcpp INTERFACE ${DYNET_ROOT}/lib)
 target_link_libraries(rlcpp INTERFACE dynet)
@@ -57,14 +57,14 @@ if (RLCPP_MASTER_PROJECT)
         ################################################
 
         file(GLOB PROTO_SRC_FILE ${PROTO_SRC_DIR}/*.cc)
-        message("proto src file 3: ${PROTO_SRC_FILE}")
+        message(STATUS "proto src file 3: ${PROTO_SRC_FILE}")
 
         add_library(protolib ${PROTO_SRC_FILE})
         set(GRPC_LINK_LIB gRPC::grpc++_reflection protobuf::libprotobuf protolib)
         set(PUBLIC_LINK_LIB ${PUBLIC_LINK_LIB} ${GRPC_LINK_LIB})
     endif()
 
-    message("public link lib: ${PUBLIC_LINK_LIB}")
+    message(STATUS "public link lib: ${PUBLIC_LINK_LIB}")
     add_subdirectory(train)
 
     option(BUILD_TEST "whether to build the test progrom" ON)
@@ -72,5 +72,5 @@ if (RLCPP_MASTER_PROJECT)
         add_subdirectory(test)
     endif()
 else()
-    message("-- load rlcpp::rlcpp done")
+    message(STATUS "load rlcpp::rlcpp done")
 endif()
