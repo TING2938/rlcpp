@@ -1,12 +1,13 @@
-#define RLCPP_STATE_TYPE 0
-#define RLCPP_ACTION_TYPE 0
-
 #include <tuple>
 #include "agent/qlearning/qlearning_agent.h"
 #include "env/gym_cpp/gymcpp.h"
 #include "tools/core_getopt.hpp"
 
 using namespace rlcpp;
+
+using State  = Qlearning_agent::State;
+using Action = Qlearning_agent::Action;
+using Env    = Gym_cpp<State, Action>;
 
 std::tuple<Real, Int> run_episode(Env& env,
                                   Qlearning_agent& agent,
@@ -80,7 +81,7 @@ int main(int argc, char** argv)
 
     getopt.finish();
 
-    Gym_cpp env;
+    Env env;
 
     env.make(ENVs[env_id]);  // 0 up, 1 right, 2 down, 3 left
     auto action_space = env.action_space();
@@ -96,9 +97,9 @@ int main(int argc, char** argv)
     model_name << "QLearning-" << ENVs[env_id] << "-" << obs_space.n << "-" << action_space.n << ".params";
     agent.load_model(model_name.str());
 
-    auto obs      = obs_space.getEmptyObs();
-    auto next_obs = obs_space.getEmptyObs();
-    auto action   = action_space.getEmptyAction();
+    State obs;
+    State next_obs;
+    Action action;
     Real reward;
     bool done;
 

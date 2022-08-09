@@ -43,27 +43,6 @@ if (RLCPP_MASTER_PROJECT)
 
     set(PUBLIC_LINK_LIB rlcpp::rlcpp spdlog::spdlog_header_only pybind11::embed nlohmann_json::nlohmann_json)
 
-    # whether to use grpc
-    option(USE_GRPC "use grpc " OFF)
-    if(USE_GRPC)
-        find_package(Protobuf REQUIRED)
-        find_package(gRPC REQUIRED)
-        include_directories(${GRPC_INCLUDE_DIRS})
-        include_directories(${PROTOBUF_INCLUDE_DIRS})
-        
-        ####### change this dir to proto src dir #######
-        set(PROTO_SRC_DIR ${PROJECT_SOURCE_DIR}/env/grpc_gym/proto_out)
-        include_directories(${PROTO_SRC_DIR})
-        ################################################
-
-        file(GLOB PROTO_SRC_FILE ${PROTO_SRC_DIR}/*.cc)
-        message(STATUS "proto src file 3: ${PROTO_SRC_FILE}")
-
-        add_library(protolib ${PROTO_SRC_FILE})
-        set(GRPC_LINK_LIB gRPC::grpc++_reflection protobuf::libprotobuf protolib)
-        set(PUBLIC_LINK_LIB ${PUBLIC_LINK_LIB} ${GRPC_LINK_LIB})
-    endif()
-
     message(STATUS "public link lib: ${PUBLIC_LINK_LIB}")
     add_subdirectory(train)
 

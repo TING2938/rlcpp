@@ -1,21 +1,24 @@
 #pragma once
 
-#define RLCPP_STATE_TYPE 0
-#define RLCPP_ACTION_TYPE 0
-
 #include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include "agent/agent.h"
+
+#include "common/rl_config.h"
+#include "common/state_action.h"
 #include "tools/random_tools.h"
 
 namespace rlcpp
 {
 // observation space: discrete
 // action space: discrete
-class Qlearning_agent : public Agent
+class Qlearning_agent
 {
+public:
+    using State  = Int;
+    using Action = Int;
+
 public:
     void init(Int obs_n, Int act_n, Real learning_rate = 0.01, Real gamma = 0.9, Real e_greed = 0.1)
     {
@@ -28,7 +31,7 @@ public:
     }
 
     // 根据观测值，采样输出动作，带探索过程
-    void sample(const State& obs, Action* action) override
+    void sample(const State& obs, Action* action)
     {
         if (randf() < (1.0 - this->e_greed)) {
             this->predict(obs, action);
@@ -38,7 +41,7 @@ public:
     }
 
     // 根据输入观测值，预测下一步动作
-    void predict(const State& obs, Action* action) override
+    void predict(const State& obs, Action* action)
     {
         auto& Q_list = this->Q[obs];
         auto maxQ    = max(Q_list);
@@ -48,13 +51,6 @@ public:
                 action_list.push_back(i);
         }
         *action = random_choise(action_list);
-    }
-
-    void store(const State& state, const Action& action, Real reward, const State& next_state, bool done) override {}
-
-    Real learn() override
-    {
-        return 0.0f;
     }
 
     void learn(const State& obs, const Action& action, Real reward, const State& next_obs, bool done)
@@ -69,7 +65,7 @@ public:
         this->Q[obs][action] += this->learning_rate * (target_Q - predict_Q);
     }
 
-    void save_model(const string& file_name) override
+    void save_model(const string& file_name)
     {
         std::ofstream fid(file_name);
         fid << "# Q-Learning Algorithm, obs_n * act_n: " << '\n';
@@ -83,7 +79,7 @@ public:
         fid.close();
     }
 
-    void load_model(const string& file_name) override
+    void load_model(const string& file_name)
     {
         std::ifstream fid(file_name);
         if (!fid) {

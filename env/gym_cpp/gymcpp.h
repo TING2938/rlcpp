@@ -3,7 +3,8 @@
 #include <pybind11/embed.h>
 #include <pybind11/numpy.h>
 #include <pybind11/stl.h>
-#include "env/env.h"
+#include "common/rl_config.h"
+#include "common/state_action.h"
 
 namespace rlcpp
 {
@@ -12,14 +13,15 @@ namespace
 namespace py = pybind11;
 }
 
-class __attribute__((visibility("hidden"))) Gym_cpp : public Env
+template <typename State, typename Action>
+class __attribute__((visibility("hidden"))) Gym_cpp
 {
 public:
     Gym_cpp() {}
 
     ~Gym_cpp() {}
 
-    void make(const string& game_name) override
+    void make(const string& game_name)
     {
         auto gym  = py::module::import("gym");
         this->env = gym.attr("make")(game_name);
@@ -36,7 +38,7 @@ public:
         }
     }
 
-    Space action_space() const override
+    Space action_space() const
     {
         Space ret;
         auto act_space = this->env.attr("action_space");
@@ -52,7 +54,7 @@ public:
         return ret;
     }
 
-    Space obs_space() const override
+    Space obs_space() const
     {
         Space ret;
         auto obs_space = this->env.attr("observation_space");
@@ -68,17 +70,17 @@ public:
         return ret;
     }
 
-    void reset(State* obs) override
+    void reset(State* obs)
     {
         *obs = py::cast<State>(this->env.attr("reset")());
     }
 
-    void close() override
+    void close()
     {
         this->env.attr("close")();
     }
 
-    void step(const Action& action, State* next_obs, Real* reward, bool* done) override
+    void step(const Action& action, State* next_obs, Real* reward, bool* done)
     {
         py::tuple res = this->env.attr("step")(action);
         *next_obs     = py::cast<State>(res[0]);
@@ -87,11 +89,16 @@ public:
         // py::print(py::str("run step, action: {}, res: {}").format(action, res));
     }
 
-    void render() override
+    void render()
     {
         this->env.attr("render")();
     }
 
     py::object env;
+
+    /**
+     * @brief  最大回合数
+     */
+    size_t max_episode_steps;
 };  // !class PyGym
 }  // namespace rlcpp

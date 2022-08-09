@@ -5,6 +5,9 @@
 #include "tools/random_tools.h"
 #include "tools/ring_vector.h"
 
+#include "common/rl_config.h"
+#include "common/state_action.h"
+
 namespace py = pybind11;
 using namespace pybind11::literals;
 
@@ -35,7 +38,8 @@ private:
 
 namespace rlcpp
 {
-class __attribute__((visibility("hidden"))) AIFanSimple : public Env
+template <typename State, typename Action>
+class __attribute__((visibility("hidden"))) AIFanSimple
 {
 public:
     void make(const string& gameName)
