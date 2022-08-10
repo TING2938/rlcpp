@@ -1,9 +1,5 @@
-#define RLCPP_STATE_TYPE 1
-#define RLCPP_ACTION_TYPE 1
-
 #include <sstream>
 #include "agent/ddpg/ddpg_agent.h"
-#include "env/grpc_gym/gym_env.h"
 #include "env/gym_cpp/gymcpp.h"
 #include "tools/core_getopt.hpp"
 #include "tools/dynet_network/dynet_network.h"
@@ -11,22 +7,21 @@
 using namespace rlcpp;
 using namespace rlcpp::opt;
 
+using State  = DDPG_Agent::State;
+using Action = DDPG_Agent::Action;
+using Env    = Gym_cpp<State, Action>;
 
 inline Action scale_action(const Action& action, const Vecf& scale_a, const Vecf& scale_b)
 {
-#if RLCPP_ACTION_TYPE == 0
-    return action;
-#elif RLCPP_ACTION_TYPE == 1
     if (scale_a.empty())
         return action;
     else {
         return scale(action, scale_a, scale_b);
     }
-#endif
 }
 
 void train_pipeline_progressive(Env& env,
-                                Agent& agent,
+                                DDPG_Agent& agent,
                                 Real score_threshold,
                                 const std::string& model_name,
                                 Int n_episode,
@@ -39,9 +34,9 @@ void train_pipeline_progressive(Env& env,
     auto plt     = py::module_::import("matplotlib.pyplot");
     seaborn.attr("set")();
 
-    auto obs      = env.obs_space().getEmptyObs();
-    auto next_obs = env.obs_space().getEmptyObs();
-    auto action   = env.action_space().getEmptyAction();
+    State obs;
+    State next_obs;
+    Action action;
     Real rwd;
     bool done;
 
@@ -63,7 +58,7 @@ void train_pipeline_progressive(Env& env,
                 auto loss = agent.learn();
                 losses.store(loss);
             }
-            if (t % 10 == 0) {
+            if (t % 1000 == 0) {
                 env.render();
             }
             if (done)
@@ -96,7 +91,7 @@ void train_pipeline_progressive(Env& env,
 }
 
 void train_pipeline_conservative(Env& env,
-                                 Agent& agent,
+                                 DDPG_Agent& agent,
                                  Real score_threshold,
                                  const std::string& model_name,
                                  Int n_epoch                = 500,
@@ -111,9 +106,9 @@ void train_pipeline_conservative(Env& env,
     auto plt     = py::module_::import("matplotlib.pyplot");
     seaborn.attr("set")();
 
-    auto obs      = env.obs_space().getEmptyObs();
-    auto next_obs = env.obs_space().getEmptyObs();
-    auto action   = env.action_space().getEmptyAction();
+    State obs;
+    State next_obs;
+    Action action;
     Real rwd;
     bool done;
     Vecf rewards, losses;
@@ -176,7 +171,7 @@ void train_pipeline_conservative(Env& env,
 }
 
 void test(Env& env,
-          Agent& agent,
+          DDPG_Agent& agent,
           Int n_turns,
           bool render                = false,
           const Vecf& scale_action_a = {},
@@ -185,9 +180,9 @@ void test(Env& env,
     printf("Ready to test, Press any key to coninue...\n");
     getchar();
 
-    auto obs      = env.obs_space().getEmptyObs();
-    auto next_obs = env.obs_space().getEmptyObs();
-    auto action   = env.action_space().getEmptyAction();
+    State obs;
+    State next_obs;
+    Action action;
     Real reward;
     bool done;
 
@@ -246,7 +241,7 @@ int main(int argc, char** argv)
     rlcpp::set_rand_seed();
 
     std::vector<std::string> ENVs = {"Pendulum-v1", "Walker2d-v2"};
-    Gym_cpp env;
+    Env env;
     env.make(ENVs[env_id]);
 
     auto obs_dim    = env.obs_space().shape.front();

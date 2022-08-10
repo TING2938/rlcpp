@@ -1,12 +1,7 @@
-#define RLCPP_STATE_TYPE 1
-#define RLCPP_ACTION_TYPE 0
-
 #include <pybind11/embed.h>
 #include <pybind11/stl.h>
 #include <sstream>
-#include "agent/agent.h"
 #include "agent/ppo/PPO_Discrete_agent.h"
-#include "env/env.h"
 #include "env/gym_cpp/gymcpp.h"
 #include "tools/core_getopt.hpp"
 #include "tools/dynet_network/dynet_network.h"
@@ -15,14 +10,17 @@
 using namespace rlcpp;
 namespace py = pybind11;
 
+using State  = PPO_Discrete_Agent::State;
+using Action = PPO_Discrete_Agent::Action;
+using Env    = Gym_cpp<State, Action>;
 
-void test(Env& env, Agent& agent, Int n_turns, bool render = false)
+void test(Env& env, PPO_Discrete_Agent& agent, Int n_turns, bool render = false)
 {
     printf("Ready to test\n");
 
-    auto obs      = env.obs_space().getEmptyObs();
-    auto next_obs = env.obs_space().getEmptyObs();
-    auto action   = env.action_space().getEmptyAction();
+    State obs;
+    State next_obs;
+    Action action;
     Real reward;
     bool done;
 
@@ -58,9 +56,9 @@ void train_pipeline_progressive(Env& env,
     auto plt     = py::module_::import("matplotlib.pyplot");
     seaborn.attr("set")();
 
-    rlcpp::State obs;
-    rlcpp::State next_obs;
-    rlcpp::Action action;
+    State obs;
+    State next_obs;
+    Action action;
     Real rwd;
     bool done;
 
@@ -156,7 +154,7 @@ int main(int argc, char** argv)
 
     std::vector<std::string> ENVs     = {"CartPole-v1", "Acrobot-v1", "MountainCar-v0"};
     std::vector<Int> score_thresholds = {499, -100, -100};
-    Gym_cpp env, test_env;
+    Env env, test_env;
     env.make(ENVs[env_id]);
     env.env.attr("seed")(seed);
 

@@ -3,6 +3,7 @@
 #include <pybind11/embed.h>
 #include <pybind11/numpy.h>
 #include <pybind11/stl.h>
+#include <iostream>
 #include "common/rl_config.h"
 #include "common/state_action.h"
 

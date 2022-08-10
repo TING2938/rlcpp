@@ -1,7 +1,3 @@
-#define RLCPP_STATE_TYPE 1
-#define RLCPP_ACTION_TYPE 0
-
-#include "env/grpc_gym/gym_env.h"
 #include "env/gym_cpp/gymcpp.h"
 
 #include "agent/policy_gradient/reinforce_agent.h"
@@ -12,15 +8,18 @@
 
 using namespace rlcpp;
 
+using State  = REINFORCE_Agent::State;
+using Action = REINFORCE_Agent::Action;
+using Env    = Gym_cpp<State, Action>;
 
-void test(Env& env, Agent& agent, Int n_turns, bool render = false)
+void test(Env& env, REINFORCE_Agent& agent, Int n_turns, bool render = false)
 {
     printf("Ready to test, Press any key to coninue...\n");
     getchar();
 
-    auto obs      = env.obs_space().getEmptyObs();
-    auto next_obs = env.obs_space().getEmptyObs();
-    auto action   = env.action_space().getEmptyAction();
+    State obs;
+    State next_obs;
+    Action action;
     Real reward;
     bool done;
 
@@ -81,7 +80,7 @@ int main(int argc, char** argv)
     rlcpp::set_rand_seed(seed);
 
     std::vector<std::string> ENVs = {"CartPole-v1", "Acrobot-v1", "MountainCar-v0"};
-    Gym_cpp env, test_env;
+    Env env, test_env;
     env.make(ENVs[env_id]);
     env.env.attr("seed")(seed);
 
@@ -113,11 +112,11 @@ int main(int argc, char** argv)
     }
 
     if (method == "train") {
-        auto obs      = obs_space.getEmptyObs();
-        auto action   = action_space.getEmptyAction();
-        auto next_obs = obs_space.getEmptyObs();
-        Real reward   = 0.0;
-        bool done     = false;
+        State obs;
+        State next_obs;
+        Action action;
+        Real reward = 0.0;
+        bool done   = false;
 
         for (int i_episode = 0; i_episode < 5000; i_episode++) {
             env.reset(&obs);

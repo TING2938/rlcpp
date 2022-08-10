@@ -11,14 +11,13 @@
 
 #pragma once
 
-#define RLCPP_STATE_TYPE 1
-#define RLCPP_ACTION_TYPE 0
-
 #include <algorithm>
-#include "agent/agent.h"
 #include "tools/dynet_network/dynet_network.h"
 #include "tools/memory_reply.h"
 #include "tools/random_tools.h"
+
+#include "common/rl_config.h"
+#include "common/state_action.h"
 
 namespace rlcpp
 {
@@ -26,6 +25,10 @@ using namespace opt;
 
 class PPORandomReply
 {
+public:
+    using State  = Vecf;
+    using Action = Int;
+
 public:
     std::vector<State> states;
     std::vector<Action> actions;
@@ -66,9 +69,13 @@ public:
 
 // observation space: continuous
 // action space: discrete
-class PPO_Discrete_Agent : public Agent
+class PPO_Discrete_Agent
 {
     using Expression = dynet::Expression;
+
+public:
+    using State  = Vecf;
+    using Action = Int;
 
 public:
     PPO_Discrete_Agent(const std::vector<dynet::Layer>& actor_layers,
@@ -94,7 +101,7 @@ public:
     }
 
     // 根据观测值，采样输出动作，带探索过程
-    void sample(const State& obs, Action* action) override
+    void sample(const State& obs, Action* action)
     {
         auto act_prob = this->actor.predict(obs);
         *action       = random_choise(this->act_n, act_prob);
@@ -102,13 +109,13 @@ public:
     }
 
     // 根据输入观测值，预测下一步动作
-    void predict(const State& obs, Action* action) override
+    void predict(const State& obs, Action* action)
     {
         auto act_prob = this->actor.predict(obs);
         *action       = argmax(act_prob);
     }
 
-    void store(const State& state, const Action& action, Real reward, const State& next_state, bool done) override
+    void store(const State& state, const Action& action, Real reward, const State& next_state, bool done)
     {
         this->memory.states.push_back(state);
         this->memory.actions.push_back(action);
@@ -116,7 +123,7 @@ public:
         this->memory.dones.push_back(done);
     }
 
-    Real learn() override
+    Real learn()
     {
         Vecf Rs(this->memory.rewards.size(), 0);
         Real R = 0.0;
@@ -179,13 +186,13 @@ public:
         return total_loss;
     }
 
-    void save_model(const string& file_name) override
+    void save_model(const string& file_name)
     {
         this->actor.save(file_name, "/ppo_actor_network", false);
         this->critic.save(file_name, "/ppo_critic_network", true);
     }
 
-    void load_model(const string& file_name) override
+    void load_model(const string& file_name)
     {
         this->actor.load(file_name, "/ppo_actor_network");
         this->critic.load(file_name, "/ppo_critic_network");

@@ -1,6 +1,3 @@
-#define RLCPP_STATE_TYPE 1
-#define RLCPP_ACTION_TYPE 0
-
 #include <sstream>
 
 #include "env/aifan_simple/aifan.h"
@@ -14,21 +11,25 @@
 
 using namespace rlcpp;
 
+using State  = DQN_Base_Agent::State;
+using Action = DQN_Base_Agent::Action;
+using Env    = AIFanSimple<State, Action>;
+
 void train_pipeline_progressive(Env& env,
-                                Agent& agent,
+                                DQN_Base_Agent& agent,
                                 Real score_threshold,
                                 const std::string& model_name,
                                 Int n_episode,
-                                Int learn_start            = 100,
-                                Int print_every            = 10)
+                                Int learn_start = 100,
+                                Int print_every = 10)
 {
     auto seaborn = py::module_::import("seaborn");
     auto plt     = py::module_::import("matplotlib.pyplot");
     seaborn.attr("set")();
 
-    auto obs      = env.obs_space().getEmptyObs();
-    auto next_obs = env.obs_space().getEmptyObs();
-    auto action   = env.action_space().getEmptyAction();
+    State obs;
+    State next_obs;
+    Action action;
     Real rwd;
     bool done;
 
@@ -82,17 +83,14 @@ void train_pipeline_progressive(Env& env,
     agent.save_model(model_name);
 }
 
-void test(Env& env,
-          Agent& agent,
-          Int n_turns,
-          bool render                = false)
+void test(Env& env, DQN_Base_Agent& agent, Int n_turns, bool render = false)
 {
     printf("Ready to test, Press any key to coninue...\n");
     getchar();
 
-    auto obs      = env.obs_space().getEmptyObs();
-    auto next_obs = env.obs_space().getEmptyObs();
-    auto action   = env.action_space().getEmptyAction();
+    State obs;
+    State next_obs;
+    Action action;
     Real reward;
     bool done;
 
@@ -150,7 +148,7 @@ int main(int argc, char** argv)
 
     batch_size = 32;
 
-    AIFanSimple env;
+    Env env;
     env.make("aifan");
 
     auto action_space = env.action_space();
@@ -164,7 +162,7 @@ int main(int argc, char** argv)
         dynet::Layer(256, action_space.n, dynet::LINEAR, /* dropout_rate */ 0.0),
     };
 
-    Agent* agent;
+    DQN_Base_Agent* agent;
     if (use_prioritized) {
         agent =
             new DQN_PrioritizedReply_Agent(layers, max_reply_memory_size, use_double, batch_size, 500, 0.99, 1, 5e-5);

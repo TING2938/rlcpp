@@ -11,13 +11,12 @@
 
 #pragma once
 
-#define RLCPP_STATE_TYPE 1
-#define RLCPP_ACTION_TYPE 0
-
 #include <algorithm>
-#include "agent/agent.h"
 #include "tools/dynet_network/dynet_network.h"
 #include "tools/random_tools.h"
+
+#include "common/rl_config.h"
+#include "common/state_action.h"
 
 namespace rlcpp
 {
@@ -25,9 +24,13 @@ using namespace opt;
 
 // observation space: continuous
 // action space: discrete
-class REINFORCE_Agent : public Agent
+class REINFORCE_Agent
 {
     using Expression = dynet::Expression;
+
+public:
+    using State  = Vecf;
+    using Action = Int;
 
 public:
     REINFORCE_Agent(const std::vector<dynet::Layer>& layers, Real gamma = 0.99) : network(), trainer(network.model)
@@ -44,27 +47,27 @@ public:
     }
 
     // 根据观测值，采样输出动作，带探索过程
-    void sample(const State& obs, Action* action) override
+    void sample(const State& obs, Action* action)
     {
         auto act_prob = this->network.predict(obs);
         *action       = random_choise(this->act_n, act_prob);
     }
 
     // 根据输入观测值，预测下一步动作
-    void predict(const State& obs, Action* action) override
+    void predict(const State& obs, Action* action)
     {
         auto act_prob = this->network.predict(obs);
         *action       = argmax(act_prob);
     }
 
-    void store(const State& state, const Action& action, Real reward, const State& next_state, bool done) override
+    void store(const State& state, const Action& action, Real reward, const State& next_state, bool done)
     {
         this->op_states.insert(this->op_states.end(), state.begin(), state.end());
         this->op_actions.push_back(action);
         this->op_rewards.push_back(reward);
     }
 
-    Real learn() override
+    Real learn()
     {
         this->calc_norm_rewards();
         dynet::ComputationGraph cg;
@@ -85,12 +88,12 @@ public:
         return loss_value;
     }
 
-    void save_model(const string& file_name) override
+    void save_model(const string& file_name)
     {
         this->network.save(file_name, "/reinforce_network");
     }
 
-    void load_model(const string& file_name) override
+    void load_model(const string& file_name)
     {
         this->network.load(file_name, "/reinforce_network");
     }

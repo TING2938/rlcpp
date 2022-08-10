@@ -1,10 +1,7 @@
 #pragma once
 
-#define RLCPP_STATE_TYPE 1
-#define RLCPP_ACTION_TYPE 0
-
 #include <algorithm>
-#include "agent/agent.h"
+#include "dqn_base_agent.h"
 #include "tools/dynet_network/dynet_network.h"
 #include "tools/memory_reply.h"
 #include "tools/random_tools.h"
@@ -13,7 +10,7 @@ namespace rlcpp
 {
 // observation space: continuous
 // action space: discrete
-class DQN_PrioritizedReply_Agent : public Agent
+class DQN_PrioritizedReply_Agent : public DQN_Base_Agent
 {
     using Expression = dynet::Expression;
 

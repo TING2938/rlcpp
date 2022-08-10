@@ -1,10 +1,7 @@
 #pragma once
 
-#define RLCPP_STATE_TYPE 1
-#define RLCPP_ACTION_TYPE 0
-
 #include <algorithm>
-#include "agent/agent.h"
+#include "dqn_base_agent.h"
 #include "tools/dynet_network/dynet_network.h"
 #include "tools/memory_reply.h"
 #include "tools/random_tools.h"
@@ -13,7 +10,7 @@ namespace rlcpp
 {
 // observation space: continuous
 // action space: discrete
-class DQN_RandomReply_Agent : public Agent
+class DQN_RandomReply_Agent : public DQN_Base_Agent
 {
     using Expression = dynet::Expression;
 
@@ -136,7 +133,7 @@ public:
         }
     }
 
-    RandomReply& memory_reply()
+    RandomReply<State, Action>& memory_reply()
     {
         return this->memory;
     }
@@ -160,7 +157,7 @@ private:
     bool use_double;
     dynet::AdamTrainer trainer;
 
-    RandomReply memory;
+    RandomReply<State, Action> memory;
     Vecf batch_state;
     Vecf batch_action;
     Vecf batch_reward;

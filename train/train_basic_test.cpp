@@ -1,18 +1,19 @@
-#define RLCPP_STATE_TYPE 1
-#define RLCPP_ACTION_TYPE 0
-
 #include "env/gym_cpp/gymcpp.h"
 #include "tools/core_timer.hpp"
 #include "tools/random_tools.h"
 
 using namespace rlcpp;
 
+using State  = Vecf;
+using Action = Int;
+using Env    = Gym_cpp<State, Action>;
+
 int main()
 {
     rlcpp::set_rand_seed();
     py::scoped_interpreter guard;
 
-    Gym_cpp env;
+    Env env;
     // CliffWalking-v0
     // MountainCar-v0
     // CartPole-v0
@@ -22,9 +23,9 @@ int main()
     assert(action_space.bDiscrete);
     assert(!obs_space.bDiscrete);
 
-    auto obs      = obs_space.getEmptyObs();
-    auto next_obs = obs_space.getEmptyObs();
-    Action action = action_space.getEmptyAction();
+    State obs;
+    State next_obs;
+    Action action;
     Real reward;
     bool done;
 

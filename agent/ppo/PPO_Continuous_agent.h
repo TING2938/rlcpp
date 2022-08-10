@@ -11,14 +11,14 @@
 
 #pragma once
 
-#define RLCPP_STATE_TYPE 1
-#define RLCPP_ACTION_TYPE 1
-
 #include <algorithm>
-#include "agent/agent.h"
 #include "tools/dynet_network/dynet_network.h"
 #include "tools/memory_reply.h"
 #include "tools/random_tools.h"
+
+#include "common/rl_config.h"
+#include "common/state_action.h"
+
 
 namespace rlcpp
 {
@@ -26,6 +26,10 @@ using namespace opt;
 
 class PPORandomReply
 {
+public:
+    using State  = Vecf;
+    using Action = Vecf;
+
 public:
     std::vector<State> states;
     std::vector<Action> actions;
@@ -98,9 +102,13 @@ struct Value_network
 
 // observation space: continuous
 // action space: discrete
-class PPO_Continuous_Agent : public Agent
+class PPO_Continuous_Agent
 {
     using Expression = dynet::Expression;
+
+public:
+    using State  = Vecf;
+    using Action = Vecf;
 
 public:
     /**
@@ -137,7 +145,7 @@ public:
     }
 
     // 根据观测值，采样输出动作，带探索过程
-    void sample(const State& obs, Action* action) override
+    void sample(const State& obs, Action* action)
     {
         dynet::ComputationGraph cg;
         auto obs_expr    = dynet::input(cg, {(unsigned)this->obs_dim}, obs);
@@ -149,7 +157,7 @@ public:
     }
 
     // 根据输入观测值，预测下一步动作
-    void predict(const State& obs, Action* action) override
+    void predict(const State& obs, Action* action)
     {
         dynet::ComputationGraph cg;
         auto obs_expr  = dynet::input(cg, {(unsigned)this->obs_dim}, obs);
@@ -157,7 +165,7 @@ public:
         *action        = dynet::as_vector(cg.forward(mean_expr));
     }
 
-    void store(const State& state, const Action& action, Real reward, const State& next_state, bool done) override
+    void store(const State& state, const Action& action, Real reward, const State& next_state, bool done)
     {
         this->memory.states.push_back(state);
         this->memory.new_states.push_back(next_state);
@@ -166,7 +174,7 @@ public:
         this->memory.dones.push_back(done);
     }
 
-    Real learn() override
+    Real learn()
     {
         this->calculate_logprob_and_value();
         this->generalized_advantage_estimation();
@@ -189,15 +197,15 @@ public:
                 dynet::Dim action_dynet_dim({unsigned(this->act_dim)}, minibatch_size);
                 dynet::Dim reward_dynet_dim({1}, minibatch_size);
 
-                Vecf minib_states         = rlcpp::flatten(std::vector<rlcpp::State>{
-                    this->memory.states.begin() + mb, this->memory.states.begin() + mb_end});  // [obs_dim, b]
-                Vecf minib_action         = rlcpp::flatten(std::vector<rlcpp::Action>{
-                    this->memory.actions.begin() + mb, this->memory.actions.begin() + mb_end});  // [act_dim, b]
+                Vecf minib_states         = rlcpp::flatten(std::vector<State>{
+                            this->memory.states.begin() + mb, this->memory.states.begin() + mb_end});  // [obs_dim, b]
+                Vecf minib_action         = rlcpp::flatten(std::vector<Action>{
+                            this->memory.actions.begin() + mb, this->memory.actions.begin() + mb_end});  // [act_dim, b]
                 Vecf minib_old_log_policy = {old_log_policy.begin() + mb * this->act_dim,
                                              old_log_policy.begin() + mb_end * this->act_dim};     // [act_dim, b]
                 Vecf minib_adv            = {batch_adv.begin() + mb, batch_adv.begin() + mb_end};  // [1, b]
                 Vecf minib_rewards        = {this->memory.rewards.begin() + mb,
-                                      this->memory.rewards.begin() + mb_end};  // [1, b]
+                                             this->memory.rewards.begin() + mb_end};  // [1, b]
 
                 dynet::ComputationGraph cg;
                 // cg.set_immediate_compute(true);
@@ -235,13 +243,13 @@ public:
         return total_loss;
     }
 
-    void save_model(const string& file_name) override
+    void save_model(const string& file_name)
     {
         this->actor.network_.save(file_name, "/ppo_actor_network", false);
         this->critic.network_.save(file_name, "/ppo_critic_network", true);
     }
 
-    void load_model(const string& file_name) override
+    void load_model(const string& file_name)
     {
         this->actor.network_.load(file_name, "/ppo_actor_network");
         this->critic.network_.load(file_name, "/ppo_critic_network");

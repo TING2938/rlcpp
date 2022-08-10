@@ -8,6 +8,10 @@
 
 using namespace rlcpp;
 
+using State  = Sarsa_agent::State;
+using Action = Sarsa_agent::Action;
+using Env    = Gym_cpp<State, Action>;
+
 std::tuple<Real, Int> run_episode(Env& env,
                                   Sarsa_agent& agent,
                                   State& obs,
@@ -78,7 +82,7 @@ int main(int argc, char** argv)
 
     getopt.finish();
 
-    Gym_cpp env;
+    Env env;
 
     env.make(ENVs[env_id]);  // 0 up, 1 right, 2 down, 3 left
     auto action_space = env.action_space();
@@ -94,10 +98,10 @@ int main(int argc, char** argv)
     model_name << "Sarsa-" << ENVs[env_id] << "-" << obs_space.n << "-" << action_space.n << ".params";
     agent.load_model(model_name.str());
 
-    auto obs         = obs_space.getEmptyObs();
-    auto next_obs    = obs_space.getEmptyObs();
-    auto action      = action_space.getEmptyAction();
-    auto next_action = action_space.getEmptyAction();
+    State obs;
+    State next_obs;
+    Action action;
+    Action next_action;
     Real reward;
     bool done;
 

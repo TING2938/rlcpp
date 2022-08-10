@@ -10,6 +10,7 @@
 
 namespace rlcpp
 {
+template <typename State, typename Action>
 struct Transition
 {
     State state;
@@ -19,10 +20,9 @@ struct Transition
     bool done;
 };
 
-class RandomReply : public RingVector<Transition>
+template <typename State, typename Action>
+class RandomReply : public RingVector<Transition<State, Action>>
 {
-    static_assert(RLCPP_STATE_TYPE == 1, "state must be box type");
-
 public:
     void sample_onedim(Vecf& batch_state,
                        Vecf& batch_action,
@@ -37,17 +37,11 @@ public:
 
         for (size_t i = 0; i < batch_size; i++) {
             auto& tmp = this->memory[randd(0, len)];
-            std::copy_n(tmp.state.begin(), state_dim, batch_state.begin() + i * state_dim);
-
-#if RLCPP_ACTION_TYPE == 0
-            batch_action[i] = tmp.action;
-#elif RLCPP_ACTION_TYPE == 1
-            std::copy_n(tmp.action.begin(), action_dim, batch_action.begin() + i * action_dim);
-#endif
-
+            this->copy_value(tmp.state, batch_state.begin() + i * state_dim);
+            this->copy_value(tmp.action, batch_action.begin() + i * action_dim);
+            this->copy_value(tmp.next_state, batch_next_state.begin() + i * state_dim);
             batch_reward[i] = tmp.reward;
-            std::copy_n(tmp.next_state.begin(), state_dim, batch_next_state.begin() + i * state_dim);
-            batch_done[i] = tmp.done;
+            batch_done[i]   = tmp.done;
         }
     }
 
@@ -75,12 +69,30 @@ public:
         return this->idx == 0 && this->bFull;
     }
 
-    friend std::ostream& operator<<(std::ostream& os, const RandomReply& reply);
-    friend std::istream& operator>>(std::istream& is, RandomReply& reply);
+private:
+    void copy_value(const Vecf& src, Vecf::iterator it) const
+    {
+        std::copy(src.begin(), src.end(), it);
+    }
+
+    void copy_value(Int src, Vecf::iterator it) const
+    {
+        *it = src;
+    }
+
+    template <typename S, typename A>
+    friend std::ostream& operator<<(std::ostream& os, const RandomReply<S, A>& reply);
+
+    template <typename S, typename A>
+    friend std::istream& operator>>(std::istream& is, RandomReply<State, Action>& reply);
 };
 
 class PrioritizedReply
 {
+public:
+    using State  = Vecf;
+    using Action = Int;
+
 public:
     void init(size_t max_size, Real alpha = 0.6)
     {
@@ -129,13 +141,7 @@ public:
             indices[i] = this->sum_tree.sample(randd(0, max_value));
             auto& tmp  = this->memory[indices[i]];
             std::copy_n(tmp.state.begin(), state_dim, batch_state.begin() + i * state_dim);
-
-#if RLCPP_ACTION_TYPE == 0
             batch_action[i] = tmp.action;
-#elif RLCPP_ACTION_TYPE == 1
-            std::copy_n(tmp.action.begin(), action_dim, batch_action.begin() + i * action_dim);
-#endif
-
             batch_reward[i] = tmp.reward;
             std::copy_n(tmp.next_state.begin(), state_dim, batch_next_state.begin() + i * state_dim);
             batch_done[i] = tmp.done;
@@ -173,7 +179,7 @@ private:
 
 private:
     size_t max_size;
-    std::vector<Transition> memory;
+    std::vector<Transition<State, Action>> memory;
     SumTree sum_tree;
     ReduceTree<Func_min> min_tree;
     Real alpha;
@@ -183,40 +189,58 @@ private:
     bool bFull;
 };
 
+namespace detail
+{
+std::ostream& print_var(std::ostream& os, const Vecf& var)
+{
+    for (auto&& s : var)
+        os << s << ' ';
+    return os;
+}
 
-std::ostream& operator<<(std::ostream& os, const RandomReply& reply)
+std::ostream& print_var(std::ostream& os, Int var)
+{
+    os << var << ' ';
+    return os;
+}
+
+void parse_var(std::istream& is, Vecf& var, Int length)
+{
+    var.resize(length);
+    for (int m = 0; m < length; m++) {
+        is >> var[m];
+    }
+}
+
+void parse_var(std::istream& is, Int& var, Int length)
+{
+    is >> var;
+}
+
+}  // namespace detail
+
+template <typename S, typename A>
+std::ostream& operator<<(std::ostream& os, const RandomReply<S, A>& reply)
 {
     os << "# random_memory_reply_data, total_size: " << reply.size() << " saved_time: " << rlcpp::localTime() << '\n'
-       << "# state_type: " << RLCPP_STATE_TYPE << " state_length: " << state_len(reply.memory.front().state) << '\n'
-       << "# action_type: " << RLCPP_ACTION_TYPE << " action_length: " << action_len(reply.memory.front().action)
+       << "# state_type: " << !is_scalar_type<S>() << " state_length: " << type_size(reply.memory.front().state) << '\n'
+       << "# action_type: " << !is_scalar_type<A>() << " action_length: " << type_size(reply.memory.front().action)
        << '\n'
        << "# state \t next_state \t action \t reward \t done\n";
 
     for (size_t i = 0; i < reply.size(); i++) {
         auto& trans = reply.memory[i];
-#if RLCPP_STATE_TYPE == 0
-        os << trans.state << '\t' << trans.next_state << '\t';
-#elif RLCPP_STATE_TYPE == 1
-        for (auto&& s : trans.state)
-            os << s << ' ';
-        os << '\t';
-        for (auto&& ns : trans.next_state)
-            os << ns << ' ';
-        os << '\t';
-#endif
-#if RLCPP_ACTION_TYPE == 0
-        os << trans.action << '\t';
-#elif RLCPP_ACTION_TYPE == 1
-        for (auto&& a : trans.action)
-            os << a << ' ';
-        os << '\t';
-#endif
-        os << trans.reward << '\t' << trans.done << '\n';
+        detail::print_var(os, trans.state) << '\t';
+        detail::print_var(os, trans.next_state) << '\t';
+        detail::print_var(os, trans.action) << '\t';
+        os << trans.reward << '\t';
+        os << trans.done << '\n';
     }
     return os;
 }
 
-std::istream& operator>>(std::istream& is, RandomReply& reply)
+template <typename S, typename A>
+std::istream& operator>>(std::istream& is, RandomReply<S, A>& reply)
 {
     std::string tmp, line;
     std::stringstream ss;
@@ -245,14 +269,12 @@ std::istream& operator>>(std::istream& is, RandomReply& reply)
     ss.str(line);
     ss >> tmp >> tmp >> state_type >> tmp >> state_length;
     ss.clear();
-    assert(state_type == RLCPP_STATE_TYPE);
 
     // #3
     std::getline(is, line);
     ss.str(line);
     ss >> tmp >> tmp >> action_type >> tmp >> action_length;
     ss.clear();
-    assert(action_type == RLCPP_ACTION_TYPE);
 
     // #4
     std::getline(is, line);
@@ -262,30 +284,11 @@ std::istream& operator>>(std::istream& is, RandomReply& reply)
         std::getline(is, line);
         ss.str(line);
         auto& trans = reply.memory[i];
-
-#if RLCPP_STATE_TYPE == 0
-        ss >> trans.state >> trans.next_state;
-#elif RLCPP_STATE_TYPE == 1
-        trans.state.resize(state_length);
-        trans.next_state.resize(state_length);
-        for (int m = 0; m < state_length; m++) {
-            ss >> trans.state[m];
-        }
-        for (int m = 0; m < state_length; m++) {
-            ss >> trans.next_state[m];
-        }
-#endif
-
-#if RLCPP_ACTION_TYPE == 0
-        ss >> trans.action;
-#elif RLCPP_ACTION_TYPE == 1
-        trans.action.resize(action_length);
-        for (int m = 0; m < action_length; m++) {
-            ss >> trans.action[m];
-        }
-#endif
-
-        ss >> trans.reward >> trans.done;
+        detail::parse_var(ss, trans.state, state_length);
+        detail::parse_var(ss, trans.next_state, state_length);
+        detail::parse_var(ss, trans.action, action_length);
+        ss >> trans.reward;
+        ss >> trans.done;
         ss.clear();
     }
     return is;

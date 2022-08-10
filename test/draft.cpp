@@ -103,9 +103,29 @@ void test_json()
     std::cout << j4["AI_application_list"] << std::endl;
 }
 
+using Vecf = std::vector<float>;
+void copy(const Vecf& src, Vecf::iterator it)
+{
+    std::copy(src.begin(), src.end(), it);
+}
+void copy(int src, Vecf::iterator it)
+{
+    *it = src;
+}
+void test_copy()
+{
+    Vecf batch_vec(6, 0);
+    Vecf vec     = {2, 3};
+    float scalar = 5;
+    copy(vec, batch_vec.begin() + 4);
+    copy(scalar, batch_vec.begin() + 2);
+    std::cout << batch_vec << std::endl;
+}
+
 int main()
 {
-    test_json();
+    test_copy();
+    // test_json();
     // reward_name_test();
     // fnm_match_test();
     // spdlog_example();

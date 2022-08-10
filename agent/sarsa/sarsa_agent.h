@@ -4,7 +4,8 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include "agent/agent.h"
+#include "common/rl_config.h"
+#include "common/state_action.h"
 #include "tools/random_tools.h"
 
 namespace rlcpp

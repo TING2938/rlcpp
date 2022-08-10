@@ -1,22 +1,26 @@
 #pragma once
 
-#define RLCPP_STATE_TYPE 1
-#define RLCPP_ACTION_TYPE 1
-
 #include <algorithm>
 #include <random>
-#include "agent/agent.h"
 #include "tools/dynet_network/dynet_network.h"
 #include "tools/memory_reply.h"
 #include "tools/random_tools.h"
+
+#include "common/rl_config.h"
+#include "common/state_action.h"
+
 
 namespace rlcpp
 {
 // observation space: continuous
 // action space: continuous
-class DDPG_Agent : public Agent
+class DDPG_Agent
 {
     using Expression = dynet::Expression;
+
+public:
+    using State  = Vecf;
+    using Action = Vecf;
 
 public:
     DDPG_Agent(const std::vector<dynet::Layer>& actor_layers,
@@ -54,7 +58,7 @@ public:
     }
 
     // 根据观测值，采样输出动作[-1, 1]，带探索过程
-    void sample(const State& obs, Action* action) override
+    void sample(const State& obs, Action* action)
     {
         auto norm_action = this->actor.predict(obs);
         if (this->noise_stddev > 0) {
@@ -68,18 +72,18 @@ public:
     }
 
     // 根据输入观测值，预测下一步动作[-1, 1]
-    void predict(const State& obs, Action* action) override
+    void predict(const State& obs, Action* action)
     {
         *action = this->actor.predict(obs);
     }
 
     // the action **must** stay between [-1, 1]
-    void store(const State& state, const Action& action, Real reward, const State& next_state, bool done) override
+    void store(const State& state, const Action& action, Real reward, const State& next_state, bool done)
     {
         this->memory.store({state, action, reward, next_state, done});
     }
 
-    Real learn() override
+    Real learn()
     {
         this->memory.sample_onedim(this->batch_state, this->batch_action, this->batch_reward, this->batch_next_state,
                                    this->batch_done);
@@ -139,7 +143,7 @@ public:
         return loss_value;
     }
 
-    void save_model(const string& file_name) override
+    void save_model(const string& file_name)
     {
         this->actor.save(file_name, "/ddpg_actor", false);
         this->critic.save(file_name, "/ddpg_critic", true);
@@ -147,7 +151,7 @@ public:
         this->critic_target.save(file_name, "/ddpg_critic_target", true);
     }
 
-    void load_model(const string& file_name) override
+    void load_model(const string& file_name)
     {
         this->actor.load(file_name, "/ddpg_actor");
         this->critic.load(file_name, "/ddpg_critic");
@@ -155,7 +159,7 @@ public:
         this->critic_target.load(file_name, "/ddpg_critic_target");
     }
 
-    RandomReply& memory_reply()
+    RandomReply<State, Action>& memory_reply()
     {
         return this->memory;
     }
@@ -178,7 +182,7 @@ private:
     dynet::AdamTrainer trainer_actor;
     dynet::AdamTrainer trainer_critic;
 
-    RandomReply memory;  // memory reply
+    RandomReply<State, Action> memory;  // memory reply
     Vecf batch_state;
     Vecf batch_action;
     Vecf batch_reward;

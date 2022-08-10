@@ -1,9 +1,5 @@
-#define RLCPP_STATE_TYPE 1
-#define RLCPP_ACTION_TYPE 0
-
 #include <sstream>
 
-#include "env/grpc_gym/gym_env.h"
 #include "env/gym_cpp/gymcpp.h"
 
 #include "agent/dqn/dqn_prioritizedReply_agent.h"
@@ -15,8 +11,12 @@
 
 using namespace rlcpp;
 
+using State  = DQN_Base_Agent::State;
+using Action = DQN_Base_Agent::Action;
+using Env    = Gym_cpp<State, Action>;
+
 void train_pipeline_progressive(Env& env,
-                                Agent& agent,
+                                DQN_Base_Agent& agent,
                                 Real score_threshold,
                                 const std::string& model_name,
                                 Int n_episode,
@@ -27,9 +27,9 @@ void train_pipeline_progressive(Env& env,
     auto plt     = py::module_::import("matplotlib.pyplot");
     seaborn.attr("set")();
 
-    auto obs      = env.obs_space().getEmptyObs();
-    auto next_obs = env.obs_space().getEmptyObs();
-    auto action   = env.action_space().getEmptyAction();
+    State obs;
+    State next_obs;
+    Action action;
     Real rwd;
     bool done;
 
@@ -84,7 +84,7 @@ void train_pipeline_progressive(Env& env,
 }
 
 void train_pipeline_conservative(Env& env,
-                                 Agent& agent,
+                                 DQN_Base_Agent& agent,
                                  Real score_threshold,
                                  const std::string& model_name,
                                  Int n_epoch     = 500,
@@ -97,9 +97,9 @@ void train_pipeline_conservative(Env& env,
     auto plt     = py::module_::import("matplotlib.pyplot");
     seaborn.attr("set")();
 
-    auto obs      = env.obs_space().getEmptyObs();
-    auto next_obs = env.obs_space().getEmptyObs();
-    auto action   = env.action_space().getEmptyAction();
+    State obs;
+    State next_obs;
+    Action action;
     Real rwd;
     bool done;
     Vecf rewards, losses;
@@ -161,14 +161,14 @@ void train_pipeline_conservative(Env& env,
     agent.save_model(model_name);
 }
 
-void test(Env& env, Agent& agent, Int n_turns, bool render = false)
+void test(Env& env, DQN_Base_Agent& agent, Int n_turns, bool render = false)
 {
     printf("Ready to test, Press any key to coninue...\n");
     getchar();
 
-    auto obs      = env.obs_space().getEmptyObs();
-    auto next_obs = env.obs_space().getEmptyObs();
-    auto action   = env.action_space().getEmptyAction();
+    State obs;
+    State next_obs;
+    Action action;
     Real reward;
     bool done;
 
@@ -245,7 +245,7 @@ int main(int argc, char** argv)
 
     std::vector<std::string> ENVs     = {"CartPole-v1", "Acrobot-v1", "MountainCar-v0"};
     std::vector<Int> score_thresholds = {499, -100, -100};
-    Gym_cpp env;
+    Env env;
     env.make(ENVs[env_id]);
 
     auto action_space = env.action_space();
@@ -259,7 +259,7 @@ int main(int argc, char** argv)
         dynet::Layer(128, action_space.n, dynet::LINEAR, /* dropout_rate */ 0.0),
     };
 
-    Agent* agent;
+    DQN_Base_Agent* agent;
     if (use_prioritized) {
         agent =
             new DQN_PrioritizedReply_Agent(layers, max_reply_memory_size, use_double, batch_size, 500, 0.99, 1, 5e-5);

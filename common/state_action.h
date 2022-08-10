@@ -13,4 +13,23 @@ struct Space
     Vecf low;        // low boundary if type is `Box`
     bool bDiscrete;  // type is discrete if true else Box
 };
+
+template <typename T>
+constexpr bool is_scalar_type()
+{
+    return std::is_scalar<T>::value;
+}
+
+template <typename T>
+int type_size(const T&)
+{
+    return 0;
+}
+
+template <typename T>
+int type_size(const std::vector<T>& vec)
+{
+    return vec.size();
+}
+
 }  // namespace rlcpp

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <pybind11/embed.h>
-#include "env/env.h"
 #include "tools/random_tools.h"
 #include "tools/ring_vector.h"
 
@@ -220,5 +219,11 @@ private:
     py::tuple ax;
 
     RingVector<Real> memory_temp, memory_P, memory_Nx;
+
+public:
+    /**
+     * @brief  最大回合数
+     */
+    size_t max_episode_steps;
 };
 }  // namespace rlcpp

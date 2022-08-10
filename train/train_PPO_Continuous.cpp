@@ -1,12 +1,7 @@
-#define RLCPP_STATE_TYPE 1
-#define RLCPP_ACTION_TYPE 1
-
 #include <pybind11/embed.h>
 #include <pybind11/stl.h>
 #include <sstream>
-#include "agent/agent.h"
 #include "agent/ppo/PPO_Continuous_agent.h"
-#include "env/env.h"
 #include "env/gym_cpp/gymcpp.h"
 #include "tools/core_getopt.hpp"
 #include "tools/dynet_network/dynet_network.h"
@@ -17,13 +12,17 @@ namespace py = pybind11;
 using namespace py::literals;
 using namespace rlcpp::opt;
 
-Vecf test(Env& env, Agent& agent, Int n_turns, bool render = false)
+using State  = PPO_Continuous_Agent::State;
+using Action = PPO_Continuous_Agent::Action;
+using Env    = Gym_cpp<State, Action>;
+
+Vecf test(Env& env, PPO_Continuous_Agent& agent, Int n_turns, bool render = false)
 {
     printf("Ready to test\n");
 
-    auto obs      = env.obs_space().getEmptyObs();
-    auto next_obs = env.obs_space().getEmptyObs();
-    auto action   = env.action_space().getEmptyAction();
+    State obs;
+    State next_obs;
+    Action action;
     Real reward;
     bool done;
     Vecf total_rewards(n_turns, 0);
@@ -62,9 +61,9 @@ void train_pipeline_progressive(Env& env,
     auto plt     = py::module_::import("matplotlib.pyplot");
     seaborn.attr("set")();
 
-    rlcpp::State obs;
-    rlcpp::State next_obs;
-    rlcpp::Action action;
+    State obs;
+    State next_obs;
+    Action action;
     Real rwd;
     bool done;
 
@@ -166,11 +165,11 @@ int main(int argc, char** argv)
 
     std::vector<std::string> ENVs = {"BipedalWalker-v3"};
 
-    Gym_cpp env;
+    Env env;
     env.make(ENVs[env_id]);
     env.env.attr("reset")("seed"_a = seed);
 
-    Gym_cpp test_env;
+    Env test_env;
     test_env.make(ENVs[env_id]);
 
     auto action_space = env.action_space();
