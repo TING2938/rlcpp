@@ -1,11 +1,11 @@
+#include <cpptools/ct_bits/getopt.hpp>
 #include <sstream>
 #include "agent/ddpg/ddpg_agent.h"
 #include "env/gym_cpp/gymcpp.h"
-#include "tools/core_getopt.hpp"
 #include "tools/dynet_network/dynet_network.h"
 
 using namespace rlcpp;
-using namespace rlcpp::opt;
+using namespace ct::opt;
 
 using State  = DDPG_Agent::State;
 using Action = DDPG_Agent::Action;
@@ -16,7 +16,7 @@ inline Action scale_action(const Action& action, const Vecf& scale_a, const Vecf
     if (scale_a.empty())
         return action;
     else {
-        return scale(action, scale_a, scale_b);
+        return ct::scale(action, scale_a, scale_b);
     }
 }
 
@@ -40,7 +40,7 @@ void train_pipeline_progressive(Env& env,
     Real rwd;
     bool done;
 
-    RingVector<Real> rewards, losses, mean_rewards;
+    ct::RingVector<Real> rewards, losses, mean_rewards;
     rewards.init(100);
     losses.init(100);
     mean_rewards.init(200);
@@ -113,7 +113,7 @@ void train_pipeline_conservative(Env& env,
     bool done;
     Vecf rewards, losses;
 
-    RingVector<Real> mean_rewards;
+    ct::RingVector<Real> mean_rewards;
     mean_rewards.init(200);
 
     for (int i_epoch = 0; i_epoch < n_epoch; i_epoch++) {
@@ -144,7 +144,7 @@ void train_pipeline_conservative(Env& env,
         }
 
         if (i_epoch % 1 == 0) {
-            auto mean_reward = mean(rewards);
+            auto mean_reward = ct::mean(rewards);
 
             mean_rewards.store(mean_reward);
             plt.attr("clf")();
@@ -157,7 +157,7 @@ void train_pipeline_conservative(Env& env,
             printf("i_epoch: %d\n", i_epoch);
             printf("Average score of %d rollout games: %f\n", n_rollout, mean_reward);
             if (i_epoch > learn_start) {
-                auto mean_loss = mean(losses);
+                auto mean_loss = ct::mean(losses);
                 printf("Average training loss: %f\n", mean_loss);
             }
             printf("===========================\n\n");
@@ -217,7 +217,7 @@ int main(int argc, char** argv)
     std::string method        = "train";  // train/test
     // ================================= //
     // get options from commandline
-    itp::Getopt getopt(argc, argv, "Train RL with DDPG algorithm (dynet nn lib)");
+    ct::Getopt getopt(argc, argv, "Train RL with DDPG algorithm (dynet nn lib)");
 
     getopt(env_id, "-id", false,
            "env id for train."
@@ -238,7 +238,7 @@ int main(int argc, char** argv)
     if (!dynet_memory.empty())
         dynetParams.mem_descriptor = dynet_memory;
     dynet::initialize(dynetParams);
-    rlcpp::set_rand_seed();
+    ct::set_rand_seed();
 
     std::vector<std::string> ENVs = {"Pendulum-v1", "Walker2d-v2"};
     Env env;

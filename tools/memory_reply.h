@@ -2,11 +2,7 @@
 
 #include <random>
 #include "common/state_action.h"
-#include "tools/random_tools.h"
-#include "tools/reduce_tree.h"
-#include "tools/ring_vector.h"
 #include "tools/utility.hpp"
-#include "tools/vector_tools.h"
 
 namespace rlcpp
 {
@@ -21,7 +17,7 @@ struct Transition
 };
 
 template <typename State, typename Action>
-class RandomReply : public RingVector<Transition<State, Action>>
+class RandomReply : public ct::RingVector<Transition<State, Action>>
 {
 public:
     void sample_onedim(Vecf& batch_state,
@@ -36,7 +32,7 @@ public:
         size_t len        = this->size();
 
         for (size_t i = 0; i < batch_size; i++) {
-            auto& tmp = this->memory[randd(0, len)];
+            auto& tmp = this->memory[ct::randd(0, len)];
             this->copy_value(tmp.state, batch_state.begin() + i * state_dim);
             this->copy_value(tmp.action, batch_action.begin() + i * action_dim);
             this->copy_value(tmp.next_state, batch_next_state.begin() + i * state_dim);
@@ -55,7 +51,7 @@ public:
         size_t len        = this->size();
 
         for (size_t i = 0; i < batch_size; i++) {
-            auto& tmp           = this->memory[randd(0, len)];
+            auto& tmp           = this->memory[ct::randd(0, len)];
             batch_state[i]      = tmp.state;
             batch_action[i]     = tmp.action;
             batch_reward[i]     = tmp.reward;
@@ -138,7 +134,7 @@ public:
         auto max_value    = this->sum_tree.root();
 
         for (size_t i = 0; i < batch_size; i++) {
-            indices[i] = this->sum_tree.sample(randd(0, max_value));
+            indices[i] = this->sum_tree.sample(ct::randd(0, max_value));
             auto& tmp  = this->memory[indices[i]];
             std::copy_n(tmp.state.begin(), state_dim, batch_state.begin() + i * state_dim);
             batch_action[i] = tmp.action;
@@ -180,8 +176,8 @@ private:
 private:
     size_t max_size;
     std::vector<Transition<State, Action>> memory;
-    SumTree sum_tree;
-    ReduceTree<Func_min> min_tree;
+    ct::SumTree<Real> sum_tree;
+    ct::ReduceTree<Real, Func_min> min_tree;
     Real alpha;
     size_t idx;
     Real max_value;
@@ -222,7 +218,7 @@ void parse_var(std::istream& is, Int& var, Int length)
 template <typename S, typename A>
 std::ostream& operator<<(std::ostream& os, const RandomReply<S, A>& reply)
 {
-    os << "# random_memory_reply_data, total_size: " << reply.size() << " saved_time: " << rlcpp::localTime() << '\n'
+    os << "# random_memory_reply_data, total_size: " << reply.size() << " saved_time: " << ct::localTime() << '\n'
        << "# state_type: " << !is_scalar_type<S>() << " state_length: " << type_size(reply.memory.front().state) << '\n'
        << "# action_type: " << !is_scalar_type<A>() << " action_length: " << type_size(reply.memory.front().action)
        << '\n'

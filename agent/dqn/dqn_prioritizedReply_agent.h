@@ -1,10 +1,10 @@
 #pragma once
 
+#include <cpptools/ct_bits/random_tools.h>
 #include <algorithm>
 #include "dqn_base_agent.h"
 #include "tools/dynet_network/dynet_network.h"
 #include "tools/memory_reply.h"
-#include "tools/random_tools.h"
 
 namespace rlcpp
 {
@@ -61,8 +61,8 @@ public:
     // 根据观测值，采样输出动作，带探索过程
     void sample(const State& obs, Action* action) override
     {
-        if (randf() < this->epsilon) {
-            *action = randd(0, this->act_n);
+        if (ct::randf() < this->epsilon) {
+            *action = ct::randd(0, this->act_n);
         } else {
             this->predict(obs, action);
         }
@@ -72,7 +72,7 @@ public:
     void predict(const State& obs, Action* action) override
     {
         auto Q  = this->network.predict(obs);
-        *action = argmax(Q);
+        *action = ct::argmax(Q);
     }
 
     void store(const State& state, const Action& action, Real reward, const State& next_state, bool done) override

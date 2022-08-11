@@ -1,10 +1,10 @@
 #pragma once
 
+#include <cpptools/ct_bits/random_tools.h>
 #include <algorithm>
 #include <random>
 #include "tools/dynet_network/dynet_network.h"
 #include "tools/memory_reply.h"
-#include "tools/random_tools.h"
 
 #include "common/rl_config.h"
 #include "common/state_action.h"
@@ -66,7 +66,7 @@ public:
                 std::normal_distribution<Real> dist(norm_action[i], this->noise_stddev);
                 norm_action[i] = dist(this->random_engine);
             }
-            clip_<Real>(norm_action, -1, 1);
+            ct::clip_<Real>(norm_action, -1, 1);
         }
         *action = std::move(norm_action);
     }

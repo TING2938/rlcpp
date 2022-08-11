@@ -1,5 +1,5 @@
+#include "../../dynet/data-io.h"
 #include "load_dynet_model.hpp"
-#include "test/dynet/data-io.h"
 
 using namespace std;
 

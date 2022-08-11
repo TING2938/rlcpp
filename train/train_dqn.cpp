@@ -7,7 +7,7 @@
 
 #include "tools/dynet_network/dynet_network.h"
 
-#include "tools/core_getopt.hpp"
+#include <cpptools/ct_bits/getopt.hpp>
 
 using namespace rlcpp;
 
@@ -33,7 +33,7 @@ void train_pipeline_progressive(Env& env,
     Real rwd;
     bool done;
 
-    RingVector<Real> rewards, losses, mean_rewards;
+    ct::RingVector<Real> rewards, losses, mean_rewards;
     rewards.init(100);
     losses.init(100);
     mean_rewards.init(200);
@@ -104,7 +104,7 @@ void train_pipeline_conservative(Env& env,
     bool done;
     Vecf rewards, losses;
 
-    RingVector<Real> mean_rewards;
+    ct::RingVector<Real> mean_rewards;
     mean_rewards.init(200);
 
     for (int i_epoch = 0; i_epoch < n_epoch; i_epoch++) {
@@ -135,7 +135,7 @@ void train_pipeline_conservative(Env& env,
         }
 
         if (i_epoch % 1 == 0) {
-            auto mean_reward = mean(rewards);
+            auto mean_reward = ct::mean(rewards);
 
             mean_rewards.store(mean_reward);
             plt.attr("clf")();
@@ -148,7 +148,7 @@ void train_pipeline_conservative(Env& env,
             printf("i_epoch: %d\n", i_epoch);
             printf("Average score of %d rollout games: %f\n", n_rollout, mean_reward);
             if (i_epoch > learn_start) {
-                auto mean_loss = mean(losses);
+                auto mean_loss = ct::mean(losses);
                 printf("Average training loss: %f\n", mean_loss);
             }
             printf("===========================\n\n");
@@ -207,7 +207,7 @@ int main(int argc, char** argv)
 
     // ================================= //
     // get options from commandline
-    itp::Getopt getopt(argc, argv, "Train RL with DQN algorithm (dynet nn lib)");
+    ct::Getopt getopt(argc, argv, "Train RL with DQN algorithm (dynet nn lib)");
 
     getopt(env_id, "-id", false,
            "env id for train."
@@ -235,7 +235,7 @@ int main(int argc, char** argv)
     if (!dynet_memory.empty())
         dynetParams.mem_descriptor = dynet_memory;
     dynet::initialize(dynetParams);
-    rlcpp::set_rand_seed(seed);
+    ct::set_rand_seed(seed);
 
     if (env_id == 0) {
         batch_size = 256;

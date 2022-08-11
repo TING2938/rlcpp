@@ -11,17 +11,17 @@
 
 #pragma once
 
+#include <cpptools/ct_bits/random_tools.h>
 #include <algorithm>
 #include "tools/dynet_network/dynet_network.h"
 #include "tools/memory_reply.h"
-#include "tools/random_tools.h"
 
 #include "common/rl_config.h"
 #include "common/state_action.h"
 
 namespace rlcpp
 {
-using namespace opt;
+using namespace ct::opt;
 
 class PPORandomReply
 {
@@ -104,7 +104,7 @@ public:
     void sample(const State& obs, Action* action)
     {
         auto act_prob = this->actor.predict(obs);
-        *action       = random_choise(this->act_n, act_prob);
+        *action       = ct::random_choise(this->act_n, act_prob);
         this->memory.probs.push_back(act_prob[*action]);
     }
 
@@ -112,7 +112,7 @@ public:
     void predict(const State& obs, Action* action)
     {
         auto act_prob = this->actor.predict(obs);
-        *action       = argmax(act_prob);
+        *action       = ct::argmax(act_prob);
     }
 
     void store(const State& state, const Action& action, Real reward, const State& next_state, bool done)
@@ -141,10 +141,10 @@ public:
         for (int epoch = 0; epoch < n_epochs; epoch++) {
             auto batches = this->memory.sample();
             for (auto&& batch : batches) {
-                auto states    = rlcpp::flatten(rlcpp::gather(this->memory.states, batch));
-                auto actions   = rlcpp::gather(this->memory.actions, batch);
-                auto old_probs = rlcpp::gather(this->memory.probs, batch);
-                auto v_target  = rlcpp::gather(Rs, batch);
+                auto states    = ct::flatten(ct::gather(this->memory.states, batch));
+                auto actions   = ct::gather(this->memory.actions, batch);
+                auto old_probs = ct::gather(this->memory.probs, batch);
+                auto v_target  = ct::gather(Rs, batch);
 
                 dynet::ComputationGraph cg;
                 {
@@ -165,11 +165,9 @@ public:
                     total_loss += dynet::as_scalar(cg.forward(actor_loss_expr));
 
                     if (0) {
-                        std::cout << "dist_expr: " << dynet::as_vector(dist_expr.value()) << std::endl;
-                        std::cout << "prob_ratio:             " << dynet::as_vector(prob_ratio_expr.value())
-                                  << std::endl;
-                        std::cout << "cliped_prob_ratio_expr: " << dynet::as_vector(cliped_prob_ratio_expr.value())
-                                  << std::endl;
+                        fmt::print("dist_expr: {}\n", dynet::as_vector(dist_expr.value()));
+                        fmt::print("prob_ratio:           : {}\n", dynet::as_vector(prob_ratio_expr.value()));
+                        fmt::print("cliped_prob_ratio_expr: {}\n", dynet::as_vector(cliped_prob_ratio_expr.value()));
                     }
                     cg.backward(actor_loss_expr);
                     this->trainer_actor.update();

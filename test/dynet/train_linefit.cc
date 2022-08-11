@@ -1,13 +1,13 @@
+#include <cpptools/ct_bits/vector_tools.h>
 #include <iostream>
 #include "dynet/expr.h"
 #include "dynet/io.h"
 #include "dynet/model.h"
 #include "dynet/training.h"
-#include "tools/vector_tools.h"
 
 using namespace std;
 using namespace dynet;
-using namespace rlcpp::opt;
+using namespace ct::opt;
 
 // [low, up]
 dynet::real getRand(dynet::real low, dynet::real up)
@@ -36,8 +36,8 @@ int main(int argc, char** argv)
         test_y[i] = p1 * test_x[i] + p2;
     }
 
-    dynet::real ymean = rlcpp::mean(train_y);
-    dynet::real ystd  = rlcpp::stddev(train_y);
+    dynet::real ymean = ct::mean(train_y);
+    dynet::real ystd  = ct::stddev(train_y);
     train_y -= ymean;
     train_y /= ystd;
     train_x -= ymean;

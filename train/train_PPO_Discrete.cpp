@@ -1,11 +1,11 @@
+#include <cpptools/ct_bits/ring_vector.h>
 #include <pybind11/embed.h>
 #include <pybind11/stl.h>
+#include <cpptools/ct_bits/getopt.hpp>
 #include <sstream>
 #include "agent/ppo/PPO_Discrete_agent.h"
 #include "env/gym_cpp/gymcpp.h"
-#include "tools/core_getopt.hpp"
 #include "tools/dynet_network/dynet_network.h"
-#include "tools/ring_vector.h"
 
 using namespace rlcpp;
 namespace py = pybind11;
@@ -64,7 +64,7 @@ void train_pipeline_progressive(Env& env,
 
     size_t steps = 0;
 
-    RingVector<Real> rewards, losses, mean_rewards;
+    ct::RingVector<Real> rewards, losses, mean_rewards;
     rewards.init(100);
     losses.init(100);
     mean_rewards.init(200);
@@ -125,7 +125,7 @@ int main(int argc, char** argv)
     unsigned int seed        = 0;
     // ================================= //
     // get options from commandline
-    itp::Getopt getopt(argc, argv, "Train RL with DQN algorithm (dynet nn lib)");
+    ct::Getopt getopt(argc, argv, "Train RL with DQN algorithm (dynet nn lib)");
 
     getopt(env_id, "-id", false,
            "env id for train."
@@ -150,7 +150,7 @@ int main(int argc, char** argv)
     if (!dynet_memory.empty())
         dynetParams.mem_descriptor = dynet_memory;
     dynet::initialize(dynetParams);
-    rlcpp::set_rand_seed(seed);
+    ct::set_rand_seed(seed);
 
     std::vector<std::string> ENVs     = {"CartPole-v1", "Acrobot-v1", "MountainCar-v0"};
     std::vector<Int> score_thresholds = {499, -100, -100};

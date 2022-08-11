@@ -1,16 +1,16 @@
+#include <cpptools/ct_bits/ring_vector.h>
 #include <pybind11/embed.h>
 #include <pybind11/stl.h>
+#include <cpptools/ct_bits/getopt.hpp>
 #include <sstream>
 #include "agent/ppo/PPO_Continuous_agent.h"
 #include "env/gym_cpp/gymcpp.h"
-#include "tools/core_getopt.hpp"
 #include "tools/dynet_network/dynet_network.h"
-#include "tools/ring_vector.h"
 
 using namespace rlcpp;
 namespace py = pybind11;
 using namespace py::literals;
-using namespace rlcpp::opt;
+using namespace ct::opt;
 
 using State  = PPO_Continuous_Agent::State;
 using Action = PPO_Continuous_Agent::Action;
@@ -70,7 +70,7 @@ void train_pipeline_progressive(Env& env,
     Real best_reward = -100000;
     size_t steps     = 0;
 
-    RingVector<Real> rewards, losses, mean_rewards;
+    ct::RingVector<Real> rewards, losses, mean_rewards;
     rewards.init(100);
     losses.init(100);
     mean_rewards.init(200);
@@ -114,7 +114,7 @@ void train_pipeline_progressive(Env& env,
         }
 
         if (i_episode >= 2000 && i_episode % 100 == 0) {
-            auto test_rewards = rlcpp::mean(test(test_env, agent, 2, true));
+            auto test_rewards = ct::mean(test(test_env, agent, 2, true));
             if (test_rewards > best_reward) {
                 printf("Get BEST Reward! %f\n", test_rewards);
                 agent.save_model(rlcpp::build_reward_model_name(model_name, test_rewards));
@@ -135,7 +135,7 @@ int main(int argc, char** argv)
     unsigned int seed        = 0;
     // ================================= //
     // get options from commandline
-    itp::Getopt getopt(argc, argv, "Train RL with DQN algorithm (dynet nn lib)");
+    ct::Getopt getopt(argc, argv, "Train RL with DQN algorithm (dynet nn lib)");
 
     getopt(env_id, "-id", false,
            "env id for train."
@@ -161,7 +161,7 @@ int main(int argc, char** argv)
     if (!dynet_memory.empty())
         dynetParams.mem_descriptor = dynet_memory;
     dynet::initialize(dynetParams);
-    rlcpp::set_rand_seed(seed);
+    ct::set_rand_seed(seed);
 
     std::vector<std::string> ENVs = {"BipedalWalker-v3"};
 

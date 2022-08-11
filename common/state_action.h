@@ -1,7 +1,6 @@
 #pragma once
 
 #include "common/rl_config.h"
-#include "tools/vector_tools.h"
 
 namespace rlcpp
 {

@@ -1,8 +1,8 @@
 #pragma once
 
+#include <cpptools/ct_bits/random_tools.h>
+#include <cpptools/ct_bits/ring_vector.h>
 #include <pybind11/embed.h>
-#include "tools/random_tools.h"
-#include "tools/ring_vector.h"
 
 #include "common/rl_config.h"
 #include "common/state_action.h"
@@ -82,7 +82,7 @@ public:
         this->FanNx  = this->_Action2Nx(action);
         auto u       = this->_Nx2U(this->FanNx, 200);
         auto steps   = 4 / 0.04;
-        this->BrdPwr = this->singen() + rlcpp::randf(-5., 5.);
+        this->BrdPwr = this->singen() + ct::randf(-5., 5.);
         this->FanPwr = this->_Nx2FanPwr(this->FanNx);
         this->SensorTemp =
             this->_get_cpu_temp(steps, this->SensorTemp, this->BrdPwr, this->EnvTemp, u, 0.187572, 0.05, 0.618);
@@ -218,7 +218,7 @@ private:
     py::module_ plt;
     py::tuple ax;
 
-    RingVector<Real> memory_temp, memory_P, memory_Nx;
+    ct::RingVector<Real> memory_temp, memory_P, memory_Nx;
 
 public:
     /**

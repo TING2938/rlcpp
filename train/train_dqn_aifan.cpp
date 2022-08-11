@@ -7,7 +7,7 @@
 
 #include "tools/dynet_network/dynet_network.h"
 
-#include "tools/core_getopt.hpp"
+#include <cpptools/ct_bits/getopt.hpp>
 
 using namespace rlcpp;
 
@@ -33,7 +33,7 @@ void train_pipeline_progressive(Env& env,
     Real rwd;
     bool done;
 
-    RingVector<Real> rewards, losses, mean_rewards;
+    ct::RingVector<Real> rewards, losses, mean_rewards;
     rewards.init(100);
     losses.init(100);
     mean_rewards.init(200);
@@ -126,7 +126,7 @@ int main(int argc, char** argv)
     std::string method       = "train";  // train/test
     // ================================= //
     // get options from commandline
-    itp::Getopt getopt(argc, argv, "Train RL with DQN algorithm (dynet nn lib)");
+    ct::Getopt getopt(argc, argv, "Train RL with DQN algorithm (dynet nn lib)");
     getopt(use_double, "-ddqn", false, "whether to use double dqn\n");
     getopt(use_prioritized, "-prioritized", false, "whether to use prioitized memory reply\n");
     getopt(method, "-method", false, "set to train or test model\n");
@@ -144,7 +144,7 @@ int main(int argc, char** argv)
     if (!dynet_memory.empty())
         dynetParams.mem_descriptor = dynet_memory;
     dynet::initialize(dynetParams);
-    rlcpp::set_rand_seed();
+    ct::set_rand_seed();
 
     batch_size = 32;
 

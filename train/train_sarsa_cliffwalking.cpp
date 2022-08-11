@@ -1,10 +1,7 @@
-#define RLCPP_STATE_TYPE 0
-#define RLCPP_ACTION_TYPE 0
-
+#include <cpptools/ct_bits/getopt.hpp>
 #include <tuple>
 #include "agent/sarsa/sarsa_agent.h"
 #include "env/gym_cpp/gymcpp.h"
-#include "tools/core_getopt.hpp"
 
 using namespace rlcpp;
 
@@ -73,7 +70,7 @@ int main(int argc, char** argv)
     std::string method            = "train";  // train/test
     std::vector<std::string> ENVs = {"CliffWalking-v0"};
 
-    itp::Getopt getopt(argc, argv, "Train RL with Sarsa algorithm");
+    ct::Getopt getopt(argc, argv, "Train RL with Sarsa algorithm");
 
     getopt(env_id, "-id", false,
            "env id for train."

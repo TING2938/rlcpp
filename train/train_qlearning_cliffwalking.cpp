@@ -1,7 +1,7 @@
+#include <cpptools/ct_bits/getopt.hpp>
 #include <tuple>
 #include "agent/qlearning/qlearning_agent.h"
 #include "env/gym_cpp/gymcpp.h"
-#include "tools/core_getopt.hpp"
 
 using namespace rlcpp;
 
@@ -72,7 +72,7 @@ int main(int argc, char** argv)
     std::string method            = "train";  // train/test
     std::vector<std::string> ENVs = {"CliffWalking-v0"};
 
-    itp::Getopt getopt(argc, argv, "Train RL with Q-Learning algorithm");
+    ct::Getopt getopt(argc, argv, "Train RL with Q-Learning algorithm");
 
     getopt(env_id, "-id", false,
            "env id for train."

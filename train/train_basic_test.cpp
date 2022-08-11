@@ -1,6 +1,5 @@
+#include <cpptools/ct.hpp>
 #include "env/gym_cpp/gymcpp.h"
-#include "tools/core_timer.hpp"
-#include "tools/random_tools.h"
 
 using namespace rlcpp;
 
@@ -10,7 +9,7 @@ using Env    = Gym_cpp<State, Action>;
 
 int main()
 {
-    rlcpp::set_rand_seed();
+    ct::set_rand_seed();
     py::scoped_interpreter guard;
 
     Env env;
@@ -29,7 +28,7 @@ int main()
     Real reward;
     bool done;
 
-    itp::Timeit timeit;
+    ct::Timeit timeit;
     int total_episode = 2000;
     size_t count      = 0;
 
@@ -38,7 +37,7 @@ int main()
     for (int episode = 0; episode < total_episode; episode++) {
         env.reset(&obs);
         for (int t = 0; t < env.max_episode_steps; t++) {
-            action = randd(0, action_space.n);
+            action = ct::randd(0, action_space.n);
             env.step(action, &obs, &reward, &done);
             count++;
             if (done)

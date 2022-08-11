@@ -3,14 +3,14 @@
 // add support for logging of std::vector
 #include "spdlog/fmt/ostr.h"  // must be included
 
+#include <cpptools/ct_bits/ring_vector.h>
+#include <cpptools/ct_bits/vector_tools.h>
 #include <fstream>
 #include <iostream>
 #include "nlohmann/json.hpp"
-#include "tools/ring_vector.h"
 #include "tools/utility.hpp"
-#include "tools/vector_tools.h"
 
-using namespace rlcpp::opt;
+using namespace ct::opt;
 
 using json = nlohmann::json;
 
@@ -24,7 +24,7 @@ void spdlog_example()
 
 void ring_vector_example()
 {
-    rlcpp::RingVector<int> vec;
+    ct::RingVector<int> vec;
     vec.init(4);
     vec.store(1);
     fmt::print("[{}] the vec: {}\n", __LINE__, vec.lined_vector());
@@ -57,7 +57,7 @@ void ring_vector_example()
 void fnm_match_test()
 {
     std::string fnm = "/home/yeting/work/project/rlcpp/train/*.cpp";
-    auto ret        = rlcpp::file_match(fnm);
+    auto ret        = ct::file_match(fnm);
     fmt::print("ret: {}\n", ret);
 }
 
@@ -119,7 +119,7 @@ void test_copy()
     float scalar = 5;
     copy(vec, batch_vec.begin() + 4);
     copy(scalar, batch_vec.begin() + 2);
-    std::cout << batch_vec << std::endl;
+    fmt::print("{}\n", batch_vec);
 }
 
 int main()

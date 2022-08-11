@@ -11,10 +11,10 @@
 
 #pragma once
 
+#include <cpptools/ct_bits/random_tools.h>
 #include <algorithm>
 #include "tools/dynet_network/dynet_network.h"
 #include "tools/memory_reply.h"
-#include "tools/random_tools.h"
 
 #include "common/rl_config.h"
 #include "common/state_action.h"
@@ -22,7 +22,7 @@
 
 namespace rlcpp
 {
-using namespace opt;
+using namespace ct::opt;
 
 class PPORandomReply
 {
@@ -182,7 +182,7 @@ public:
         auto& old_log_policy = this->memory.log_prob;  // [act_dim, memory.size]
         auto batch_adv       = this->memory.adv;       // [1, memory.size]
         // normalize it to stabilize network
-        batch_adv = (batch_adv - Real(rlcpp::mean(batch_adv))) / Real(rlcpp::stddev(batch_adv) + 1e-7);
+        batch_adv = (batch_adv - Real(ct::mean(batch_adv))) / Real(ct::stddev(batch_adv) + 1e-7);
 
         Real total_loss = 0.0;
 
@@ -197,9 +197,9 @@ public:
                 dynet::Dim action_dynet_dim({unsigned(this->act_dim)}, minibatch_size);
                 dynet::Dim reward_dynet_dim({1}, minibatch_size);
 
-                Vecf minib_states         = rlcpp::flatten(std::vector<State>{
+                Vecf minib_states         = ct::flatten(std::vector<State>{
                             this->memory.states.begin() + mb, this->memory.states.begin() + mb_end});  // [obs_dim, b]
-                Vecf minib_action         = rlcpp::flatten(std::vector<Action>{
+                Vecf minib_action         = ct::flatten(std::vector<Action>{
                             this->memory.actions.begin() + mb, this->memory.actions.begin() + mb_end});  // [act_dim, b]
                 Vecf minib_old_log_policy = {old_log_policy.begin() + mb * this->act_dim,
                                              old_log_policy.begin() + mb_end * this->act_dim};     // [act_dim, b]
@@ -266,9 +266,9 @@ private:
         int minibsize = this->memory.size();
         dynet::ComputationGraph cg;
         auto obs_expr =
-            dynet::input(cg, dynet::Dim({(unsigned)this->obs_dim}, minibsize), rlcpp::flatten(this->memory.states));
+            dynet::input(cg, dynet::Dim({(unsigned)this->obs_dim}, minibsize), ct::flatten(this->memory.states));
         auto action_expr =
-            dynet::input(cg, dynet::Dim({(unsigned)this->act_dim}, minibsize), rlcpp::flatten(this->memory.actions));
+            dynet::input(cg, dynet::Dim({(unsigned)this->act_dim}, minibsize), ct::flatten(this->memory.actions));
         auto mean_expr        = this->actor.get_mean(obs_expr, cg);
         auto logstd_expr      = this->actor.get_logstd(cg);
         auto pi               = dynet::distributions::Normal(mean_expr, logstd_expr);

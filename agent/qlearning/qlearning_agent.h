@@ -7,7 +7,8 @@
 
 #include "common/rl_config.h"
 #include "common/state_action.h"
-#include "tools/random_tools.h"
+
+#include <cpptools/ct_bits/random_tools.h>
 
 namespace rlcpp
 {
@@ -33,10 +34,10 @@ public:
     // 根据观测值，采样输出动作，带探索过程
     void sample(const State& obs, Action* action)
     {
-        if (randf() < (1.0 - this->e_greed)) {
+        if (ct::randf() < (1.0 - this->e_greed)) {
             this->predict(obs, action);
         } else {
-            *action = randd(0, this->act_n);
+            *action = ct::randd(0, this->act_n);
         }
     }
 
@@ -44,13 +45,13 @@ public:
     void predict(const State& obs, Action* action)
     {
         auto& Q_list = this->Q[obs];
-        auto maxQ    = max(Q_list);
+        auto maxQ    = ct::max(Q_list);
         Veci action_list;
         for (int i = 0; i < Q_list.size(); i++) {
             if (Q_list[i] == maxQ)
                 action_list.push_back(i);
         }
-        *action = random_choise(action_list);
+        *action = ct::random_choise(action_list);
     }
 
     void learn(const State& obs, const Action& action, Real reward, const State& next_obs, bool done)
@@ -60,7 +61,7 @@ public:
         if (done) {
             target_Q = reward;
         } else {
-            target_Q = reward + this->gamma * max(this->Q[next_obs]);
+            target_Q = reward + this->gamma * ct::max(this->Q[next_obs]);
         }
         this->Q[obs][action] += this->learning_rate * (target_Q - predict_Q);
     }

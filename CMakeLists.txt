@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.11)
 
 project(rlcpp)
 
@@ -31,23 +31,35 @@ target_include_directories(rlcpp INTERFACE ${DYNET_ROOT}/include)
 target_link_directories(rlcpp INTERFACE ${DYNET_ROOT}/lib)
 target_link_libraries(rlcpp INTERFACE dynet)
 
+## find cpptools library
+message(STATUS "rlcpp find cpptools library")
+if (NOT TARGET cpptools::ct)
+    if (NOT DEFINED CPPTOOLS_ROOT)
+        message(STATUS "fetch cpptools from github")
+        include(FetchContent)
+        FetchContent_Declare(
+            cpptools
+            GIT_REPOSITORY https://github.com/ting2938/cpptools.git
+            URL_HASH MD5 c2a5124dee47baa1c6fb9abd1a3e8f2421b3e4cf
+        )
+        FetchContent_MakeAvailable(cpptools)
+    else()
+        message(STATUS "use cpptools: ${CPPTOOLS_ROOT}")
+        add_subdirectory(${CPPTOOLS_ROOT} cpptools_dir)
+    endif()
+else()
+    message(STATUS "rlcpp use external target cpptools::ct")
+endif()
+target_link_libraries(rlcpp INTERFACE cpptools::ct)
+
 if (RLCPP_MASTER_PROJECT)
-    # for third_party
-    add_subdirectory(third_party/spdlog)
-    add_subdirectory(third_party/pybind11)
-
-    # nlohmann_json
-    set(JSON_BuildTests OFF CACHE INTERNAL "")
-    set(JSON_Install OFF CACHE INTERNAL "")
-    add_subdirectory(third_party/json)
-
-    set(PUBLIC_LINK_LIB rlcpp::rlcpp spdlog::spdlog_header_only pybind11::embed nlohmann_json::nlohmann_json)
+    set(PUBLIC_LINK_LIB rlcpp::rlcpp cpptools::all)
 
     message(STATUS "public link lib: ${PUBLIC_LINK_LIB}")
     add_subdirectory(train)
 
-    option(BUILD_TEST "whether to build the test progrom" ON)
-    if(BUILD_TEST)
+    option(RLCPP_BUILD_TEST "whether to build the test progrom" ON)
+    if(RLCPP_BUILD_TEST)
         add_subdirectory(test)
     endif()
 else()

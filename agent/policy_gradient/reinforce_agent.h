@@ -11,16 +11,16 @@
 
 #pragma once
 
+#include <cpptools/ct_bits/random_tools.h>
 #include <algorithm>
 #include "tools/dynet_network/dynet_network.h"
-#include "tools/random_tools.h"
 
 #include "common/rl_config.h"
 #include "common/state_action.h"
 
 namespace rlcpp
 {
-using namespace opt;
+using namespace ct::opt;
 
 // observation space: continuous
 // action space: discrete
@@ -50,14 +50,14 @@ public:
     void sample(const State& obs, Action* action)
     {
         auto act_prob = this->network.predict(obs);
-        *action       = random_choise(this->act_n, act_prob);
+        *action       = ct::random_choise(this->act_n, act_prob);
     }
 
     // 根据输入观测值，预测下一步动作
     void predict(const State& obs, Action* action)
     {
         auto act_prob = this->network.predict(obs);
-        *action       = argmax(act_prob);
+        *action       = ct::argmax(act_prob);
     }
 
     void store(const State& state, const Action& action, Real reward, const State& next_state, bool done)
@@ -108,8 +108,8 @@ private:
             // G(i) = r(i) + γ * G(i+1)
             this->op_rewards[i] += this->gamma * this->op_rewards[i + 1];
         }
-        this->op_rewards -= Real(mean(this->op_rewards));
-        this->op_rewards /= Real(stddev(this->op_rewards));
+        this->op_rewards -= Real(ct::mean(this->op_rewards));
+        this->op_rewards /= Real(ct::stddev(this->op_rewards));
     }
 
 private:
