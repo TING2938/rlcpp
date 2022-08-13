@@ -40,7 +40,6 @@ if (NOT TARGET cpptools::ct)
         FetchContent_Declare(
             cpptools
             GIT_REPOSITORY https://github.com/ting2938/cpptools.git
-            URL_HASH MD5 c2a5124dee47baa1c6fb9abd1a3e8f2421b3e4cf
         )
         FetchContent_MakeAvailable(cpptools)
     else()
@@ -53,9 +52,6 @@ endif()
 target_link_libraries(rlcpp INTERFACE cpptools::ct)
 
 if (RLCPP_MASTER_PROJECT)
-    set(PUBLIC_LINK_LIB rlcpp::rlcpp cpptools::all)
-
-    message(STATUS "public link lib: ${PUBLIC_LINK_LIB}")
     add_subdirectory(train)
 
     option(RLCPP_BUILD_TEST "whether to build the test progrom" ON)
