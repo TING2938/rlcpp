@@ -40,6 +40,7 @@ if (NOT TARGET cpptools::ct)
         FetchContent_Declare(
             cpptools
             GIT_REPOSITORY https://github.com/ting2938/cpptools.git
+            GIT_TAG master
         )
         FetchContent_MakeAvailable(cpptools)
     else()
