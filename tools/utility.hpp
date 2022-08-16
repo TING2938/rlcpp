@@ -13,6 +13,7 @@
 #include <libgen.h>
 
 #include <cpptools/ct.hpp>
+#include <cpptools/linux/file_name_match.hpp>
 
 namespace rlcpp
 {

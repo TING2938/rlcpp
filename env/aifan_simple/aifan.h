@@ -1,8 +1,8 @@
 #pragma once
 
-#include <cpptools/ct_bits/random_tools.h>
-#include <cpptools/ct_bits/ring_vector.h>
 #include <pybind11/embed.h>
+#include <cpptools/ct_bits/random_tools.hpp>
+#include <cpptools/ct_bits/ring_vector.hpp>
 
 #include "common/rl_config.h"
 #include "common/state_action.h"

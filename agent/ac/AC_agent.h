@@ -11,8 +11,8 @@
 
 #pragma once
 
-#include <cpptools/ct_bits/random_tools.h>
 #include <algorithm>
+#include <cpptools/ct_bits/random_tools.hpp>
 #include "tools/dynet_network/dynet_network.h"
 #include "tools/memory_reply.h"
 

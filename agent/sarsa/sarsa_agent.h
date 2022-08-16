@@ -1,7 +1,7 @@
 #pragma once
 
-#include <cpptools/ct_bits/random_tools.h>
 #include <algorithm>
+#include <cpptools/ct_bits/random_tools.hpp>
 #include <fstream>
 #include <iostream>
 #include <sstream>

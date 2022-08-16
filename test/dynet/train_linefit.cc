@@ -1,4 +1,4 @@
-#include <cpptools/ct_bits/vector_tools.h>
+#include <cpptools/ct_bits/vector_tools.hpp>
 #include <iostream>
 #include "dynet/expr.h"
 #include "dynet/io.h"

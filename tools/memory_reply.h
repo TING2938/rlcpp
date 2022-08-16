@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cpptools/ct_bits/reduce_tree.hpp>
+#include <cpptools/ct_bits/ring_vector.hpp>
 #include <random>
 #include "common/state_action.h"
 #include "tools/utility.hpp"

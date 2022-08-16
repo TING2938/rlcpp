@@ -8,7 +8,7 @@
 #include "common/rl_config.h"
 #include "common/state_action.h"
 
-#include <cpptools/ct_bits/random_tools.h>
+#include <cpptools/ct_bits/random_tools.hpp>
 
 namespace rlcpp
 {

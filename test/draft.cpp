@@ -3,8 +3,8 @@
 // add support for logging of std::vector
 #include "spdlog/fmt/ostr.h"  // must be included
 
-#include <cpptools/ct_bits/ring_vector.h>
-#include <cpptools/ct_bits/vector_tools.h>
+#include <cpptools/ct_bits/ring_vector.hpp>
+#include <cpptools/ct_bits/vector_tools.hpp>
 #include <fstream>
 #include <iostream>
 #include "nlohmann/json.hpp"

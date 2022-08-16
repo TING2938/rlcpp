@@ -1,7 +1,7 @@
-#include <cpptools/ct_bits/ring_vector.h>
 #include <pybind11/embed.h>
 #include <pybind11/stl.h>
 #include <cpptools/ct_bits/getopt.hpp>
+#include <cpptools/ct_bits/ring_vector.hpp>
 #include <sstream>
 #include "agent/ppo/PPO_Continuous_agent.h"
 #include "env/gym_cpp/gymcpp.h"
