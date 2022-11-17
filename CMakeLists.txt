@@ -26,31 +26,26 @@ target_include_directories(rlcpp INTERFACE ${CMAKE_CURRENT_LIST_DIR})
 
 ## for dynet
 set(DYNET_ROOT "/usr/local" CACHE PATH "the dynet installed prefix")
+if (NOT EXISTS ${DYNET_ROOT}/include/dynet/dynet.h)
+    message(FATAL_ERROR "error of DYNET_ROOT, please set with -DDYNET_ROOT=/path/to/dynet: ${DYNET_ROOT}")
+endif()
 message(STATUS "DYNET_ROOT: ${DYNET_ROOT}")
 target_include_directories(rlcpp INTERFACE ${DYNET_ROOT}/include)   
 target_link_directories(rlcpp INTERFACE ${DYNET_ROOT}/lib)
 target_link_libraries(rlcpp INTERFACE dynet)
 
+include(FetchContent)
+
 ## find cpptools library
 message(STATUS "rlcpp find cpptools library")
-if (NOT TARGET cpptools::ct)
-    if (NOT DEFINED CPPTOOLS_ROOT)
-        message(STATUS "fetch cpptools from github")
-        include(FetchContent)
-        FetchContent_Declare(
-            cpptools
-            GIT_REPOSITORY https://github.com/ting2938/cpptools.git
-            GIT_TAG master
-        )
-        FetchContent_MakeAvailable(cpptools)
-    else()
-        message(STATUS "use cpptools: ${CPPTOOLS_ROOT}")
-        add_subdirectory(${CPPTOOLS_ROOT} cpptools_dir)
-    endif()
-else()
-    message(STATUS "rlcpp use external target cpptools::ct")
-endif()
-target_link_libraries(rlcpp INTERFACE cpptools::ct)
+set(CPPTOOLS_URL https://github.com/TING2938/cpptools/archive/refs/heads/master.zip CACHE STRING "")
+FetchContent_Declare(
+    cpptools
+    URL ${CPPTOOLS_URL}
+)
+FetchContent_MakeAvailable(cpptools)
+CT_USE_FMT()
+target_link_libraries(rlcpp INTERFACE cpptools::fmt cpptools::ct)
 
 if (RLCPP_MASTER_PROJECT)
     add_subdirectory(train)
