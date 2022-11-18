@@ -1,107 +1,110 @@
-from time import sleep
-import gym
-import numpy as np
-import matplotlib.pyplot as plt
+# https://medium.com/swlh/using-q-learning-for-openais-cartpole-v1-4a216ef237df
+# QLearning算法训练连续状态空间环境CartPole-v1
+
+import numpy as np  # used for arrays
+import gym  # pull the environment
+import time  # to get the time
+import math  # needed for calculations
 
 
-class QLearning_Agent:
-    def __init__(self, obs_n, act_n, lr=0.01, gamma=0.9, e_greedy=0.1) -> None:
-        self.obs_n = obs_n
-        self.act_n = act_n
-        self.lr = lr
-        self.gamma = gamma
-        self.e_greedy = e_greedy
-        self.Q = np.zeros((obs_n, act_n))
+env = gym.make("CartPole-v1")
+print(env.action_space.n)
 
-    def sample(self, obs, greedy=True):
-        e_greedy = self.e_greedy if greedy else 0
-        if np.random.random() < 1 - e_greedy:
-            Q_list = self.Q[obs, :]
-            return Q_list.argmax()
+
+LEARNING_RATE = 0.1
+
+DISCOUNT = 0.95
+EPISODES = 600000
+total = 0
+total_reward = 0
+prior_reward = 0
+
+Observation = [30, 30, 50, 50]
+np_array_win_size = np.array([0.25, 0.25, 0.01, 0.1])
+
+epsilon = 1
+
+epsilon_decay_value = 0.99995
+
+
+q_table = np.random.uniform(low=0, high=1, size=(
+    Observation + [env.action_space.n]))
+
+
+def get_discrete_state(state):
+    discrete_state = state/np_array_win_size + np.array([15, 10, 1, 10])
+    return tuple(discrete_state.astype(int))
+
+
+for episode in range(EPISODES + 1):
+    # go through the episodes
+    t0 = time.time()  # set the initial time
+    # get the discrete start for the restarted environment
+    discrete_state = get_discrete_state(env.reset())
+    done = False
+    episode_reward = 0  # reward starts as 0 for each episode
+
+    if episode % 2000 == 0:
+        print("Episode: " + str(episode))
+
+    while not done:
+
+        if np.random.random() > epsilon:
+
+            # take cordinated action
+            action = np.argmax(q_table[discrete_state])
         else:
-            return np.random.randint(self.act_n)
 
-    def learn(self, obs, action, reward, next_obs, done):
-        predict_Q = self.Q[obs, action]
-        target_Q = reward
-        if not done:
-            target_Q += self.gamma * self.Q[next_obs, :].max()
-        self.Q[obs, action] += self.lr * (target_Q - predict_Q)
+            action = np.random.randint(
+                0, env.action_space.n)  # do a random ation
 
+        # step action to get new states, reward, and the "done" status.
+        new_state, reward, done, _ = env.step(action)
 
-def run_episode(env: gym.Env, agent: QLearning_Agent, bRender: bool = False):
-    total_steps = 0
-    total_reward = 0.0
-    obs = env.reset()
-    while True:
-        action = agent.sample(obs)
-        next_obs, reward, done, _ = env.step(action)
-        agent.learn(obs, action, reward, next_obs, done)
-        obs = next_obs
-        total_reward += reward
-        total_steps += 1
-        if bRender:
+        episode_reward += reward  # add the reward
+
+        new_discrete_state = get_discrete_state(new_state)
+
+        if episode % 2000 == 0:
+            # render
             env.render()
-        if done:
-            break
-    return total_reward, total_steps
 
+        if not done:
+            # update q-table
+            max_future_q = np.max(q_table[new_discrete_state])
 
-def test_episode(env: gym.Env, agent: QLearning_Agent):
-    total_reward = 0.0
-    obs = env.reset()
-    while True:
-        action = agent.sample(obs, True)
-        next_obs, reward, done, _ = env.step(action)
-        obs = next_obs
-        total_reward += reward
-        sleep(1)
-        env.render()
-        if done:
-            print(f"test reward = {total_reward:.1f}")
-            break
+            current_q = q_table[discrete_state + (action,)]
 
+            new_q = (1 - LEARNING_RATE) * current_q + \
+                LEARNING_RATE * (reward + DISCOUNT * max_future_q)
 
-def calc_action(dim_size, origin):
-    t = np.cumprod(dim_size)
-    t = np.array([1] + list(t[0:-1]))
+            q_table[discrete_state + (action,)] = new_q
 
-    dx = 2 / dim_size
-    origin = np.tanh(0.1*origin)
-    n = (origin + 1) / dx
-    n = n.astype(int)
-    return np.inner(t, n)
+        discrete_state = new_discrete_state
 
+    if epsilon > 0.05:
+        # epsilon modification
+        if episode_reward > prior_reward and episode > 10000:
+            epsilon = math.pow(epsilon_decay_value, episode - 10000)
 
-def main():
+            if episode % 500 == 0:
+                print("Epsilon: " + str(epsilon))
 
-    # x = np.linspace(-10, 10)
-    # alpha = np.array([0.05, 0.1, 0.5, 1, 2, 3, 4])
-    # plt.plot(x, np.tanh(np.array([x]).T * alpha), "--o")
-    # plt.legend(alpha)
-    # plt.show()
+    t1 = time.time()  # episode has finished
+    episode_total = t1 - t0  # episode total time
+    total = total + episode_total
 
-    env = gym.make("CartPole-v1")
+    total_reward += episode_reward  # episode total reward
+    prior_reward = episode_reward
 
-    obs_dim = env.observation_space.shape[0]
+    if episode % 1000 == 0:
+        # every 1000 episodes print the average time and the average reward
+        mean = total / 1000
+        print("Time Average: " + str(mean))
+        total = 0
 
-    dim_size = 10 * np.ones(obs_dim)
+        mean_reward = total_reward / 1000
+        print("Mean Reward: " + str(mean_reward))
+        total_reward = 0
 
-    obs_n = 10 ** obs_dim
-    act_n = env.action_space.n
-
-    total_reward = 0.0
-    obs = env.reset()
-    while True:
-        action = env.action_space.sample()
-        next_obs, reward, done, _ = env.step(action)
-        obs = next_obs
-        total_reward += reward
-        sleep(0.1)
-        env.render()
-        if done:
-            print(f"test reward = {total_reward:.1f}")
-            break
-
-
-main()
+env.close()
