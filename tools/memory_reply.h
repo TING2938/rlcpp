@@ -189,20 +189,20 @@ private:
 
 namespace detail
 {
-std::ostream& print_var(std::ostream& os, const Vecf& var)
+inline std::ostream& print_var(std::ostream& os, const Vecf& var)
 {
     for (auto&& s : var)
         os << s << ' ';
     return os;
 }
 
-std::ostream& print_var(std::ostream& os, Int var)
+inline std::ostream& print_var(std::ostream& os, Int var)
 {
     os << var << ' ';
     return os;
 }
 
-void parse_var(std::istream& is, Vecf& var, Int length)
+inline void parse_var(std::istream& is, Vecf& var, Int length)
 {
     var.resize(length);
     for (int m = 0; m < length; m++) {
@@ -210,7 +210,7 @@ void parse_var(std::istream& is, Vecf& var, Int length)
     }
 }
 
-void parse_var(std::istream& is, Int& var, Int length)
+inline void parse_var(std::istream& is, Int& var, Int length)
 {
     is >> var;
 }
@@ -218,7 +218,7 @@ void parse_var(std::istream& is, Int& var, Int length)
 }  // namespace detail
 
 template <typename S, typename A>
-std::ostream& operator<<(std::ostream& os, const RandomReply<S, A>& reply)
+inline std::ostream& operator<<(std::ostream& os, const RandomReply<S, A>& reply)
 {
     os << "# random_memory_reply_data, total_size: " << reply.size() << " saved_time: " << ct::localTime() << '\n'
        << "# state_type: " << !is_scalar_type<S>() << " state_length: " << type_size(reply.memory.front().state) << '\n'
@@ -238,7 +238,7 @@ std::ostream& operator<<(std::ostream& os, const RandomReply<S, A>& reply)
 }
 
 template <typename S, typename A>
-std::istream& operator>>(std::istream& is, RandomReply<S, A>& reply)
+inline std::istream& operator>>(std::istream& is, RandomReply<S, A>& reply)
 {
     std::string tmp, line;
     std::stringstream ss;

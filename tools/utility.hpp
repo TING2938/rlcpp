@@ -17,14 +17,14 @@
 
 namespace rlcpp
 {
-std::string build_reward_model_name(const std::string& basename, float reward)
+inline std::string build_reward_model_name(const std::string& basename, float reward)
 {
     std::stringstream ss;
     ss << basename << "_Reward_" << std::fixed << std::setprecision(2) << reward << ".params";
     return ss.str();
 }
 
-std::pair<std::string, float> load_best_reward_model_name(const std::string& basename)
+inline std::pair<std::string, float> load_best_reward_model_name(const std::string& basename)
 {
     auto total_file_name = ct::file_match(basename + "*.params");
     float best_reward    = -1e6f;
