@@ -12,3 +12,4 @@ cmake .. -DDYNET_ROOT=/path/to/dynet
 make -j
 ```
 
+## bug-1 fixed
