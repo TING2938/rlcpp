@@ -164,11 +164,6 @@ public:
                         -dynet::mean_batches(dynet::min(weighted_probs_expr, weighted_clipped_probs_expr));
                     total_loss += dynet::as_scalar(cg.forward(actor_loss_expr));
 
-                    if (0) {
-                        fmt::print("dist_expr: {}\n", dynet::as_vector(dist_expr.value()));
-                        fmt::print("prob_ratio:           : {}\n", dynet::as_vector(prob_ratio_expr.value()));
-                        fmt::print("cliped_prob_ratio_expr: {}\n", dynet::as_vector(cliped_prob_ratio_expr.value()));
-                    }
                     cg.backward(actor_loss_expr);
                     this->trainer_actor.update();
 
