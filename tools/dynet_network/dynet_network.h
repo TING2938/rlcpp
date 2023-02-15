@@ -66,7 +66,7 @@ public:
     unsigned int input_dim = 0;
 };
 
-std::ostream& operator<<(std::ostream& os, const Dynet_Network& network)
+inline std::ostream& operator<<(std::ostream& os, const Dynet_Network& network)
 {
     return os << network.nn;
 }

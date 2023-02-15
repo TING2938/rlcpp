@@ -304,14 +304,14 @@ inline std::string activate_str(Activation f)
     }
 }
 
-std::ostream& operator<<(std::ostream& os, const Layer& layer)
+inline std::ostream& operator<<(std::ostream& os, const Layer& layer)
 {
     os << layer.input_dim << "-" << layer.output_dim << "-" << layer.dropout_rate << "-"
        << activate_str(layer.activation);
     return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const std::vector<Layer>& layers)
+inline std::ostream& operator<<(std::ostream& os, const std::vector<Layer>& layers)
 {
     if (layers.empty())
         return os;
@@ -322,7 +322,7 @@ std::ostream& operator<<(std::ostream& os, const std::vector<Layer>& layers)
     return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const MLP& mlp)
+inline std::ostream& operator<<(std::ostream& os, const MLP& mlp)
 {
     return os << mlp.layers;
 }

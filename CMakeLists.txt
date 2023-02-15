@@ -26,10 +26,15 @@ target_include_directories(rlcpp INTERFACE ${CMAKE_CURRENT_LIST_DIR})
 
 ## for dynet
 set(DYNET_ROOT "/usr/local" CACHE PATH "the dynet installed prefix")
+if (NOT EXISTS ${DYNET_ROOT}/include/dynet/dynet.h)
+    message(FATAL_ERROR "error of DYNET_ROOT, please set with -DDYNET_ROOT=/path/to/dynet: ${DYNET_ROOT}")
+endif()
 message(STATUS "DYNET_ROOT: ${DYNET_ROOT}")
 target_include_directories(rlcpp INTERFACE ${DYNET_ROOT}/include)   
 target_link_directories(rlcpp INTERFACE ${DYNET_ROOT}/lib)
 target_link_libraries(rlcpp INTERFACE dynet)
+
+include(FetchContent)
 
 ## find cpptools library
 message(STATUS "rlcpp find cpptools library")
