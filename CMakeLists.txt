@@ -33,23 +33,13 @@ target_link_libraries(rlcpp INTERFACE dynet)
 
 ## find cpptools library
 message(STATUS "rlcpp find cpptools library")
-if (NOT TARGET cpptools::ct)
-    if (NOT DEFINED CPPTOOLS_ROOT)
-        message(STATUS "fetch cpptools from github")
-        include(FetchContent)
-        FetchContent_Declare(
-            cpptools
-            GIT_REPOSITORY https://github.com/ting2938/cpptools.git
-            GIT_TAG master
-        )
-        FetchContent_MakeAvailable(cpptools)
-    else()
-        message(STATUS "use cpptools: ${CPPTOOLS_ROOT}")
-        add_subdirectory(${CPPTOOLS_ROOT} cpptools_dir)
-    endif()
-else()
-    message(STATUS "rlcpp use external target cpptools::ct")
-endif()
+include(FetchContent)
+FetchContent_Declare(
+    cpptools
+    GIT_REPOSITORY https://github.com/ting2938/cpptools.git
+    GIT_TAG master
+)
+FetchContent_MakeAvailable(cpptools)
 target_link_libraries(rlcpp INTERFACE cpptools::ct)
 
 if (RLCPP_MASTER_PROJECT)
