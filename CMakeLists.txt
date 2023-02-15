@@ -7,9 +7,7 @@ if(NOT CMAKE_CXX_STANDARD)
     # set(CMAKE_CXX_STANDARD_REQUIRED ON)
 endif()
 
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "Release")
-endif()
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 # check if rlcpp is being used directly or via add_subdirectory
 if(NOT DEFINED RLCPP_MASTER_PROJECT)
@@ -48,6 +46,7 @@ FetchContent_MakeAvailable(cpptools)
 target_link_libraries(rlcpp INTERFACE cpptools::ct)
 
 if (RLCPP_MASTER_PROJECT)
+    include(fetch_lib)
     add_subdirectory(train)
 
     option(RLCPP_BUILD_TEST "whether to build the test progrom" ON)
