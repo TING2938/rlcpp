@@ -38,14 +38,14 @@ include(FetchContent)
 
 ## find cpptools library
 message(STATUS "rlcpp find cpptools library")
-set(CPPTOOLS_URL https://github.com/TING2938/cpptools/archive/refs/heads/master.zip CACHE STRING "")
+include(FetchContent)
 FetchContent_Declare(
     cpptools
-    URL ${CPPTOOLS_URL}
+    GIT_REPOSITORY https://github.com/ting2938/cpptools.git
+    GIT_TAG master
 )
 FetchContent_MakeAvailable(cpptools)
-CT_USE_FMT()
-target_link_libraries(rlcpp INTERFACE cpptools::fmt cpptools::ct)
+target_link_libraries(rlcpp INTERFACE cpptools::ct)
 
 if (RLCPP_MASTER_PROJECT)
     add_subdirectory(train)
