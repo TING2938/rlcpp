@@ -1,5 +1,5 @@
-#include <cpptools/ct.hpp>
 #include <cpptools/ct_bits/random_tools.hpp>
+#include <cpptools/ct_bits/timer.hpp>
 #include "env/gym_cpp/gymcpp.h"
 
 using namespace rlcpp;
