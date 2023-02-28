@@ -48,6 +48,7 @@ target_link_libraries(rlcpp INTERFACE cpptools::ct)
 if (RLCPP_MASTER_PROJECT)
     include(fetch_lib)
     add_subdirectory(train)
+    add_subdirectory(tools)
 
     option(RLCPP_BUILD_TEST "whether to build the test progrom" ON)
     if(RLCPP_BUILD_TEST)
