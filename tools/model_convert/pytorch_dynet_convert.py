@@ -4,6 +4,16 @@ import torch
 import torch.nn as nn
 
 
+def torch_load_from_dynet(torch_state_dict, dynet_parameters_list):
+    for p_torch, p_dynet in zip(torch_state_dict.values(), dynet_parameters_list):
+        p_torch.copy_(torch.from_numpy(p_dynet.as_array()))
+
+
+def dynet_load_from_torch(dynet_parameters_list, torch_state_dict):
+    for p_dynet, p_torch in zip(dynet_parameters_list, torch_state_dict.values()):
+        p_dynet.set_value(p_torch)
+
+
 class Torch_Model(nn.Module):
     """
     torch model define
@@ -18,10 +28,6 @@ class Torch_Model(nn.Module):
         x = torch.tanh(self.fc1(input))
         x = self.fc2(x)
         return x
-
-    def load_from_dynet(self, parameters_list):
-        for p_torch, p_dynet in zip(self.state_dict().values(), parameters_list):
-            p_torch.copy_(torch.from_numpy(p_dynet.as_array()))
 
 
 class Dynet_Model:
@@ -40,10 +46,6 @@ class Dynet_Model:
         h1 = dy.tanh(self.pW1 * input + self.pb1)
         y_pred = self.pW2 * h1 + self.pb2
         return y_pred
-
-    def load_from_torch(self, state_dict):
-        for p_dynet, p_torch in zip(self.m.parameters_list(), state_dict.values()):
-            p_dynet.set_value(p_torch)
 
 
 T = 1.
@@ -82,7 +84,8 @@ print("FT", y_pred.scalar_value())
 dynet_model2 = Dynet_Model(HIDDEN_SIZE)
 x = dy.vecInput(2)
 y_pred = dynet_model2(x)
-dynet_model2.load_from_torch(torch_model.state_dict())
+dynet_load_from_torch(dynet_model2.m.parameters_list(),
+                      torch_model.state_dict())
 print("\n\n3. dynet load from torch model")
 x.set([T, F])
 print("TF", y_pred.scalar_value())
@@ -96,7 +99,8 @@ dynet_model2.m.save("dynet_model2.model")
 
 # %% 4. torch load from dynet model
 torch_model2 = Torch_Model(HIDDEN_SIZE)
-torch_model2.load_from_dynet(dynet_model.m.parameters_list())
+torch_load_from_dynet(torch_model2.state_dict(),
+                      dynet_model.m.parameters_list())
 print("\n\n4. torch load from dynet model")
 x = torch.tensor([T, F])
 print("TF", torch_model2(x).data.numpy())
