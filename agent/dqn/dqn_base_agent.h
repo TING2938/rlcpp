@@ -23,6 +23,8 @@ public:
     virtual void save_model(const string& file_name) = 0;
 
     virtual void load_model(const string& file_name) = 0;
+
+    virtual ~DQN_Base_Agent() {}
 };
 
 }  // namespace rlcpp
