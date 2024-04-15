@@ -45,7 +45,7 @@ public:
         auto act_space = this->env.attr("action_space");
         if (py::len(act_space.attr("shape")) == 0) {
             ret.bDiscrete = true;
-            ret.n         = act_space.attr("n").cast<int>();
+            ret.n         = act_space.attr("n").template cast<int>();
         } else {
             ret.bDiscrete = false;
             ret.high      = py::cast<Vecf>(act_space.attr("high"));
@@ -61,7 +61,7 @@ public:
         auto obs_space = this->env.attr("observation_space");
         if (py::len(obs_space.attr("shape")) == 0) {
             ret.bDiscrete = true;
-            ret.n         = obs_space.attr("n").cast<int>();
+            ret.n         = obs_space.attr("n").template cast<int>();
         } else {
             ret.bDiscrete = false;
             ret.high      = py::cast<Vecf>(obs_space.attr("high"));

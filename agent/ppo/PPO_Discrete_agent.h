@@ -36,13 +36,14 @@ public:
     Vecf rewards;
     Vecf dones;
     Int batch_size;
+    std::mt19937 rand_gen{std::random_device{}()};
 
     std::vector<Veci> sample()
     {
         std::vector<Veci> ret(this->states.size() / this->batch_size, Veci(this->batch_size));
         Veci ind(this->states.size());
         std::iota(ind.begin(), ind.end(), 0);
-        std::random_shuffle(ind.begin(), ind.end());
+        std::shuffle(ind.begin(), ind.end(), rand_gen);
         for (Int i = 0; i < ret.size(); i++) {
             for (Int j = 0; j < this->batch_size; j++) {
                 ret[i][j] = ind[i * batch_size + j];

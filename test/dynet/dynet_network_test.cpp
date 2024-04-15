@@ -45,8 +45,10 @@ int main(int argc, char** argv)
     for (unsigned i = 0; i < num_batches; ++i)
         order[i] = i;
 
+    std::mt19937 rand_gen(std::random_device{}());
+
     for (int eposide = 0; eposide < 10000; eposide++) {
-        std::random_shuffle(order.begin(), order.end());
+        std::shuffle(order.begin(), order.end(), rand_gen);
 
         double loss        = 0;
         double num_samples = 0;

@@ -66,11 +66,12 @@ int main(int argc, char** argv)
     vector<Expression> cur_batch;
     vector<unsigned> cur_labels;
 
+    std::mt19937 rand_gen(std::random_device{}());
     // Run for the given number of epochs (or indefinitely if params.NUM_EPOCHS is negative)
     while (static_cast<int>(epoch) < NUM_EPOCHS || NUM_EPOCHS < 0) {
         // Reshuffle the dataset
         cerr << "**SHUFFLE\n";
-        random_shuffle(order.begin(), order.end());
+        shuffle(order.begin(), order.end(), rand_gen);
         // Initialize loss and number of samples processed (to average loss)
         double loss        = 0;
         double num_samples = 0;

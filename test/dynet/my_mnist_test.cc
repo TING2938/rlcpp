@@ -57,11 +57,13 @@ int main(int argc, char** argv)
     vector<unsigned> order(num_batches);
     std::iota(order.begin(), order.end(), 0);
 
+    std::mt19937 rand_gen(std::random_device{}());
+
     // Run for the given number of epochs
     for (unsigned epoch = 0; epoch < NUM_EPOCHS; epoch++) {
         // Reshuffle the dataset
         cerr << "**SHUFFLE\n";
-        random_shuffle(order.begin(), order.end());
+        shuffle(order.begin(), order.end(), rand_gen);
         // Initialize loss and number of samples processed (to average loss)
         double loss        = 0;
         double num_samples = 0;
