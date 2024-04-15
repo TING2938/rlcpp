@@ -1,2 +1,1 @@
 add_subdirectory(dynet)
-add_subdirectory(dynet2pytorch/cpp)

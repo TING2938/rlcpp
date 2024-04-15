@@ -1,0 +1,2 @@
+
+add_subdirectory(model_convert/dynet2pytorch/cpp)
